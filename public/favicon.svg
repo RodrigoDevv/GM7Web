@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="GM7">
+  <rect width="512" height="512" rx="96" fill="#07080a" />
+  <rect x="36" y="36" width="440" height="440" rx="68" fill="none" stroke="#FFBE0D" stroke-width="18" />
+  <text
+    x="256"
+    y="316"
+    text-anchor="middle"
+    font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+    font-size="164"
+    font-weight="900"
+    letter-spacing="-8"
+    fill="#FFBE0D"
+  >GM7</text>
+</svg>

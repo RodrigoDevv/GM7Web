@@ -1,0 +1,33 @@
+{
+  "name": "GM7 — l'Gamers Lmla7",
+  "short_name": "GM7",
+  "description": "Official home of Snnsei (Hatim Naji): live FPS streams on Kick, community tournaments, and the GM7 Discord.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#07080a",
+  "theme_color": "#FFBE0D",
+  "lang": "en",
+  "categories": ["games", "entertainment", "social"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
