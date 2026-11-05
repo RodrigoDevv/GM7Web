@@ -9,12 +9,13 @@ import { StreamScheduleSection } from './components/StreamScheduleSection';
 import { SetupSection } from './components/SetupSection';
 import { SocialsPage } from './components/SocialsPage';
 import { TournamentPage } from './components/TournamentPage';
+import { GamesPage } from './components/GamesPage';
 import { SocialsSection } from './components/SocialsSection';
 import { Footer } from './components/Footer';
 import { Reveal } from './components/Reveal';
 import { useSeo } from './lib/seo';
 import type { Page } from './types/navigation';
-import { CheckCircle2, Sun, Moon, ArrowUp, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ArrowUp, ArrowRight } from 'lucide-react';
 
 import senseiPortraitImg from './assets/images/sensei_portrait_studio_1792363735846.jpg';
 import aboutTeaserBgImg from './assets/images/sensei_cinematic_hero_1792265647557.jpg';
@@ -23,6 +24,7 @@ const BASE_PATH = import.meta.env.BASE_URL.replace(/\/+$/, '');
 const ABOUT_PATH = `${BASE_PATH}/about`;
 const SOCIALS_PATH = `${BASE_PATH}/socials`;
 const TOURNAMENTS_PATH = `${BASE_PATH}/tournaments`;
+const GAMES_PATH = `${BASE_PATH}/games`;
 const HOME_PATH = `${BASE_PATH}/`;
 
 function resolvePage(): Page {
@@ -33,9 +35,11 @@ function resolvePage(): Page {
   if (pathname === ABOUT_PATH.toLowerCase() || pathname.endsWith('/about')) return 'about';
   if (pathname === SOCIALS_PATH.toLowerCase() || pathname.endsWith('/socials') || pathname.endsWith('/feed')) return 'socials';
   if (pathname === TOURNAMENTS_PATH.toLowerCase() || pathname.endsWith('/tournaments')) return 'tournaments';
+  if (pathname === GAMES_PATH.toLowerCase() || pathname.endsWith('/games')) return 'games';
   if (hash === '#/about' || hash === '#about') return 'about';
   if (hash === '#/socials' || hash === '#/feed' || hash === '#feed') return 'socials';
   if (hash === '#/tournaments' || hash === '#tournaments') return 'tournaments';
+  if (hash === '#/games' || hash === '#games') return 'games';
   return 'home';
 }
 
@@ -79,11 +83,6 @@ function AppContent() {
     }
   }, [notice, user, authLoading, clearNotice]);
 
-  const handleToggle = () => {
-    toggleTheme();
-    showToast(isDark ? '☀️ Switched to White (Light) Mode' : '🌙 Switched to Dark Mode');
-  };
-
   // Synchronize browser history with clean path-based routing (/about, /socials, /tournaments)
   useEffect(() => {
     const syncPage = () => {
@@ -96,7 +95,9 @@ function AppContent() {
           ? ABOUT_PATH
           : nextPage === 'socials'
             ? SOCIALS_PATH
-            : TOURNAMENTS_PATH;
+            : nextPage === 'tournaments'
+              ? TOURNAMENTS_PATH
+              : GAMES_PATH;
         if (
           hash === `#/${nextPage}` ||
           hash === `#${nextPage}` ||
@@ -122,8 +123,15 @@ function AppContent() {
   }, []);
 
   const navigateTo = useCallback((page: Page, targetSection?: string) => {
-    if (page === 'about' || page === 'socials' || page === 'tournaments') {
-      const path = page === 'about' ? ABOUT_PATH : page === 'socials' ? SOCIALS_PATH : TOURNAMENTS_PATH;
+    if (page === 'about' || page === 'socials' || page === 'tournaments' || page === 'games') {
+      const path =
+        page === 'about'
+          ? ABOUT_PATH
+          : page === 'socials'
+            ? SOCIALS_PATH
+            : page === 'tournaments'
+              ? TOURNAMENTS_PATH
+              : GAMES_PATH;
       if (window.location.pathname !== path) {
         window.history.pushState({ page }, '', path);
       }
@@ -232,36 +240,6 @@ function AppContent() {
         </div>
       )}
 
-      {/* Floating Bottom Dock (Theme Switcher + Keyboard Shortcut Pill) */}
-      <div className="fixed bottom-6 left-6 z-40 flex items-center gap-2">
-        <button
-          onClick={handleToggle}
-          type="button"
-          aria-label={isDark ? 'Switch to White (Light) Mode' : 'Switch to Dark Mode'}
-          title={isDark ? 'Switch to White (Light) Mode [T]' : 'Switch to Dark Mode [T]'}
-          className={`group flex items-center gap-2 px-3.5 py-2.5 rounded-full shadow-2xl border backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ${
-            isDark
-              ? 'bg-neutral-900/90 hover:bg-neutral-800 text-amber-300 border-neutral-700/80 shadow-[0_0_20px_rgba(0,0,0,0.6)]'
-              : 'bg-white/95 hover:bg-neutral-50 text-neutral-800 border-neutral-200 shadow-[0_8px_25px_rgba(0,0,0,0.12)]'
-          }`}
-        >
-          {isDark ? (
-            <>
-              <Sun className="w-4 h-4 text-amber-400 group-hover:rotate-45 transition-transform" />
-              <span className="text-xs font-mono font-bold text-neutral-200">White Mode</span>
-            </>
-          ) : (
-            <>
-              <Moon className="w-4 h-4 text-neutral-700 group-hover:-rotate-12 transition-transform" />
-              <span className="text-xs font-mono font-bold text-neutral-800">Dark Mode</span>
-            </>
-          )}
-          <span className="text-[10px] font-mono px-1 py-0.5 rounded bg-black/10 dark:bg-white/10 text-neutral-500 dark:text-neutral-400 ml-1">
-            T
-          </span>
-        </button>
-      </div>
-
       {/* Floating Back to Top Button */}
       {showBackToTop && (
         <button
@@ -318,6 +296,16 @@ function AppContent() {
               onToast={showToast}
             />
           </Reveal>
+        ) : currentPage === 'games' ? (
+          /* ============================================================== */
+          /* INDEPENDENT GAMES LIBRARY PAGE                                 */
+          /* ============================================================== */
+          <Reveal>
+            <GamesPage
+              onNavigateHome={(target) => navigateTo('home', target)}
+              onToast={showToast}
+            />
+          </Reveal>
         ) : (
           /* ============================================================== */
           /* HOME STREAM HUB EXPERIENCE                                     */
@@ -332,7 +320,7 @@ function AppContent() {
 
             {/* What We Play Section */}
             <Reveal>
-              <WhatWePlaySection onToast={showToast} />
+              <WhatWePlaySection onToast={showToast} onSeeMore={() => navigateTo('games')} />
             </Reveal>
 
             {/* When We Stream Schedule Section */}

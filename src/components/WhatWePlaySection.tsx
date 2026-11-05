@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
-import { Gamepad2, X } from 'lucide-react';
+import { Gamepad2, MoreHorizontal, X } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { defaultGames, type GameItem } from '../data/games';
 
-import apexImage from '../assets/images/ps5_apex_hero_1791730950598.jpg';
-import fpsImage from '../assets/images/ArcRiders.jpeg';
-import soulsImage from '../assets/images/ps5_souls_elden_1791730984139.jpg';
-import heistImage from '../assets/images/ps5_city_heist_1791730967151.jpg';
-import soccerImage from '../assets/images/ps5_esports_soccer_1791731018539.jpg';
-import kickStreamImg from '../assets/images/LastOfUs.jpg';
 import senseiShowcaseImg from '../assets/images/play.png';
 
 // Authentic Kick Icon
@@ -19,111 +14,10 @@ const KickIcon: React.FC<{ className?: string }> = ({ className = 'w-3.5 h-3.5' 
 
 interface WhatWePlaySectionProps {
   onToast?: (msg: string) => void;
+  onSeeMore?: () => void;
 }
 
-interface GameItem {
-  id: string;
-  title: string;
-  genre: string;
-  category: string;
-  tag: string;
-  image: string;
-  scheduleDay: string;
-  initialHypes: number;
-  rankBadge: string;
-  loadout: string;
-  squadStatus: string;
-  description: string;
-}
-
-const defaultGames: GameItem[] = [
-  {
-    id: 'apex',
-    title: 'Ghost of Tsushima',
-    genre: 'Action RPG',
-    category: 'RPG',
-    tag: 'Main Grind',
-    image: apexImage,
-    scheduleDay: 'Mon & Fri',
-    initialHypes: 1240,
-    rankBadge: 'Predator Top 500',
-    loadout: 'Wingman + R-99 (Wraith / Octane)',
-    squadStatus: 'Open for Community 1v1s & Trios',
-    description: 'High APM movement tech, ranked drops, and 20-bomb challenges every Monday & Friday night.',
-  },
-  {
-    id: 'tactical-fps',
-    title: 'Arc Riders',
-    genre: 'Tactical Shooter',
-    category: 'FPS',
-    tag: 'Ranked Demon',
-    image: fpsImage,
-    scheduleDay: 'Tue & Thu',
-    initialHypes: 980,
-    rankBadge: '22,500 Premier ELO / Radiant',
-    loadout: 'Vandal / AK-47 One-Taps Only',
-    squadStatus: '5-Stack Subscriber Queue',
-    description: 'Tactical execute rounds, headshot accuracy practice, and high-stakes wager matches on stream.',
-  },
-  {
-    id: 'elden-ring',
-    title: 'Red Dead',
-    genre: 'Action-adventure',
-    category: 'Adventure',
-    tag: 'No-Hit Runs',
-    image: soulsImage,
-    scheduleDay: 'Wednesdays',
-    initialHypes: 1540,
-    rankBadge: 'All Bosses RL1 Cleared',
-    loadout: 'Naked Club / Dual Curved Swords',
-    squadStatus: 'Chat Chooses Challenge Modifiers',
-    description: 'Punishing challenge runs, DLC boss speedruns, and community co-op invasions.',
-  },
-  {
-    id: 'gta-rp',
-    title: 'GTA V RP',
-    genre: 'Open World RP',
-    category: 'RP',
-    tag: 'Crime Boss',
-    image: heistImage,
-    scheduleDay: 'Saturdays',
-    initialHypes: 1890,
-    rankBadge: 'Most Wanted — $50M+ Earned',
-    loadout: 'Custom Tuner + Suppressed SMG',
-    squadStatus: 'Subscribers Join Bank Heist Crew',
-    description: 'High-speed getaway chases, multi-million dollar bank heists, and legendary storylines.',
-  },
-  {
-    id: 'fc26',
-    title: 'EA Sports FC 27',
-    genre: 'Competitive Football',
-    category: 'Sports',
-    tag: 'Champions',
-    image: soccerImage,
-    scheduleDay: 'Sundays',
-    initialHypes: 820,
-    rankBadge: 'Rank 1 / Elite Division',
-    loadout: '4-3-2-1 Direct Passing Meta',
-    squadStatus: 'Viewer 1v1 Friendlies & Squad Battles',
-    description: 'Ultimate Team Champions finals, pack openings, and custom tactics breakdown with chat.',
-  },
-  {
-    id: 'cs2',
-    title: 'The Last Of Us',
-    genre: 'Tactical Shooter',
-    category: 'FPS',
-    tag: 'Premier Grind',
-    image: kickStreamImg,
-    scheduleDay: 'Tuesdays',
-    initialHypes: 1120,
-    rankBadge: '15,000 Premier ELO',
-    loadout: 'AK-47 One-Taps & AWP Holds',
-    squadStatus: '5-Stack Subscriber Queue',
-    description: 'Premier rank climbs, sharp utility executes, and clutch highlight rounds every Tuesday night.',
-  },
-];
-
-export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = () => {
+export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore }) => {
   const { isDark } = useTheme();
   const [activeIntelGame, setActiveIntelGame] = useState<GameItem | null>(null);
 
@@ -175,7 +69,7 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
           {/* Left: Cards, Two Per Line */}
           <div className="grid grid-cols-3 gap-1.5 sm:gap-2 content-start">
-            {defaultGames.map((game) => {
+            {defaultGames.slice(0, 5).map((game) => {
               return (
                 <div
                   key={game.id}
@@ -208,6 +102,28 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = () => {
                 </div>
               );
             })}
+
+            <button
+              type="button"
+              onClick={() => onSeeMore?.()}
+              aria-label="View all games"
+              className={`group relative overflow-hidden border cursor-pointer transition-all duration-300 hover:-translate-y-1 ${
+                isDark
+                  ? 'border-neutral-800 bg-neutral-900/60 hover:border-neutral-700'
+                  : 'border-neutral-200 bg-white hover:border-neutral-300'
+              }`}
+            >
+              <div className="relative flex aspect-[9/16] w-full flex-col items-center justify-center gap-2 px-1.5 text-center">
+                <MoreHorizontal
+                  className={`h-6 w-6 transition-colors duration-300 ${
+                    isDark ? 'text-neutral-500 group-hover:text-neutral-400' : 'text-neutral-400 group-hover:text-neutral-500'
+                  }`}
+                />
+                <span className={`text-[9px] font-semibold uppercase tracking-wide ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
+                  View All
+                </span>
+              </div>
+            </button>
           </div>
 
           {/* Right: Sensei cutout with kinetic title BEHIND it (transparent PNG) */}

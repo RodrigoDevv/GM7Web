@@ -120,8 +120,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'home', onNavigate
           }}
           className="flex items-center gap-1.5 font-display text-2xl font-black tracking-tight whitespace-nowrap shrink-0 group cursor-pointer"
         >
-          <span className={isDark ? 'text-white' : 'text-neutral-950'}>GM</span>
-          <span className={`${isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'} group-hover:scale-110 transition-transform`}>7</span>
+          <span
+            className={`text-transparent ${
+              isDark
+                ? '[-webkit-text-stroke:1.5px_#ffffff]'
+                : '[-webkit-text-stroke:1.5px_#0a0a0a]'
+            }`}
+          >
+            GM
+          </span>
+          <span
+            className="text-transparent [-webkit-text-stroke:1.5px_#FFBE0D] group-hover:scale-110 transition-transform"
+          >
+            7
+          </span>
           <span className="w-1.5 h-1.5 rounded-full bg-[#FFBE0D] animate-pulse inline-block mb-1 shadow-[0_0_8px_#FFBE0D]" />
         </a>
 

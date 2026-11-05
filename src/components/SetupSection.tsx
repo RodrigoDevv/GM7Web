@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Cpu, Monitor, Keyboard, Mouse, Mic, Gamepad, LayoutGrid, CircleDot, Zap } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
@@ -26,19 +26,74 @@ interface HardwareItem {
 }
 
 const hardwareList: HardwareItem[] = [
-  { id: '01', name: 'RTX 4090 Gaming Rig', category: 'PC', spec: 'Custom liquid-cooled build for max FPS and smooth streaming.', hotspot: { x: 82, y: 32 }, image: pcRigImg, icon: Cpu },
-  { id: '02', name: 'MSI 27” 1440p @ 240Hz', category: 'Monitor', spec: 'Ultra-fast refresh rate for split-second reactions.', hotspot: { x: 50, y: 42 }, image: monitorImg, icon: Monitor },
-  { id: '03', name: 'Hall Effect Keyboard', category: 'Keyboard', spec: 'Rapid Trigger for faster, precise inputs.', hotspot: { x: 52, y: 69 }, image: keyboardImg, icon: Keyboard },
-  { id: '04', name: 'Pro Wireless Mouse', category: 'Mouse', spec: 'Lightweight, 4KHz polling, zero-latency tracking.', hotspot: { x: 62, y: 66 }, image: mouseImg, icon: Mouse },
-  { id: '05', name: 'Broadcast Microphone', category: 'Mic', spec: 'Studio-grade clarity for comms and stream audio.', hotspot: { x: 65, y: 49 }, image: micImg, icon: Mic },
-  { id: '06', name: 'Xbox Wireless Controller', category: 'Controller', spec: 'Precision sticks and responsive triggers.', hotspot: { x: 55, y: 60 }, image: controllerImg, icon: Gamepad },
-  { id: '07', name: 'RODE RodeCaster Pro II', category: 'Control', spec: 'Instant scene swaps and clip control.', hotspot: { x: 71, y: 57 }, image: battlestationImg, icon: LayoutGrid },
-  { id: '08', name: 'Pro Esports Mousepad', category: 'Surface', spec: 'Low-friction weave for locked-in aim.', hotspot: { x: 48, y: 80 }, image: mousepadImg, icon: CircleDot },
+  { id: '01', name: 'RTX 4090 Gaming Rig', category: 'PC', spec: '', hotspot: { x: 82, y: 32 }, image: pcRigImg, icon: Cpu },
+  { id: '02', name: 'Monitor 1', category: 'Monitor', spec: '', hotspot: { x: 50, y: 42 }, image: monitorImg, icon: Monitor },
+  { id: '03', name: 'Hall Effect Keyboard', category: 'Keyboard', spec: '', hotspot: { x: 52, y: 69 }, image: keyboardImg, icon: Keyboard },
+  { id: '04', name: 'Pro Wireless Mouse', category: 'Mouse', spec: '', hotspot: { x: 62, y: 66 }, image: mouseImg, icon: Mouse },
+  { id: '05', name: 'Broadcast Microphone', category: 'Mic', spec: '', hotspot: { x: 65, y: 49 }, image: micImg, icon: Mic },
+  { id: '06', name: 'Xbox Wireless Controller', category: 'Controller', spec: '', hotspot: { x: 55, y: 60 }, image: controllerImg, icon: Gamepad },
+  { id: '07', name: 'RODE RodeCaster Pro II', category: 'Control', spec: '', hotspot: { x: 71, y: 57 }, image: battlestationImg, icon: LayoutGrid },
+  { id: '08', name: 'Pro Esports Mousepad', category: 'Surface', spec: '', hotspot: { x: 48, y: 76 }, image: mousepadImg, icon: CircleDot },
+  { id: '09', name: 'PC', category: 'Surface', spec: '', hotspot: { x: 68, y: 80 }, image: mousepadImg, icon: Cpu },
+  { id: '10', name: 'Monitor 2', category: 'Monitor', spec: '', hotspot: { x: 33, y: 60 }, image: mousepadImg, icon: Monitor },
+  { id: '11', name: 'Monitor 3', category: 'Monitor', spec: '', hotspot: { x: 69, y: 33 }, image: mousepadImg, icon: Monitor },
 ];
+
+const IMAGE_ASPECT = 1449 / 1086;
+const DESIGN_ASPECT = 16 / 9;
+
+// Hotspot coordinates are tuned against the desktop (16:9) crop. Convert them
+// into image space first, then back into the current container so the markers
+// stay attached to the gear at every responsive aspect ratio.
+const toImageSpace = (spot: { x: number; y: number }) => ({
+  x: spot.x / 100,
+  y: (spot.y / 100 - 0.5) / (DESIGN_ASPECT / IMAGE_ASPECT) + 0.5,
+});
+
+const toContainerSpace = (
+  spot: { x: number; y: number },
+  size: { width: number; height: number }
+) => {
+  const image = toImageSpace(spot);
+  if (!size.width || !size.height) {
+    return { left: `${spot.x}%`, top: `${spot.y}%` };
+  }
+
+  const containerAspect = size.width / size.height;
+  if (containerAspect > IMAGE_ASPECT) {
+    const factor = containerAspect / IMAGE_ASPECT;
+    return {
+      left: `${image.x * 100}%`,
+      top: `${(factor * (image.y - 0.5) + 0.5) * 100}%`,
+    };
+  }
+
+  const factor = IMAGE_ASPECT / containerAspect;
+  return {
+    left: `${(factor * (image.x - 0.5) + 0.5) * 100}%`,
+    top: `${image.y * 100}%`,
+  };
+};
 
 export const SetupSection: React.FC<SetupSectionProps> = () => {
   const { isDark } = useTheme();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const [mediaSize, setMediaSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const element = mediaRef.current;
+    if (!element) return;
+
+    const updateSize = () => {
+      setMediaSize({ width: element.clientWidth, height: element.clientHeight });
+    };
+
+    updateSize();
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section
@@ -75,7 +130,7 @@ export const SetupSection: React.FC<SetupSectionProps> = () => {
           className={`relative rounded-[1.5rem] sm:rounded-[2rem] border overflow-hidden ${isDark ? 'bg-neutral-950 border-neutral-800' : 'bg-neutral-100 border-neutral-200'
             }`}
         >
-          <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/9] w-full">
+          <div ref={mediaRef} className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/9] w-full">
             <img
               src={battlestationImg}
               alt="Snnsei's GM7 battle station"
@@ -88,11 +143,18 @@ export const SetupSection: React.FC<SetupSectionProps> = () => {
             {hardwareList.map((item) => {
               const isActive = activeId === item.id;
               const Icon = item.icon;
+              const tooltipAlign =
+                item.hotspot.x > 68
+                  ? 'left-auto right-0'
+                  : item.hotspot.x < 32
+                  ? 'left-0'
+                  : 'left-1/2 -translate-x-1/2';
+              const position = toContainerSpace(item.hotspot, mediaSize);
               return (
                 <div
                   key={item.id}
                   className="absolute z-20 -translate-x-1/2 -translate-y-1/2"
-                  style={{ left: `${item.hotspot.x}%`, top: `${item.hotspot.y}%` }}
+                  style={position}
                   onMouseEnter={() => setActiveId(item.id)}
                   onMouseLeave={() => setActiveId(null)}
                 >
@@ -118,7 +180,7 @@ export const SetupSection: React.FC<SetupSectionProps> = () => {
                   </button>
 
                   <div
-                    className={`absolute left-1/2 -translate-x-1/2 bottom-full mb-2.5 w-[220px] transition-all duration-150 ${isActive ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-1 pointer-events-none'
+                    className={`absolute bottom-full mb-2.5 w-[176px] sm:w-[220px] transition-all duration-150 ${tooltipAlign} ${isActive ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-1 pointer-events-none'
                       }`}
                   >
                     <div
@@ -126,12 +188,12 @@ export const SetupSection: React.FC<SetupSectionProps> = () => {
                         }`}
                     >
                       <div className="flex items-center gap-2.5 p-2.5">
-                        <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0">
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                          <div className={`absolute bottom-0.5 left-0.5 ${isDark ? 'text-[#FFBE0D]' : 'text-orange-700'}`}>
-                            <Icon className="w-3 h-3" />
-                          </div>
+                        <div
+                          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg ${
+                            isDark ? 'bg-[#FFBE0D]/15 text-[#FFBE0D]' : 'bg-orange-50 text-orange-700'
+                          }`}
+                        >
+                          <Icon className="h-6 w-6" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className={`text-xs font-bold truncate ${isDark ? 'text-white' : 'text-neutral-950'}`}>{item.name}</p>

@@ -44,6 +44,70 @@ const quotes = [
   'Grab your Discord role before tonight’s squad queue opens.',
 ];
 
+// Custom duotone stat icons
+const FollowersIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <path
+      d="M12 20s-7-4.35-7-9a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 4.65-7 9-7 9Z"
+      fill="currentColor"
+      fillOpacity=".18"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinejoin="round"
+    />
+    <circle cx="17.5" cy="4.5" r="1.5" fill="currentColor" />
+  </svg>
+);
+
+const CommunityIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <circle cx="9" cy="8" r="3" fill="currentColor" fillOpacity=".18" stroke="currentColor" strokeWidth="1.6" />
+    <path
+      d="M3.5 19c0-2.8 2.5-5 5.5-5s5.5 2.2 5.5 5"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+    />
+    <circle cx="17" cy="9.5" r="2.2" fill="currentColor" fillOpacity=".18" stroke="currentColor" strokeWidth="1.6" />
+    <path d="M15 14.2c2.4.3 4.3 2.3 4.3 4.8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+  </svg>
+);
+
+const LiveIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="2.2" fill="currentColor" />
+    <path
+      d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+    />
+    <path
+      d="M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      opacity=".4"
+    />
+  </svg>
+);
+
+const TitlesIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <path
+      d="M7.5 7h9a5.5 5.5 0 0 1 5.4 6.6l-.6 3a2.6 2.6 0 0 1-4.6 1.2L15 15H9l-1.7 2.8a2.6 2.6 0 0 1-4.6-1.2l-.6-3A5.5 5.5 0 0 1 7.5 7Z"
+      fill="currentColor"
+      fillOpacity=".15"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinejoin="round"
+    />
+    <path d="M8 10.5v3M6.5 12h3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    <circle cx="16" cy="11" r="1" fill="currentColor" />
+    <circle cx="18" cy="13" r="1" fill="currentColor" />
+  </svg>
+);
+
 export const Hero: React.FC<HeroProps> = ({ onToast }) => {
   const { isDark } = useTheme();
   const [quoteIdx, setQuoteIdx] = useState(0);
@@ -137,6 +201,64 @@ export const Hero: React.FC<HeroProps> = ({ onToast }) => {
               }`}>
                 Founder of GM7, known as <span className={`font-bold drop-shadow-[0_0_12px_rgba(255,190,13,0.3)] ${isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'}`}>Snnsei</span>. Competitive FPS streaming, community lobbies, and tactical showdowns.
               </p>
+
+              <div className={`mt-5 grid grid-cols-2 gap-3 border-t pt-4 ${isDark ? 'border-neutral-800' : 'border-neutral-200'}`}>
+                {[
+                  { value: kick?.followers ? formatCompact(kick.followers) : '150K+', label: 'Followers', icon: FollowersIcon },
+                  { value: '150K+', label: 'Community', icon: CommunityIcon },
+                  { value: '6+', label: 'Years Live', icon: LiveIcon },
+                  { value: '6', label: 'Game Titles', icon: TitlesIcon },
+                ].map((stat, index) => {
+                  const Icon = stat.icon;
+                  return (
+                    <div
+                      key={stat.label}
+                      className={`group relative overflow-hidden rounded-xl border p-3 transition-all duration-300 hover:-translate-y-0.5 ${
+                        isDark
+                          ? 'border-neutral-800 bg-neutral-900/40 hover:border-[#FFBE0D]/40 hover:shadow-[0_10px_30px_rgba(255,190,13,0.12)]'
+                          : 'border-neutral-200 bg-neutral-50/70 hover:border-orange-300 hover:shadow-md hover:shadow-orange-500/10'
+                      }`}
+                    >
+                      <span
+                        aria-hidden
+                        className={`absolute right-2.5 top-2 font-mono text-[9px] font-bold ${
+                          isDark ? 'text-neutral-600' : 'text-neutral-300'
+                        }`}
+                      >
+                        0{index + 1}
+                      </span>
+
+                      <span
+                        className={`mb-2 flex h-7 w-7 items-center justify-center rounded-md border transition-transform duration-300 group-hover:scale-110 ${
+                          isDark
+                            ? 'border-[#FFBE0D]/30 bg-[#FFBE0D]/10 text-[#FFBE0D]'
+                            : 'border-orange-300 bg-orange-50 text-[#8C6500]'
+                        }`}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                      </span>
+
+                      <p
+                        className={`bg-gradient-to-br bg-clip-text text-xl font-black tracking-tight text-transparent sm:text-2xl ${
+                          isDark
+                            ? 'from-[#FFF3C4] via-[#FFBE0D] to-[#E5A800]'
+                            : 'from-[#8C6500] via-[#B8860B] to-[#FFBE0D]'
+                        }`}
+                      >
+                        {stat.value}
+                      </p>
+                      <p className={`mt-0.5 text-[10px] font-bold uppercase tracking-wider sm:text-[11px] ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>
+                        {stat.label}
+                      </p>
+
+                      <span
+                        aria-hidden
+                        className="absolute inset-x-3 bottom-0 h-px origin-center scale-x-0 bg-gradient-to-r from-transparent via-[#FFBE0D] to-transparent transition-transform duration-300 group-hover:scale-x-100"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
           </div>

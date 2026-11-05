@@ -145,7 +145,7 @@ export const StreamScheduleSection: React.FC<StreamScheduleSectionProps> = ({ on
               </span>
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">
-              Live Every Night at 5:00 PM UTC
+              Live Every Evening at 5:00 PM UTC
             </h2>
             <p className={`mt-2.5 text-sm sm:text-base max-w-xl leading-relaxed ${
               isDark ? 'text-neutral-400' : 'text-neutral-600'

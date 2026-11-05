@@ -144,6 +144,11 @@ export const Footer: React.FC<{ onToast: (msg: string) => void }> = ({ onToast }
                 </a>
               </li>
               <li>
+                <a href="/games" className={`transition-colors ${isDark ? 'hover:text-[#FFBE0D]' : 'hover:text-[#8C6500]'}`}>
+                  All Games
+                </a>
+              </li>
+              <li>
                 <a href="#schedule" className={`transition-colors ${isDark ? 'hover:text-[#FFBE0D]' : 'hover:text-[#8C6500]'}`}>
                   When We Stream
                 </a>
@@ -234,6 +239,20 @@ export const Footer: React.FC<{ onToast: (msg: string) => void }> = ({ onToast }
             <span className={`font-mono text-[11px] font-bold ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
               NETWORK: ALL SYSTEMS OPERATIONAL · 1080P60 LIVE
             </span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <span>Made with</span>
+            <span className="text-[#FFBE0D]" aria-label="love">❤</span>
+            <span>by</span>
+            <a
+              href="https://emberlyn.xyz"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`font-bold transition-colors ${isDark ? 'text-neutral-300 hover:text-[#FFBE0D]' : 'text-neutral-700 hover:text-[#8C6500]'}`}
+            >
+              Emberlyn Team
+            </a>
           </div>
 
           <div className="flex items-center gap-4 flex-wrap justify-center">

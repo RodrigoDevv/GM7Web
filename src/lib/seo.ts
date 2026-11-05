@@ -57,6 +57,15 @@ const PAGE_META: Record<SeoPage, PageMeta> = {
     path: '/tournaments',
     imageAlt: 'GM7 tournament championship trophy and bracket announcements',
   },
+  games: {
+    title: 'GM7 Games — Every Title In Snnsei\'s Stream Rotation',
+    description:
+      'Explore every game in the GM7 broadcast rotation, from Ghost of Tsushima and GTA V RP to EA Sports FC and The Last of Us, plus upcoming mystery titles.',
+    keywords:
+      'GM7 games, Snnsei games, GM7 stream rotation, Ghost of Tsushima stream, GTA V RP, EA Sports FC, The Last of Us, gaming library, upcoming games, GM7 Kick',
+    path: '/games',
+    imageAlt: 'GM7 game library featuring every title in the stream rotation',
+  },
 };
 
 function upsertMeta(attribute: 'name' | 'property', key: string, content: string) {

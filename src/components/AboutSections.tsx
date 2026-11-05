@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ArrowUpRight,
   Crosshair,
@@ -86,6 +86,79 @@ const SectionCopy: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
+const Typewriter: React.FC<{
+  segments: Array<{ text: string; className?: string }>;
+  speed?: number;
+  startDelay?: number;
+}> = ({ segments, speed = 24, startDelay = 200 }) => {
+  const total = segments.reduce((sum, segment) => sum + segment.text.length, 0);
+  const [visible, setVisible] = useState(0);
+  const [started, setStarted] = useState(false);
+  const rootRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const element = rootRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStarted(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.35 }
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!started) return;
+
+    let current = 0;
+    let interval: number | undefined;
+    const delay = window.setTimeout(() => {
+      interval = window.setInterval(() => {
+        current += 1;
+        setVisible(current);
+        if (current >= total && interval) {
+          window.clearInterval(interval);
+        }
+      }, speed);
+    }, startDelay);
+
+    return () => {
+      window.clearTimeout(delay);
+      if (interval) window.clearInterval(interval);
+    };
+  }, [started, total, speed, startDelay]);
+
+  let remaining = visible;
+
+  return (
+    <span ref={rootRef}>
+      {segments.map((segment, index) => {
+        const count = Math.max(0, Math.min(segment.text.length, remaining));
+        remaining -= count;
+        if (count === 0) return null;
+        return (
+          <span key={index} className={segment.className}>
+            {segment.text.slice(0, count)}
+          </span>
+        );
+      })}
+      <span
+        aria-hidden
+        className={`ml-0.5 inline-block h-[0.85em] w-[2px] translate-y-[0.08em] bg-[#FFBE0D] ${
+          visible >= total ? 'opacity-0' : 'animate-pulse'
+        }`}
+      />
+    </span>
+  );
+};
+
 /* ------------------------------------------------------------------ */
 /* 01 - Who we are                                                    */
 /* ------------------------------------------------------------------ */
@@ -126,13 +199,25 @@ export const AboutIntroSection: React.FC = () => {
           <div>
             <Eyebrow>Community &amp; play</Eyebrow>
             <h2
-              className={`mt-5 max-w-[18ch] text-[clamp(2.15rem,4.1vw,3.7rem)] font-medium leading-[1.03] tracking-[-0.04em] ${isDark ? 'text-white' : 'text-neutral-950'}`}
-              style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+              className={`mt-5 max-w-[20ch] min-h-[6.5em] text-[clamp(2.15rem,4.1vw,3.7rem)] font-semibold leading-[1.03] tracking-[-0.04em] ${isDark ? 'text-white' : 'text-neutral-950'}`}
+              style={{ fontFamily: "'Outfit', 'Plus Jakarta Sans', sans-serif" }}
             >
-              GM7 is more than a stream—it’s{' '}
-              <span className="italic text-[#FFBE0D]">a place to find your people.</span>{' '}
-              Competitive play, open lobbies and tournament nights bring players together
-              beyond the match.
+              <span className="sr-only">
+                GM7 is more than a stream—it’s a place to find your people. Competitive
+                play, open lobbies and tournament nights bring players together beyond the
+                match.
+              </span>
+              <span aria-hidden>
+                <Typewriter
+                  segments={[
+                    { text: 'GM7 is more than a stream—it’s ' },
+                    { text: 'a place to find your people.', className: 'italic text-[#FFBE0D]' },
+                    {
+                      text: ' Competitive play, open lobbies and tournament nights bring players together beyond the match.',
+                    },
+                  ]}
+                />
+              </span>
             </h2>
           </div>
           </Reveal>
