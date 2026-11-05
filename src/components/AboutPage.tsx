@@ -179,7 +179,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigateHome, onToast })
               alt="Hatim Naji — founder of GM7 and creative director"
               loading="lazy"
               decoding="async"
-              className="absolute inset-0 w-full h-full object-cover object-left-top transition-transform duration-700 group-hover:scale-105"
+              className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
             />
           </div>
         </div>

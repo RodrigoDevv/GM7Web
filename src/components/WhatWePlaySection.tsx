@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Gamepad2, MoreHorizontal, X, YoutubeIcon } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowUpRight, Calendar, Gamepad2, MoreHorizontal, Users, X, YoutubeIcon } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { defaultGames, type GameItem } from '../data/games';
 
@@ -20,6 +20,20 @@ interface WhatWePlaySectionProps {
 export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore }) => {
   const { isDark } = useTheme();
   const [activeIntelGame, setActiveIntelGame] = useState<GameItem | null>(null);
+
+  useEffect(() => {
+    if (!activeIntelGame) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setActiveIntelGame(null);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [activeIntelGame]);
 
   return (
     <section
@@ -74,7 +88,7 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
                 <div
                   key={game.id}
                   onClick={() => setActiveIntelGame(game)}
-                  className={`group overflow-hidden border cursor-pointer transition-all duration-300 hover:-translate-y-1 ${
+                  className={`group overflow-hidden border cursor-pointer transition-all duration-300 hover:-translate-y-1 active:scale-95 ${
                     isDark
                       ? 'bg-neutral-900/60 border-neutral-800 hover:border-[#FFBE0D]/50 hover:shadow-[0_12px_30px_rgba(255,190,13,0.18)]'
                       : 'bg-white border-neutral-200 hover:border-orange-400 hover:shadow-md hover:shadow-orange-500/15'
@@ -87,6 +101,8 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
                       className="w-full aspect-[9/16] object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                     />
+
+                    <div className="pointer-events-none absolute inset-0 -translate-x-full skew-x-12 bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
 
                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 via-black/45 to-transparent" />
 
@@ -107,13 +123,14 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
               type="button"
               onClick={() => onSeeMore?.()}
               aria-label="View all games"
-              className={`group relative overflow-hidden border cursor-pointer transition-all duration-300 hover:-translate-y-1 ${
+              className={`group relative overflow-hidden border cursor-pointer transition-all duration-300 hover:-translate-y-1 active:scale-95 ${
                 isDark
                   ? 'border-neutral-800 bg-neutral-900/60 hover:border-neutral-700'
                   : 'border-neutral-200 bg-white hover:border-neutral-300'
               }`}
             >
               <div className="relative flex aspect-[9/16] w-full flex-col items-center justify-center gap-2 px-1.5 text-center">
+                <div className="pointer-events-none absolute inset-0 -translate-x-full skew-x-12 bg-gradient-to-r from-transparent via-[#FFBE0D]/30 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
                 <MoreHorizontal
                   className={`h-6 w-6 transition-colors duration-300 ${
                     isDark ? 'text-neutral-500 group-hover:text-neutral-400' : 'text-neutral-400 group-hover:text-neutral-500'
@@ -138,7 +155,7 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
               }
             }}
             aria-label="View all games"
-            className="group relative overflow-hidden rounded-2xl aspect-[4/5] lg:aspect-auto lg:min-h-[500px] cursor-pointer"
+            className="group relative overflow-hidden rounded-2xl aspect-[4/5] lg:aspect-auto lg:min-h-[500px] cursor-pointer transition-transform duration-200 active:scale-[0.98]"
           >
             {/* Ambient glow behind the character */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 w-[78%] h-[58%] bg-[#FFBE0D]/25 rounded-full blur-[90px] pointer-events-none" />
@@ -160,80 +177,128 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
             <img
               src={senseiShowcaseImg}
               alt="Sensei GM7"
-              className="absolute left-1/2 -translate-x-1/2 bottom-0 z-10 h-[80%] w-auto object-contain drop-shadow-[0_12px_22px_rgba(0,0,0,0.3)]"
+              className="absolute left-1/2 -translate-x-1/2 bottom-0 z-10 h-[80%] w-auto object-contain drop-shadow-[0_12px_22px_rgba(0,0,0,0.3)] transition-transform duration-500 ease-out group-hover:scale-105"
             />
           </div>
         </div>
 
-        {/* Loadout & Squad Intel Modal with Glowing Border & Shadow */}
+        {/* Game Intel Modal */}
         {activeIntelGame && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fade-in"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fade-in"
             onClick={() => setActiveIntelGame(null)}
           >
             <div
-              className={`w-full max-w-lg rounded-2xl border p-6 relative transition-all shadow-[0_25px_60px_-10px_rgba(255,190,13,0.25)] ${
+              className={`relative w-full max-w-3xl overflow-hidden rounded-3xl border shadow-[0_30px_90px_-20px_rgba(0,0,0,0.85)] transition-all ${
                 isDark
-                  ? 'bg-neutral-900/95 border-[#FFBE0D]/40 text-white'
+                  ? 'bg-neutral-950 border-[#FFBE0D]/40 text-white'
                   : 'bg-white border-orange-300 text-neutral-900 shadow-2xl'
               }`}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded bg-[#FFBE0D]/20 border border-[#FFBE0D]/30 font-mono ${isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'}`}>
+              <div className="grid sm:grid-cols-[0.85fr_1.15fr]">
+                {/* Game Artwork */}
+                <div className="relative min-h-[220px] sm:min-h-[420px] overflow-hidden">
+                  <img
+                    src={activeIntelGame.image}
+                    alt={activeIntelGame.title}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
+                  <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFBE0D] px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-black">
+                      <Gamepad2 className="h-3 w-3" />
+                      {activeIntelGame.tag}
+                    </span>
+                    <h3 className="mt-2.5 text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
+                      {activeIntelGame.title}
+                    </h3>
+                    <p className="mt-1 text-xs font-medium text-neutral-300">
+                      {activeIntelGame.genre} <span className="text-[#FFBE0D]">·</span> {activeIntelGame.scheduleDay}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Details */}
+                <div className="relative p-5 sm:p-6">
+                  <button
+                    type="button"
+                    onClick={() => setActiveIntelGame(null)}
+                    className={`absolute right-4 top-4 rounded-full border p-2 transition-colors ${
+                      isDark
+                        ? 'border-neutral-700 bg-neutral-900/80 text-neutral-400 hover:text-white'
+                        : 'border-neutral-200 bg-white/90 text-neutral-500 hover:text-neutral-900'
+                    }`}
+                    aria-label="Close"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+
+                  <div className="pr-10">
+                    <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${
+                      isDark
+                        ? 'border-[#FFBE0D]/30 bg-[#FFBE0D]/10 text-[#FFBE0D]'
+                        : 'border-orange-300 bg-orange-50 text-orange-800'
+                    }`}>
                       {activeIntelGame.category}
                     </span>
-                    <span className={`text-xs font-medium ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-                      {activeIntelGame.genre} · {activeIntelGame.scheduleDay}
-                    </span>
+                    <p className={`mt-4 text-sm leading-relaxed ${isDark ? 'text-neutral-300' : 'text-neutral-600'}`}>
+                      {activeIntelGame.description}
+                    </p>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-black mt-2 text-neutral-900 dark:text-white">
-                    {activeIntelGame.title}
-                  </h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setActiveIntelGame(null)}
-                  className={`p-1.5 rounded-lg transition-colors ${isDark ? 'hover:bg-neutral-800 text-neutral-400 hover:text-white' : 'hover:bg-neutral-100 text-neutral-500 hover:text-neutral-900'}`}
-                  aria-label="Close"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
 
-              <p className={`text-sm leading-relaxed mb-5 ${isDark ? 'text-neutral-300' : 'text-neutral-600'}`}>
-                {activeIntelGame.description}
-              </p>
+                  <div className="mt-5 flex items-stretch gap-4">
+                    <div className="min-w-0 flex-1">
+                      <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-500">
+                        <Gamepad2 className="h-3 w-3 text-[#FFBE0D]" />
+                        Genre
+                      </span>
+                      <span className="mt-1 block truncate text-sm font-bold">{activeIntelGame.genre}</span>
+                    </div>
+                    <div className={`w-px shrink-0 ${isDark ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+                    <div className="min-w-0 flex-1">
+                      <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-500">
+                        <Calendar className="h-3 w-3 text-[#FFBE0D]" />
+                        Streams
+                      </span>
+                      <span className="mt-1 block truncate text-sm font-bold">{activeIntelGame.scheduleDay}</span>
+                    </div>
+                  </div>
 
-              <div className={`p-4 rounded-xl border space-y-3 mb-6 ${
-                isDark ? 'bg-black/50 border-neutral-800' : 'bg-neutral-50 border-neutral-200'
-              }`}>
-                <div>
-                  <span className={`font-bold uppercase tracking-wider text-[10px] block ${isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'}`}>Current Rank</span>
-                  <span className="font-semibold text-sm">{activeIntelGame.rankBadge}</span>
-                </div>
-                <div>
-                  <span className="font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider text-[10px] block">Signature Loadout</span>
-                  <span className="text-sm">{activeIntelGame.loadout}</span>
-                </div>
-                <div>
-                  <span className="font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider text-[10px] block">Community Squad</span>
-                  <span className="text-sm">{activeIntelGame.squadStatus}</span>
-                </div>
-              </div>
+                  <div className={`mt-5 border-l-2 pl-3 ${isDark ? 'border-[#FFBE0D]/60' : 'border-orange-400'}`}>
+                    <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-500">
+                      <Users className="h-3 w-3 text-[#FFBE0D]" />
+                      Squad Access
+                    </span>
+                    <span className="mt-1 block text-sm font-semibold leading-snug">{activeIntelGame.squadStatus}</span>
+                  </div>
 
-              <div className="flex items-center justify-end gap-3">
-                <a
-                  href="https://kick.com/snnsei"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-[#FF0000] text-white hover:bg-[#ee0f0f] transition-all shadow-[0_4px_20px_rgb(144,3,12)] hover:shadow-[0_6px_25px_rgba(144,3,12,0.65)] active:scale-98"
-                >
-                  <YoutubeIcon className="w-4 h-4" />
-                  <span>Watch on Youtube</span>
-                </a>
+                  <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
+                    <a
+                      href="https://www.youtube.com/@Snnsei"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#FF0000] px-5 py-3 text-xs font-black uppercase tracking-wider text-white transition-all shadow-[0_6px_24px_rgba(255,0,0,0.35)] hover:bg-[#d90000] active:scale-[0.98]"
+                    >
+                      <YoutubeIcon className="h-4 w-4" />
+                      <span>Watch on YouTube</span>
+                      <ArrowUpRight className="h-3.5 w-3.5" />
+                    </a>
+                    <a
+                      href="https://kick.com/snnsei"
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-xs font-black uppercase tracking-wider transition-all active:scale-[0.98] ${
+                        isDark
+                          ? 'border-neutral-700 bg-neutral-900 text-neutral-200 hover:border-[#FFBE0D]/50 hover:text-white'
+                          : 'border-neutral-200 bg-neutral-100 text-neutral-700 hover:border-orange-300 hover:text-neutral-900'
+                      }`}
+                    >
+                      <KickIcon className="h-4 w-4 text-[#53FC18]" />
+                      <span>Kick</span>
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
