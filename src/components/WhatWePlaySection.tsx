@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Gamepad2, MoreHorizontal, X } from 'lucide-react';
+import { Gamepad2, MoreHorizontal, X, YoutubeIcon } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { defaultGames, type GameItem } from '../data/games';
 
@@ -127,7 +127,19 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
           </div>
 
           {/* Right: Sensei cutout with kinetic title BEHIND it (transparent PNG) */}
-          <div className="relative overflow-hidden rounded-2xl aspect-[4/5] lg:aspect-auto lg:min-h-[500px]">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onSeeMore?.()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSeeMore?.();
+              }
+            }}
+            aria-label="View all games"
+            className="group relative overflow-hidden rounded-2xl aspect-[4/5] lg:aspect-auto lg:min-h-[500px] cursor-pointer"
+          >
             {/* Ambient glow behind the character */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 w-[78%] h-[58%] bg-[#FFBE0D]/25 rounded-full blur-[90px] pointer-events-none" />
 
@@ -217,10 +229,10 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
                   href="https://kick.com/snnsei"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-[#FFBE0D] text-black hover:bg-[#E5A800] transition-all shadow-[0_4px_20px_rgba(255,190,13,0.45)] hover:shadow-[0_6px_25px_rgba(255,190,13,0.65)] active:scale-98"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-[#FF0000] text-white hover:bg-[#ee0f0f] transition-all shadow-[0_4px_20px_rgb(144,3,12)] hover:shadow-[0_6px_25px_rgba(144,3,12,0.65)] active:scale-98"
                 >
-                  <KickIcon className="w-4 h-4" />
-                  <span>Watch on Kick</span>
+                  <YoutubeIcon className="w-4 h-4" />
+                  <span>Watch on Youtube</span>
                 </a>
               </div>
             </div>

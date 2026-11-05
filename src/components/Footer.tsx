@@ -79,7 +79,7 @@ export const Footer: React.FC<{ onToast: (msg: string) => void }> = ({ onToast }
 
             <div className="flex items-center gap-2 pt-2">
               <a
-                href="https://discord.com"
+                href="https://discord.gg/MWdjQy4fBM"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Discord"

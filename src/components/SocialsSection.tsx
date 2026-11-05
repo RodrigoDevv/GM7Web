@@ -2,9 +2,9 @@ import React from 'react';
 import { ArrowUpRight, Instagram, Sparkles } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
-import discordImg from '../assets/images/discordBanner.jpg';
-import kickImg from '../assets/images/KickBanner.jpg';
-import instaImg from '../assets/images/instaBanner.jpg';
+import discordImg from '../assets/images/discordPic.jfif';
+import kickImg from '../assets/images/KickPic.jfif';
+import instaImg from '../assets/images/instaKick.jfif';
 
 const DiscordIcon: React.FC<{ className?: string }> = ({ className = 'w-6 h-6' }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">

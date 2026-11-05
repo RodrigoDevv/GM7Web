@@ -116,17 +116,47 @@ export const Hero: React.FC<HeroProps> = ({ onToast }) => {
   // Live Kick data from the server proxy (/api/kick/live), refreshed every minute
   useEffect(() => {
     let cancelled = false;
-    const load = () => {
-      fetch('/api/kick/live')
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (!cancelled && data && typeof data === 'object' && 'isLive' in data) {
-            setKick(data as KickLive);
+    const load = async () => {
+      let next: KickLive | null = null;
+
+      try {
+        const res = await fetch('/api/kick/live', { cache: 'no-store' });
+        const data = res.ok ? await res.json() : null;
+        if (data && typeof data === 'object' && typeof data.isLive === 'boolean') {
+          next = data as KickLive;
+        }
+      } catch {
+        /* fall back to Kick's public API below */
+      }
+
+      if (!next) {
+        try {
+          const res = await fetch('https://kick.com/api/v2/channels/snnsei', {
+            headers: { Accept: 'application/json' },
+            cache: 'no-store',
+          });
+          if (res.ok) {
+            const channel = await res.json();
+            const live = channel?.livestream;
+            next = {
+              isLive: Boolean(live && live.is_live),
+              title: live?.session_title || null,
+              viewers: live?.viewer_count ?? 0,
+              category: live?.categories?.[0]?.name || null,
+              language: live?.language || null,
+              thumbnail: live?.thumbnail?.url || null,
+              followers: Number(channel?.followers_count || 0),
+              profilePic: channel?.user?.profile_pic || null,
+              bio: channel?.user?.bio || null,
+              channelUrl: KICK_CHANNEL_URL,
+            };
           }
-        })
-        .catch(() => {
+        } catch {
           /* keep last known state */
-        });
+        }
+      }
+
+      if (!cancelled && next) setKick(next);
     };
     load();
     const id = window.setInterval(load, 60_000);
@@ -202,63 +232,7 @@ export const Hero: React.FC<HeroProps> = ({ onToast }) => {
                 Founder of GM7, known as <span className={`font-bold drop-shadow-[0_0_12px_rgba(255,190,13,0.3)] ${isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'}`}>Snnsei</span>. Competitive FPS streaming, community lobbies, and tactical showdowns.
               </p>
 
-              <div className={`mt-5 grid grid-cols-2 gap-3 border-t pt-4 ${isDark ? 'border-neutral-800' : 'border-neutral-200'}`}>
-                {[
-                  { value: kick?.followers ? formatCompact(kick.followers) : '150K+', label: 'Followers', icon: FollowersIcon },
-                  { value: '150K+', label: 'Community', icon: CommunityIcon },
-                  { value: '6+', label: 'Years Live', icon: LiveIcon },
-                  { value: '6', label: 'Game Titles', icon: TitlesIcon },
-                ].map((stat, index) => {
-                  const Icon = stat.icon;
-                  return (
-                    <div
-                      key={stat.label}
-                      className={`group relative overflow-hidden rounded-xl border p-3 transition-all duration-300 hover:-translate-y-0.5 ${
-                        isDark
-                          ? 'border-neutral-800 bg-neutral-900/40 hover:border-[#FFBE0D]/40 hover:shadow-[0_10px_30px_rgba(255,190,13,0.12)]'
-                          : 'border-neutral-200 bg-neutral-50/70 hover:border-orange-300 hover:shadow-md hover:shadow-orange-500/10'
-                      }`}
-                    >
-                      <span
-                        aria-hidden
-                        className={`absolute right-2.5 top-2 font-mono text-[9px] font-bold ${
-                          isDark ? 'text-neutral-600' : 'text-neutral-300'
-                        }`}
-                      >
-                        0{index + 1}
-                      </span>
-
-                      <span
-                        className={`mb-2 flex h-7 w-7 items-center justify-center rounded-md border transition-transform duration-300 group-hover:scale-110 ${
-                          isDark
-                            ? 'border-[#FFBE0D]/30 bg-[#FFBE0D]/10 text-[#FFBE0D]'
-                            : 'border-orange-300 bg-orange-50 text-[#8C6500]'
-                        }`}
-                      >
-                        <Icon className="h-3.5 w-3.5" />
-                      </span>
-
-                      <p
-                        className={`bg-gradient-to-br bg-clip-text text-xl font-black tracking-tight text-transparent sm:text-2xl ${
-                          isDark
-                            ? 'from-[#FFF3C4] via-[#FFBE0D] to-[#E5A800]'
-                            : 'from-[#8C6500] via-[#B8860B] to-[#FFBE0D]'
-                        }`}
-                      >
-                        {stat.value}
-                      </p>
-                      <p className={`mt-0.5 text-[10px] font-bold uppercase tracking-wider sm:text-[11px] ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>
-                        {stat.label}
-                      </p>
-
-                      <span
-                        aria-hidden
-                        className="absolute inset-x-3 bottom-0 h-px origin-center scale-x-0 bg-gradient-to-r from-transparent via-[#FFBE0D] to-transparent transition-transform duration-300 group-hover:scale-x-100"
-                      />
-                    </div>
-                  );
-                })}
-              </div>
+              
             </div>
 
           </div>

@@ -62,19 +62,54 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
 export const StreamScheduleSection: React.FC<StreamScheduleSectionProps> = ({ onToast }) => {
   const { isDark } = useTheme();
   const [now, setNow] = useState(() => new Date());
-  const [isLive, setIsLive] = useState(false);
+  const [isLive, setIsLive] = useState<boolean | null>(null);
+  const [liveTitle, setLiveTitle] = useState<string | null>(null);
+
+  // Show the live player unless we positively know the stream is offline.
+  // This keeps the live broadcast visible even if the status API is unreachable.
+  const showLive = isLive !== false;
 
   useEffect(() => {
     let cancelled = false;
     const loadLiveStatus = async () => {
+      let nextIsLive: boolean | null = null;
+      let nextTitle: string | null = null;
+
       try {
-        const response = await fetch('/api/kick/live');
-        const data = response.ok ? await response.json() : null;
-        if (!cancelled && typeof data?.isLive === 'boolean') {
-          setIsLive(data.isLive);
+        const response = await fetch('/api/kick/live', { cache: 'no-store' });
+        if (response.ok) {
+          const data = await response.json();
+          if (typeof data?.isLive === 'boolean') {
+            nextIsLive = data.isLive;
+            nextTitle = typeof data?.title === 'string' && data.title.trim() ? data.title.trim() : null;
+          }
         }
       } catch {
-        if (!cancelled) setIsLive(false);
+        /* fall back to Kick's public API below */
+      }
+
+      if (nextIsLive === null) {
+        try {
+          const response = await fetch('https://kick.com/api/v2/channels/snnsei', {
+            headers: { Accept: 'application/json' },
+            cache: 'no-store',
+          });
+          if (response.ok) {
+            const channel = await response.json();
+            const live = channel?.livestream;
+            nextIsLive = Boolean(live && live.is_live);
+            nextTitle = typeof live?.session_title === 'string' && live.session_title.trim()
+              ? live.session_title.trim()
+              : null;
+          }
+        } catch {
+          /* keep last known state */
+        }
+      }
+
+      if (!cancelled && nextIsLive !== null) {
+        setIsLive(nextIsLive);
+        setLiveTitle(nextTitle);
       }
     };
 
@@ -100,13 +135,13 @@ export const StreamScheduleSection: React.FC<StreamScheduleSectionProps> = ({ on
   const tomorrowItem = scheduleDays[(todayIdx + 1) % scheduleDays.length];
 
   const todayStartSec = todayItem.startHour * 3600;
-  const isTonight = !isLive && est.seconds < todayStartSec;
+  const isTonight = !showLive && est.seconds < todayStartSec;
   const remainingSec = isTonight
     ? todayStartSec - est.seconds
     : 86400 - est.seconds + tomorrowItem.startHour * 3600;
 
-  const targetItem = isLive || isTonight ? todayItem : tomorrowItem;
-  const targetLabel = isLive ? 'On air now' : isTonight ? 'Tonight' : 'Tomorrow';
+  const targetItem = showLive || isTonight ? todayItem : tomorrowItem;
+  const targetLabel = showLive ? 'On air now' : isTonight ? 'Tonight' : 'Tomorrow';
 
   const hours = Math.floor(remainingSec / 3600);
   const minutes = Math.floor(remainingSec / 60) % 60;
@@ -154,17 +189,7 @@ export const StreamScheduleSection: React.FC<StreamScheduleSectionProps> = ({ on
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <a
-              href="https://kick.com/snnsei"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-black text-xs uppercase tracking-wider bg-[#FFBE0D] hover:bg-[#E5A800] text-black transition-all duration-200 self-start md:self-auto shadow-[0_8px_25px_rgba(255,190,13,0.4)] hover:shadow-[0_12px_35px_rgba(255,190,13,0.6)] hover:scale-[1.02] active:scale-98"
-            >
-              <Bell className="w-4 h-4 animate-bounce" />
-              <span>Enable Kick Stream Alerts</span>
-            </a>
-          </div>
+         
         </div>
 
         {/* 2-Column Layout: Left Side (Custom Image) + Right Side (Countdown / Live Embed) */}
@@ -201,7 +226,7 @@ export const StreamScheduleSection: React.FC<StreamScheduleSectionProps> = ({ on
           {/* ═════════════════════════════════════════════════════════════════ */}
           {/* RIGHT SIDE: LIVE EMBED (WHEN LIVE) OR COUNTDOWN (WHEN OFFLINE) */}
           {/* ═════════════════════════════════════════════════════════════════ */}
-          {isLive ? (
+          {showLive ? (
             /* REAL KICK STREAM EMBED PLAYER */
             <div className="relative rounded-2xl border overflow-hidden flex flex-col h-full min-h-[440px] sm:min-h-[500px] bg-black border-[#FFBE0D]/40 shadow-[0_20px_50px_rgba(255,190,13,0.25)]">
               {/* Live Player Header */}
@@ -244,11 +269,9 @@ export const StreamScheduleSection: React.FC<StreamScheduleSectionProps> = ({ on
 
               {/* Live Player Footer */}
               <div className="px-4 py-2.5 bg-neutral-950 border-t border-white/10 flex items-center justify-between text-xs text-neutral-400 shrink-0">
-                <div className="flex items-center gap-2 truncate">
-                  <span className="font-mono text-[#FFBE0D] font-black">● ON AIR:</span>
-                  <span className="font-bold text-white truncate">{targetItem.game}</span>
-                  <span className="hidden sm:inline text-neutral-600">·</span>
-                  <span className="hidden sm:inline text-neutral-400 truncate">{targetItem.note}</span>
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="font-mono text-[#FFBE0D] font-black shrink-0">● ON AIR:</span>
+                  <span className="font-bold text-white truncate">{liveTitle || targetItem.game}</span>
                 </div>
                 <a
                   href="https://kick.com/snnsei"
@@ -341,30 +364,7 @@ export const StreamScheduleSection: React.FC<StreamScheduleSectionProps> = ({ on
                 </div>
 
                 {/* Match / Broadcast Event Intel Card */}
-                <div className="mt-6 w-full max-w-sm rounded-xl p-2.5 sm:p-3 bg-neutral-900/80 border border-neutral-800 hover:border-[#FFBE0D]/40 backdrop-blur-md flex items-center gap-3 transition-colors shadow-lg">
-                  <img
-                    src={targetItem.image}
-                    alt={targetItem.game}
-                    className="w-12 h-12 rounded-lg object-cover border border-[#FFBE0D]/30 shrink-0 shadow-sm"
-                  />
-                  <div className="min-w-0 flex-1 text-left">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] font-mono font-black uppercase tracking-wider text-[#FFBE0D]">
-                        {targetItem.day}
-                      </span>
-                      <span className="text-neutral-500 text-[10px]">·</span>
-                      <span className="text-[10px] font-mono text-neutral-400">
-                        {targetItem.time}
-                      </span>
-                    </div>
-                    <div className="text-sm font-bold text-white truncate">
-                      {targetItem.game}
-                    </div>
-                    <div className="text-[11px] text-neutral-400 truncate">
-                      {targetItem.note}
-                    </div>
-                  </div>
-                </div>
+              
               </div>
 
               {/* Bottom Call to Action */}

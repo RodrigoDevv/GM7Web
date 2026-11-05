@@ -26,7 +26,7 @@ interface HardwareItem {
 }
 
 const hardwareList: HardwareItem[] = [
-  { id: '01', name: 'RTX 4090 Gaming Rig', category: 'PC', spec: '', hotspot: { x: 82, y: 32 }, image: pcRigImg, icon: Cpu },
+  { id: '01', name: 'Gaming Pc', category: 'PC', spec: '', hotspot: { x: 82, y: 32 }, image: pcRigImg, icon: Cpu },
   { id: '02', name: 'Monitor 1', category: 'Monitor', spec: '', hotspot: { x: 50, y: 42 }, image: monitorImg, icon: Monitor },
   { id: '03', name: 'Hall Effect Keyboard', category: 'Keyboard', spec: '', hotspot: { x: 52, y: 69 }, image: keyboardImg, icon: Keyboard },
   { id: '04', name: 'Pro Wireless Mouse', category: 'Mouse', spec: '', hotspot: { x: 62, y: 66 }, image: mouseImg, icon: Mouse },
@@ -34,7 +34,7 @@ const hardwareList: HardwareItem[] = [
   { id: '06', name: 'Xbox Wireless Controller', category: 'Controller', spec: '', hotspot: { x: 55, y: 60 }, image: controllerImg, icon: Gamepad },
   { id: '07', name: 'RODE RodeCaster Pro II', category: 'Control', spec: '', hotspot: { x: 71, y: 57 }, image: battlestationImg, icon: LayoutGrid },
   { id: '08', name: 'Pro Esports Mousepad', category: 'Surface', spec: '', hotspot: { x: 48, y: 76 }, image: mousepadImg, icon: CircleDot },
-  { id: '09', name: 'PC', category: 'Surface', spec: '', hotspot: { x: 68, y: 80 }, image: mousepadImg, icon: Cpu },
+  { id: '09', name: 'Streaming PC', category: 'PC', spec: '', hotspot: { x: 68, y: 80 }, image: mousepadImg, icon: Cpu },
   { id: '10', name: 'Monitor 2', category: 'Monitor', spec: '', hotspot: { x: 33, y: 60 }, image: mousepadImg, icon: Monitor },
   { id: '11', name: 'Monitor 3', category: 'Monitor', spec: '', hotspot: { x: 69, y: 33 }, image: mousepadImg, icon: Monitor },
 ];

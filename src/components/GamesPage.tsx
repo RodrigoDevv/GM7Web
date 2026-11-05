@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowUpRight, X } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, X, YoutubeIcon } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { defaultGames, upcomingGames, type GameItem } from '../data/games';
 
@@ -127,13 +127,13 @@ export const GamesPage: React.FC<GamesPageProps> = ({ onNavigateHome }) => {
             </p>
           </div>
           <a
-            href="https://kick.com/snnsei"
+            href="https://www.youtube.com/@Snnsei"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#FFBE0D] px-4 py-2.5 text-xs font-black uppercase tracking-wider text-black transition-all hover:bg-[#E5A800] active:scale-95"
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#ee0f0f] px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white transition-all hover:bg-[#bf2626] active:scale-95"
           >
-            <KickIcon className="h-4 w-4" />
-            Watch on Kick
+            <YoutubeIcon className="h-4 w-4" />
+            Watch on Youtube
             <ArrowUpRight className="h-3.5 w-3.5" />
           </a>
         </div>

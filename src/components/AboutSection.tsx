@@ -671,7 +671,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onToast }) => {
                     </p>
                   </div>
                   <a
-                    href="https://discord.gg"
+                    href="https://discord.gg/MWdjQy4fBM"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => onToast?.('Joining Sensei Dojo Discord community...')}
