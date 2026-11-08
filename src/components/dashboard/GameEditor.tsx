@@ -114,8 +114,8 @@ export const GameEditor: React.FC<GameEditorProps> = ({ items, onCommit, saving,
             <Field label="Tag">
               <TextInput value={draft.tag} onChange={(event) => update('tag', event.target.value)} placeholder="e.g. Main Grind" />
             </Field>
-            <Field label="Stream days">
-              <TextInput value={draft.scheduleDay} onChange={(event) => update('scheduleDay', event.target.value)} placeholder="e.g. Mon & Fri" />
+            <Field label="Since">
+              <TextInput value={draft.scheduleDay} onChange={(event) => update('scheduleDay', event.target.value)} placeholder="e.g. 2012" />
             </Field>
             <Field label="Hype count">
               <TextInput

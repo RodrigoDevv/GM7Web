@@ -257,31 +257,24 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
                     </p>
                   </div>
 
-                  <div className="mt-5 flex items-stretch gap-4">
-                    <div className="min-w-0 flex-1">
+                  <div className="mt-5 space-y-3">
+                    <div className="min-w-0">
                       <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-500">
                         <Gamepad2 className="h-3 w-3 text-[#FFBE0D]" />
-                        Genre
+                        Type
                       </span>
                       <span className="mt-1 block truncate text-sm font-bold">{activeIntelGame.genre}</span>
                     </div>
-                    <div className={`w-px shrink-0 ${isDark ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0">
                       <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-500">
                         <Calendar className="h-3 w-3 text-[#FFBE0D]" />
-                        Streams
+                        Since
                       </span>
-                      <span className="mt-1 block truncate text-sm font-bold">{activeIntelGame.scheduleDay}</span>
+                      <span className="mt-1 block text-sm font-bold">{activeIntelGame.scheduleDay}</span>
                     </div>
                   </div>
 
-                  <div className={`mt-5 border-l-2 pl-3 ${isDark ? 'border-[#FFBE0D]/60' : 'border-orange-400'}`}>
-                    <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-500">
-                      <Users className="h-3 w-3 text-[#FFBE0D]" />
-                      Squad Access
-                    </span>
-                    <span className="mt-1 block text-sm font-semibold leading-snug">{activeIntelGame.squadStatus}</span>
-                  </div>
+                
 
                   <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
                     <a
