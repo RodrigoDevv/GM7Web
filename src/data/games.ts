@@ -1,9 +1,16 @@
 import apexImage from '../assets/images/ps5_apex_hero_1791730950598.jpg';
-import fpsImage from '../assets/images/ArcRiders.jpeg';
+import fpsImage from '../assets/images/COD.jpg';
 import soulsImage from '../assets/images/ps5_souls_elden_1791730984139.jpg';
 import heistImage from '../assets/images/ps5_city_heist_1791730967151.jpg';
-import soccerImage from '../assets/images/ps5_esports_soccer_1791731018539.jpg';
+import soccerImage from '../assets/images/Phantom Blade Zero.jpg';
 import kickStreamImg from '../assets/images/LastOfUs.jpg';
+import last from '../assets/images/last.jpg';
+import uncharted from '../assets/images/UNCHARTED4.jpg';
+import godofwar from '../assets/images/GODOFWAR.jpg';
+import wukong from '../assets/images/Wukong.jpg';
+import resonance from '../assets/images/Resonance.jpg';
+import assasin from '../assets/images/Assassins.jpg';
+
 
 export interface GameItem {
   id: string;
@@ -18,6 +25,7 @@ export interface GameItem {
   loadout: string;
   squadStatus: string;
   description: string;
+  youtubeUrl?: string;
 }
 
 export interface UpcomingGame {
@@ -29,7 +37,7 @@ export const defaultGames: GameItem[] = [
   {
     id: 'apex',
     title: 'Ghost of Tsushima',
-    genre: 'Action RPG',
+    genre: 'Story Game',
     category: 'RPG',
     tag: 'Main Grind',
     image: apexImage,
@@ -42,8 +50,8 @@ export const defaultGames: GameItem[] = [
   },
   {
     id: 'tactical-fps',
-    title: 'Arc Riders',
-    genre: 'Tactical Shooter',
+    title: 'COD: Modern Warfare 4',
+    genre: 'Story Game',
     category: 'FPS',
     tag: 'Ranked Demon',
     image: fpsImage,
@@ -56,13 +64,14 @@ export const defaultGames: GameItem[] = [
   },
   {
     id: 'elden-ring',
-    title: 'Red Dead',
-    genre: 'Action-adventure',
-    category: 'Adventure',
+    title: 'Red Dead Redemption II',
+    genre: 'Story Game',
+    category: 'Story Game',
     tag: 'No-Hit Runs',
     image: soulsImage,
     scheduleDay: 'Wednesdays',
     initialHypes: 1540,
+    
     rankBadge: 'All Bosses RL1 Cleared',
     loadout: 'Naked Club / Dual Curved Swords',
     squadStatus: 'Chat Chooses Challenge Modifiers',
@@ -84,8 +93,8 @@ export const defaultGames: GameItem[] = [
   },
   {
     id: 'fc26',
-    title: 'EA Sports FC 27',
-    genre: 'Competitive Football',
+    title: 'Phantom Blade Zero',
+    genre: 'Story Game',
     category: 'Sports',
     tag: 'Champions',
     image: soccerImage,
@@ -97,9 +106,23 @@ export const defaultGames: GameItem[] = [
     description: 'Ultimate Team Champions finals, pack openings, and custom tactics breakdown with chat.',
   },
   {
-    id: 'cs2',
-    title: 'The Last Of Us',
-    genre: 'Tactical Shooter',
+    id: 'last-of-us-1',
+    title: 'The Last Of Us I',
+    genre: 'Story Game',
+    category: 'FPS',
+    tag: 'Premier Grind',
+    image: last,
+    scheduleDay: 'Tuesdays',
+    initialHypes: 1120,
+    rankBadge: '15,000 Premier ELO',
+    loadout: 'AK-47 One-Taps & AWP Holds',
+    squadStatus: '5-Stack Subscriber Queue',
+    description: 'Premier rank climbs, sharp utility executes, and clutch highlight rounds every Tuesday night.',
+  },
+  {
+    id: 'last-of-us-2',
+    title: 'The Last Of Us II',
+    genre: 'Story Game',
     category: 'FPS',
     tag: 'Premier Grind',
     image: kickStreamImg,
@@ -110,9 +133,79 @@ export const defaultGames: GameItem[] = [
     squadStatus: '5-Stack Subscriber Queue',
     description: 'Premier rank climbs, sharp utility executes, and clutch highlight rounds every Tuesday night.',
   },
+  {
+    id: 'uncharted-4',
+    title: 'Uncharted 4',
+    genre: 'Story Game',
+    category: 'FPS',
+    tag: 'Premier Grind',
+    image: uncharted,
+    scheduleDay: 'Tuesdays',
+    initialHypes: 1120,
+    rankBadge: '15,000 Premier ELO',
+    loadout: 'AK-47 One-Taps & AWP Holds',
+    squadStatus: '5-Stack Subscriber Queue',
+    description: 'Premier rank climbs, sharp utility executes, and clutch highlight rounds every Tuesday night.',
+  },
+  {
+    id: 'god-of-war',
+    title: 'God Of War',
+    genre: 'Story Game',
+    category: 'FPS',
+    tag: 'Premier Grind',
+    image: godofwar,
+    scheduleDay: 'Tuesdays',
+    initialHypes: 1120,
+    rankBadge: '15,000 Premier ELO',
+    loadout: 'AK-47 One-Taps & AWP Holds',
+    squadStatus: '5-Stack Subscriber Queue',
+    description: 'Premier rank climbs, sharp utility executes, and clutch highlight rounds every Tuesday night.',
+  },
+  {
+    id: 'black-myth-wukong',
+    title: 'Black Myth: Wukong',
+    genre: 'Story Game',
+    category: 'FPS',
+    tag: 'Premier Grind',
+    image: wukong,
+    scheduleDay: 'Tuesdays',
+    initialHypes: 1120,
+    rankBadge: '15,000 Premier ELO',
+    loadout: 'AK-47 One-Taps & AWP Holds',
+    squadStatus: '5-Stack Subscriber Queue',
+    description: 'Premier rank climbs, sharp utility executes, and clutch highlight rounds every Tuesday night.',
+  },
+  {
+    id: 'resonance',
+    title: 'Resonance: A Plague Tale Legacy',
+    genre: 'Story Game',
+    category: 'FPS',
+    tag: 'Premier Grind',
+    image: resonance,
+    scheduleDay: 'Tuesdays',
+    initialHypes: 1120,
+    rankBadge: '15,000 Premier ELO',
+    loadout: 'AK-47 One-Taps & AWP Holds',
+    squadStatus: '5-Stack Subscriber Queue',
+    description: 'Premier rank climbs, sharp utility executes, and clutch highlight rounds every Tuesday night.',
+  },
+  {
+    id: 'assassins-creed-black-flag',
+    title: 'Assassin\'s Creed Black Flag Resynced',
+    genre: 'Story Game',
+    category: 'FPS',
+    tag: 'Premier Grind',
+    image: assasin,
+    scheduleDay: 'Tuesdays',
+    initialHypes: 1120,
+    rankBadge: '15,000 Premier ELO',
+    loadout: 'AK-47 One-Taps & AWP Holds',
+    squadStatus: '5-Stack Subscriber Queue',
+    description: 'Premier rank climbs, sharp utility executes, and clutch highlight rounds every Tuesday night.',
+  },
 ];
 
-export const upcomingGames: UpcomingGame[] = Array.from({ length: 30 }, (_, index) => ({
+export const upcomingGames: UpcomingGame[] = Array.from({ length: 88 }, (_, index) => ({
   id: `upcoming-${index + 1}`,
   hint: 'Soon',
 }));

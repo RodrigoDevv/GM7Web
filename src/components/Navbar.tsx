@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Instagram, Sun, Moon, LogOut } from 'lucide-react';
+import { Instagram, Sun, Moon, LogOut, Trash2 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import type { Page } from '../types/navigation';
@@ -26,7 +26,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'home', onNavigate, onToast }) => {
   const { isDark, toggleTheme } = useTheme();
-  const { user, loading: authLoading, logout } = useAuth();
+  const { user, loading: authLoading, logout, deleteAccount } = useAuth();
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -288,6 +288,23 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'home', onNavigate
                   >
                     <LogOut className="w-4 h-4" />
                     Sign out
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!window.confirm('Delete your GM7 account and its stored profile? This cannot be undone.')) return;
+                      try {
+                        await deleteAccount();
+                        setUserMenuOpen(false);
+                        onToast?.('Your GM7 account data was deleted.');
+                      } catch (error) {
+                        onToast?.(error instanceof Error ? error.message : 'Could not delete the account.');
+                      }
+                    }}
+                    type="button"
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete account
                   </button>
                 </div>
               )}

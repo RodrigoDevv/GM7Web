@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { ArrowLeft, ArrowUpRight, X, YoutubeIcon } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowLeft, ArrowUpRight, Calendar, Gamepad2, Users, X, YoutubeIcon } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useContent } from '../context/ContentContext';
 import { defaultGames, upcomingGames, type GameItem } from '../data/games';
 
 const KickIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
@@ -16,7 +17,23 @@ interface GamesPageProps {
 
 export const GamesPage: React.FC<GamesPageProps> = ({ onNavigateHome }) => {
   const { isDark } = useTheme();
+  const { games: contentGames } = useContent();
+  const games = contentGames ?? defaultGames;
   const [activeIntelGame, setActiveIntelGame] = useState<GameItem | null>(null);
+
+  useEffect(() => {
+    if (!activeIntelGame) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setActiveIntelGame(null);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [activeIntelGame]);
 
   return (
     <div
@@ -54,17 +71,17 @@ export const GamesPage: React.FC<GamesPageProps> = ({ onNavigateHome }) => {
           <div className="mb-4 flex items-center justify-between gap-4">
             <h2 className="text-lg font-black uppercase tracking-tight sm:text-xl">All Games</h2>
             <span className={`text-[11px] font-mono ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>
-              {defaultGames.length + upcomingGames.length} titles
+              {games.length} / 100
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-            {defaultGames.map((game) => (
+            {games.map((game) => (
               <button
                 key={game.id}
                 type="button"
                 onClick={() => setActiveIntelGame(game)}
-                className={`group overflow-hidden rounded-none border text-left transition-all duration-300 hover:-translate-y-1 ${
+                className={`group overflow-hidden cursor-pointer rounded-none border text-left transition-all duration-300 hover:-translate-y-1 active:scale-95 ${
                   isDark
                     ? 'border-neutral-800 bg-neutral-900/60 hover:border-[#FFBE0D]/50 hover:shadow-[0_12px_30px_rgba(255,190,13,0.18)]'
                     : 'border-neutral-200 bg-white hover:border-orange-400 hover:shadow-md hover:shadow-orange-500/15'
@@ -78,12 +95,17 @@ export const GamesPage: React.FC<GamesPageProps> = ({ onNavigateHome }) => {
                     loading="lazy"
                   />
 
-                  <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+                  <div className="pointer-events-none absolute inset-0 -translate-x-full skew-x-12 bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
 
-                  <div className="absolute inset-x-0 bottom-0 p-2 text-white">
-                    <h3 className="truncate text-xs font-bold drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)] sm:text-sm">
+                  <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 via-black/45 to-transparent" />
+
+                  <div className="absolute bottom-0 left-0 right-0 p-1 text-white">
+                    <h3 className="truncate text-[9px] font-semibold leading-tight drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
                       {game.title}
                     </h3>
+                    <p className="mt-0 truncate text-[8px] text-neutral-200 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+                      {game.genre}
+                    </p>
                   </div>
                 </div>
               </button>
@@ -141,80 +163,120 @@ export const GamesPage: React.FC<GamesPageProps> = ({ onNavigateHome }) => {
 
       {activeIntelGame && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-xs animate-fade-in"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fade-in"
           onClick={() => setActiveIntelGame(null)}
         >
           <div
-            className={`relative w-full max-w-lg rounded-2xl border p-6 shadow-[0_25px_60px_-10px_rgba(255,190,13,0.25)] transition-all ${
+            className={`relative w-full max-w-3xl overflow-hidden rounded-3xl border shadow-[0_30px_90px_-20px_rgba(0,0,0,0.85)] transition-all ${
               isDark
-                ? 'border-[#FFBE0D]/40 bg-neutral-900/95 text-white'
-                : 'border-orange-300 bg-white text-neutral-900 shadow-2xl'
+                ? 'bg-neutral-950 border-[#FFBE0D]/40 text-white'
+                : 'bg-white border-orange-300 text-neutral-900 shadow-2xl'
             }`}
-            onClick={(event) => event.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-4 flex items-start justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className={`rounded border border-[#FFBE0D]/30 bg-[#FFBE0D]/20 px-2 py-0.5 font-mono text-xs font-bold ${isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'}`}>
+            <div className="grid sm:grid-cols-[0.85fr_1.15fr]">
+              {/* Game Artwork */}
+              <div className="relative min-h-[220px] sm:min-h-[420px] overflow-hidden">
+                <img
+                  src={activeIntelGame.image}
+                  alt={activeIntelGame.title}
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
+                <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFBE0D] px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-black">
+                    <Gamepad2 className="h-3 w-3" />
+                    {activeIntelGame.tag}
+                  </span>
+                  <h3 className="mt-2.5 text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
+                    {activeIntelGame.title}
+                  </h3>
+                  <p className="mt-1 text-xs font-medium text-neutral-300">
+                    {activeIntelGame.genre} <span className="text-[#FFBE0D]">·</span> {activeIntelGame.scheduleDay}
+                  </p>
+                </div>
+              </div>
+
+              {/* Details */}
+              <div className="relative p-5 sm:p-6">
+                <button
+                  type="button"
+                  onClick={() => setActiveIntelGame(null)}
+                  className={`absolute right-4 top-4 rounded-full border p-2 transition-colors ${
+                    isDark
+                      ? 'border-neutral-700 bg-neutral-900/80 text-neutral-400 hover:text-white'
+                      : 'border-neutral-200 bg-white/90 text-neutral-500 hover:text-neutral-900'
+                  }`}
+                  aria-label="Close"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+
+                <div className="pr-10">
+                  <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${
+                    isDark
+                      ? 'border-[#FFBE0D]/30 bg-[#FFBE0D]/10 text-[#FFBE0D]'
+                      : 'border-orange-300 bg-orange-50 text-orange-800'
+                  }`}>
                     {activeIntelGame.category}
                   </span>
-                  <span className={`text-xs font-medium ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-                    {activeIntelGame.genre} · {activeIntelGame.scheduleDay}
-                  </span>
+                  <p className={`mt-4 text-sm leading-relaxed ${isDark ? 'text-neutral-300' : 'text-neutral-600'}`}>
+                    {activeIntelGame.description}
+                  </p>
                 </div>
-                <h3 className="mt-2 text-xl font-black sm:text-2xl">{activeIntelGame.title}</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setActiveIntelGame(null)}
-                className={`rounded-lg p-1.5 transition-colors ${
-                  isDark ? 'text-neutral-400 hover:bg-neutral-800 hover:text-white' : 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900'
-                }`}
-                aria-label="Close"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
 
-            <p className={`mb-5 text-sm leading-relaxed ${isDark ? 'text-neutral-300' : 'text-neutral-600'}`}>
-              {activeIntelGame.description}
-            </p>
+                <div className="mt-5 flex items-stretch gap-4">
+                  <div className="min-w-0 flex-1">
+                    <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-500">
+                      <Gamepad2 className="h-3 w-3 text-[#FFBE0D]" />
+                      Genre
+                    </span>
+                    <span className="mt-1 block truncate text-sm font-bold">{activeIntelGame.genre}</span>
+                  </div>
+                  <div className={`w-px shrink-0 ${isDark ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+                  <div className="min-w-0 flex-1">
+                    <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-500">
+                      <Calendar className="h-3 w-3 text-[#FFBE0D]" />
+                      Streams
+                    </span>
+                    <span className="mt-1 block truncate text-sm font-bold">{activeIntelGame.scheduleDay}</span>
+                  </div>
+                </div>
 
-            <div
-              className={`mb-6 space-y-3 rounded-xl border p-4 ${
-                isDark ? 'border-neutral-800 bg-black/50' : 'border-neutral-200 bg-neutral-50'
-              }`}
-            >
-              <div>
-                <span className={`block text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'}`}>
-                  Current Rank
-                </span>
-                <span className="text-sm font-semibold">{activeIntelGame.rankBadge}</span>
-              </div>
-              <div>
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-                  Signature Loadout
-                </span>
-                <span className="text-sm">{activeIntelGame.loadout}</span>
-              </div>
-              <div>
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-                  Community Squad
-                </span>
-                <span className="text-sm">{activeIntelGame.squadStatus}</span>
-              </div>
-            </div>
+                <div className={`mt-5 border-l-2 pl-3 ${isDark ? 'border-[#FFBE0D]/60' : 'border-orange-400'}`}>
+                  <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-500">
+                    <Users className="h-3 w-3 text-[#FFBE0D]" />
+                    Squad Access
+                  </span>
+                  <span className="mt-1 block text-sm font-semibold leading-snug">{activeIntelGame.squadStatus}</span>
+                </div>
 
-            <div className="flex items-center justify-end gap-3">
-              <a
-                href="https://kick.com/snnsei"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl bg-[#FFBE0D] px-5 py-2.5 text-xs font-black uppercase tracking-wider text-black shadow-[0_4px_20px_rgba(255,190,13,0.45)] transition-all hover:bg-[#E5A800] hover:shadow-[0_6px_25px_rgba(255,190,13,0.65)] active:scale-98"
-              >
-                <KickIcon className="w-4 h-4" />
-                <span>Watch on Kick</span>
-              </a>
+                <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
+                  <a
+                    href={activeIntelGame.youtubeUrl?.trim() || 'https://www.youtube.com/@Snnsei'}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#FF0000] px-5 py-3 text-xs font-black uppercase tracking-wider text-white transition-all shadow-[0_6px_24px_rgba(255,0,0,0.35)] hover:bg-[#d90000] active:scale-[0.98]"
+                  >
+                    <YoutubeIcon className="h-4 w-4" />
+                    <span>Watch on YouTube</span>
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </a>
+                  <a
+                    href="https://kick.com/snnsei"
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-xs font-black uppercase tracking-wider transition-all active:scale-[0.98] ${
+                      isDark
+                        ? 'border-neutral-700 bg-neutral-900 text-neutral-200 hover:border-[#FFBE0D]/50 hover:text-white'
+                        : 'border-neutral-200 bg-neutral-100 text-neutral-700 hover:border-orange-300 hover:text-neutral-900'
+                    }`}
+                  >
+                    <KickIcon className="h-4 w-4 text-[#53FC18]" />
+                    <span>Kick</span>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -4,9 +4,7 @@ export interface AuthUser {
   id: string;
   name: string;
   handle: string;
-  email: string | null;
   avatarUrl: string;
-  joinedDate: string;
 }
 
 export type AuthNoticeType = 'login' | 'signup' | 'error' | 'config';
@@ -16,6 +14,7 @@ interface AuthContextType {
   loading: boolean;
   login: () => void;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   notice: AuthNoticeType | null;
   clearNotice: () => void;
 }
@@ -25,6 +24,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   login: () => {},
   logout: async () => {},
+  deleteAccount: async () => {},
   notice: null,
   clearNotice: () => {},
 });
@@ -86,10 +86,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
   }, []);
 
+  const deleteAccount = useCallback(async () => {
+    const response = await fetch('/api/me', { method: 'DELETE' });
+    if (!response.ok) throw new Error('Could not delete the account. Please try again.');
+    setUser(null);
+  }, []);
+
   const clearNotice = useCallback(() => setNotice(null), []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, notice, clearNotice }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, deleteAccount, notice, clearNotice }}>
       {children}
     </AuthContext.Provider>
   );

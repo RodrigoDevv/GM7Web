@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ContentProvider } from './context/ContentContext';
+import { OptionalContentConsent, PrivacyConsentProvider } from './context/PrivacyConsentContext';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { AboutPage } from './components/AboutPage';
@@ -10,8 +12,11 @@ import { SetupSection } from './components/SetupSection';
 import { SocialsPage } from './components/SocialsPage';
 import { TournamentPage } from './components/TournamentPage';
 import { GamesPage } from './components/GamesPage';
+import { DashboardPage } from './components/dashboard/DashboardPage';
 import { SocialsSection } from './components/SocialsSection';
 import { Footer } from './components/Footer';
+import { LegalPage } from './components/LegalPage';
+import { SitePasswordGate } from './components/SitePasswordGate';
 import { Reveal } from './components/Reveal';
 import { useSeo } from './lib/seo';
 import type { Page } from './types/navigation';
@@ -25,6 +30,8 @@ const ABOUT_PATH = `${BASE_PATH}/about`;
 const SOCIALS_PATH = `${BASE_PATH}/socials`;
 const TOURNAMENTS_PATH = `${BASE_PATH}/tournaments`;
 const GAMES_PATH = `${BASE_PATH}/games`;
+const DASHBOARD_PATH = `${BASE_PATH}/dashboard`;
+const LEGAL_PATH = `${BASE_PATH}/legal`;
 const HOME_PATH = `${BASE_PATH}/`;
 
 function resolvePage(): Page {
@@ -36,10 +43,13 @@ function resolvePage(): Page {
   if (pathname === SOCIALS_PATH.toLowerCase() || pathname.endsWith('/socials') || pathname.endsWith('/feed')) return 'socials';
   if (pathname === TOURNAMENTS_PATH.toLowerCase() || pathname.endsWith('/tournaments')) return 'tournaments';
   if (pathname === GAMES_PATH.toLowerCase() || pathname.endsWith('/games')) return 'games';
+  if (pathname === DASHBOARD_PATH.toLowerCase() || pathname.endsWith('/dashboard')) return 'dashboard';
+  if (pathname.startsWith(LEGAL_PATH.toLowerCase()) || pathname.includes('/legal/')) return 'legal';
   if (hash === '#/about' || hash === '#about') return 'about';
   if (hash === '#/socials' || hash === '#/feed' || hash === '#feed') return 'socials';
   if (hash === '#/tournaments' || hash === '#tournaments') return 'tournaments';
   if (hash === '#/games' || hash === '#games') return 'games';
+  if (hash === '#/dashboard' || hash === '#dashboard') return 'dashboard';
   return 'home';
 }
 
@@ -50,10 +60,27 @@ function AppContent() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
 
-  // Client-side Page Router: 'home' | 'about' | 'socials' | 'tournaments'
+  // Client-side page router.
   const [currentPage, setCurrentPage] = useState<Page>(resolvePage);
 
   useSeo(currentPage);
+
+  // Store daily aggregate counts only: no IP address, cookie, or visitor ID is recorded.
+  useEffect(() => {
+    if (currentPage === 'dashboard') return;
+    fetch('/api/analytics/visit', { method: 'POST', keepalive: true, credentials: 'omit' }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (currentPage === 'dashboard') return;
+    fetch('/api/analytics/pageview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page: currentPage }),
+      keepalive: true,
+      credentials: 'omit',
+    }).catch(() => {});
+  }, [currentPage]);
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -97,7 +124,11 @@ function AppContent() {
             ? SOCIALS_PATH
             : nextPage === 'tournaments'
               ? TOURNAMENTS_PATH
-              : GAMES_PATH;
+              : nextPage === 'games'
+                ? GAMES_PATH
+                : nextPage === 'dashboard'
+                  ? DASHBOARD_PATH
+                  : window.location.pathname;
         if (
           hash === `#/${nextPage}` ||
           hash === `#${nextPage}` ||
@@ -123,7 +154,12 @@ function AppContent() {
   }, []);
 
   const navigateTo = useCallback((page: Page, targetSection?: string) => {
-    if (page === 'about' || page === 'socials' || page === 'tournaments' || page === 'games') {
+    if (page === 'legal') {
+      const path = window.location.pathname.startsWith(LEGAL_PATH) ? window.location.pathname : `${LEGAL_PATH}/privacy`;
+      if (window.location.pathname !== path) window.history.pushState({ page }, '', path);
+      setCurrentPage(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (page === 'about' || page === 'socials' || page === 'tournaments' || page === 'games' || page === 'dashboard') {
       const path =
         page === 'about'
           ? ABOUT_PATH
@@ -131,7 +167,9 @@ function AppContent() {
             ? SOCIALS_PATH
             : page === 'tournaments'
               ? TOURNAMENTS_PATH
-              : GAMES_PATH;
+              : page === 'games'
+                ? GAMES_PATH
+                : DASHBOARD_PATH;
       if (window.location.pathname !== path) {
         window.history.pushState({ page }, '', path);
       }
@@ -306,6 +344,16 @@ function AppContent() {
               onToast={showToast}
             />
           </Reveal>
+        ) : currentPage === 'dashboard' ? (
+          /* ============================================================== */
+          /* ADMIN CONTENT DASHBOARD                                        */
+          /* ============================================================== */
+          <DashboardPage
+            onNavigateHome={(target) => navigateTo('home', target)}
+            onToast={showToast}
+          />
+        ) : currentPage === 'legal' ? (
+          <LegalPage document={(window.location.pathname.split('/').filter(Boolean).at(-1) || 'privacy') as 'privacy' | 'terms' | 'cookies'} />
         ) : (
           /* ============================================================== */
           /* HOME STREAM HUB EXPERIENCE                                     */
@@ -343,8 +391,9 @@ function AppContent() {
 
       {/* Footer */}
       <Reveal>
-        <Footer onToast={showToast} />
+        <Footer />
       </Reveal>
+      {currentPage !== 'dashboard' && <OptionalContentConsent />}
     </div>
   );
 }
@@ -353,7 +402,13 @@ export default function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <AppContent />
+        <SitePasswordGate>
+          <PrivacyConsentProvider>
+            <ContentProvider>
+              <AppContent />
+            </ContentProvider>
+          </PrivacyConsentProvider>
+        </SitePasswordGate>
       </ThemeProvider>
     </AuthProvider>
   );

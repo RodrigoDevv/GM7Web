@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 import chibiSensei from '../assets/images/Chibi Sensei in a Red Jacket.png';
 import { useTheme } from '../context/ThemeContext';
+import { OptionalThirdPartyFrame } from '../context/PrivacyConsentContext';
 
 const KICK_CHANNEL_URL = 'https://kick.com/snnsei';
 const KICK_EMBED_URL = 'https://player.kick.com/snnsei';
@@ -126,34 +127,7 @@ export const Hero: React.FC<HeroProps> = ({ onToast }) => {
           next = data as KickLive;
         }
       } catch {
-        /* fall back to Kick's public API below */
-      }
-
-      if (!next) {
-        try {
-          const res = await fetch('https://kick.com/api/v2/channels/snnsei', {
-            headers: { Accept: 'application/json' },
-            cache: 'no-store',
-          });
-          if (res.ok) {
-            const channel = await res.json();
-            const live = channel?.livestream;
-            next = {
-              isLive: Boolean(live && live.is_live),
-              title: live?.session_title || null,
-              viewers: live?.viewer_count ?? 0,
-              category: live?.categories?.[0]?.name || null,
-              language: live?.language || null,
-              thumbnail: live?.thumbnail?.url || null,
-              followers: Number(channel?.followers_count || 0),
-              profilePic: channel?.user?.profile_pic || null,
-              bio: channel?.user?.bio || null,
-              channelUrl: KICK_CHANNEL_URL,
-            };
-          }
-        } catch {
-          /* keep last known state */
-        }
+        /* Keep last known state; browser requests stay on the GM7 origin. */
       }
 
       if (!cancelled && next) setKick(next);
@@ -316,16 +290,10 @@ export const Hero: React.FC<HeroProps> = ({ onToast }) => {
                 >
                 {showPlayer ? (
                   <>
-                    <iframe
+                    <OptionalThirdPartyFrame
                       src={`${KICK_EMBED_URL}?autoplay=true&muted=true`}
                       title={`${kick?.title || 'Snnsei'} live on Kick`}
-                      height="100%"
-                      width="100%"
-                      frameBorder="0"
-                      scrolling="no"
                       allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-                      allowFullScreen
-                      referrerPolicy="no-referrer"
                       className="absolute inset-0 h-full w-full border-0"
                     />
                     <span className="pointer-events-none absolute top-2.5 left-3 flex items-center gap-1.5 px-2 py-1 rounded-md bg-black/80 backdrop-blur-md border border-white/10 text-[10px] font-mono font-bold text-white/90">

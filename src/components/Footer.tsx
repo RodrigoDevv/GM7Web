@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Instagram, Send, CheckCircle2 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { usePrivacyConsent } from '../context/PrivacyConsentContext';
 
 const DiscordIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -14,21 +15,9 @@ const KickIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) =
   </svg>
 );
 
-export const Footer: React.FC<{ onToast: (msg: string) => void }> = ({ onToast }) => {
+export const Footer: React.FC = () => {
   const { isDark } = useTheme();
-  const [email, setEmail] = useState('');
-  const [isSubscribed, setIsSubscribed] = useState(false);
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !email.includes('@')) {
-      onToast('Please enter a valid email address.');
-      return;
-    }
-    setIsSubscribed(true);
-    onToast(`Subscribed ${email} to live stream alerts & tournament drops!`);
-    setEmail('');
-  };
+  const { openSettings } = usePrivacyConsent();
 
   return (
     <footer
@@ -192,54 +181,14 @@ export const Footer: React.FC<{ onToast: (msg: string) => void }> = ({ onToast }
           </div>
 
           {/* Notification Signup */}
-          <div className="md:col-span-4 space-y-3">
-            <h4 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-              Stream Drop Notifications
-            </h4>
-            <p className={`text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
-              Get notified when Sensei goes live with tournament brackets or exclusive giveaways.
-            </p>
-
-            <form onSubmit={handleSubscribe} className="flex items-center gap-2 pt-1">
-              <input
-                type="email"
-                placeholder="your.email@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={`flex-1 px-3.5 py-2.5 rounded-xl border text-xs focus:outline-none transition-all ${
-                  isDark
-                    ? 'bg-neutral-900 border-neutral-800 text-white placeholder-neutral-500 focus:border-[#FFBE0D] focus:shadow-[0_0_12px_rgba(255,190,13,0.25)]'
-                    : 'bg-white border-neutral-300 text-neutral-900 placeholder-neutral-400 focus:border-[#8C6500] shadow-xs'
-                }`}
-              />
-              <button
-                type="submit"
-                className="px-4 py-2.5 rounded-xl bg-[#FFBE0D] hover:bg-[#E5A800] text-black font-black text-xs uppercase tracking-wider transition-all duration-200 shrink-0 flex items-center gap-1.5 cursor-pointer shadow-[0_4px_15px_rgba(255,190,13,0.4)] hover:shadow-[0_6px_25px_rgba(255,190,13,0.6)] active:scale-95"
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>Alert Me</span>
-              </button>
-            </form>
-
-            {isSubscribed && (
-              <p className={`text-[11px] flex items-center gap-1.5 font-semibold ${isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'}`}>
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>You're subscribed to live stream alerts!</span>
-              </p>
-            )}
-          </div>
+          
         </div>
 
         {/* Bottom bar with Senior UX Touches */}
         <div className={`pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs ${
           isDark ? 'text-neutral-500' : 'text-neutral-500'
         }`}>
-          <div className="flex items-center gap-2.5">
-            <span className="w-2 h-2 rounded-full bg-[#FFBE0D] animate-pulse inline-block shadow-[0_0_8px_#FFBE0D]" />
-            <span className={`font-mono text-[11px] font-bold ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-              NETWORK: ALL SYSTEMS OPERATIONAL · 1080P60 LIVE
-            </span>
-          </div>
+          
 
           <div className="flex items-center gap-1.5">
             <span>Made with</span>
@@ -255,10 +204,18 @@ export const Footer: React.FC<{ onToast: (msg: string) => void }> = ({ onToast }
             </a>
           </div>
 
+          <address className="not-italic text-center text-xs">
+            Operated by [LEGAL NAME] · [CONTACT EMAIL] · [POSTAL ADDRESS]
+          </address>
+
           <div className="flex items-center gap-4 flex-wrap justify-center">
-            <span className="hover:underline transition-colors cursor-pointer" onClick={() => onToast('Privacy policy: Zero tracking or selling of user data.')}>Privacy</span>
+            <a className="hover:underline" href="/legal/privacy">Privacy</a>
             <span>·</span>
-            <span className="hover:underline transition-colors cursor-pointer" onClick={() => onToast('Terms: Respect community members & fair play.')}>Terms</span>
+            <a className="hover:underline" href="/legal/terms">Terms</a>
+            <span>·</span>
+            <a className="hover:underline" href="/legal/cookies">Cookies</a>
+            <span>·</span>
+            <button type="button" onClick={openSettings} className="hover:underline focus-visible:underline">Cookie settings</button>
             <span>·</span>
             <span className={`font-mono text-[11px] ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
               SHORTCUTS: <kbd className="px-1 py-0.5 rounded bg-black/10 dark:bg-white/10 font-bold">T</kbd> THEME · <kbd className="px-1 py-0.5 rounded bg-black/10 dark:bg-white/10 font-bold">1-7</kbd> JUMP

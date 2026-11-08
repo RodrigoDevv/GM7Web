@@ -66,6 +66,20 @@ const PAGE_META: Record<SeoPage, PageMeta> = {
     path: '/games',
     imageAlt: 'GM7 game library featuring every title in the stream rotation',
   },
+  dashboard: {
+    title: 'GM7 Dashboard — Manage Tournaments, Videos & Games',
+    description: 'Private GM7 content dashboard for managing tournaments, social videos, and game cards.',
+    keywords: 'GM7 dashboard, admin, content management',
+    path: '/dashboard',
+    imageAlt: 'GM7 content dashboard',
+  },
+  legal: {
+    title: 'GM7 Legal Drafts — Privacy, Terms & Cookies',
+    description: 'Draft legal documents for GM7. These documents are not final and require lawyer review.',
+    keywords: 'GM7 privacy draft, terms draft, cookie notice draft',
+    path: '/legal/privacy',
+    imageAlt: 'GM7 legal documents draft',
+  },
 };
 
 function upsertMeta(attribute: 'name' | 'property', key: string, content: string) {
@@ -105,7 +119,9 @@ export function useSeo(page: SeoPage) {
     upsertMeta(
       'name',
       'robots',
-      'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+      page === 'dashboard' || page === 'legal'
+        ? 'noindex, nofollow'
+        : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
     );
 
     upsertMeta('property', 'og:type', 'website');

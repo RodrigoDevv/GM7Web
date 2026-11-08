@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Bell, ExternalLink } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { OptionalThirdPartyFrame } from '../context/PrivacyConsentContext';
 
 // Background and schedule game thumbnails
 import kickStreamBg from '../assets/images/kick_stream_battlestation_backdrop.jpg';
@@ -85,26 +86,7 @@ export const StreamScheduleSection: React.FC<StreamScheduleSectionProps> = ({ on
           }
         }
       } catch {
-        /* fall back to Kick's public API below */
-      }
-
-      if (nextIsLive === null) {
-        try {
-          const response = await fetch('https://kick.com/api/v2/channels/snnsei', {
-            headers: { Accept: 'application/json' },
-            cache: 'no-store',
-          });
-          if (response.ok) {
-            const channel = await response.json();
-            const live = channel?.livestream;
-            nextIsLive = Boolean(live && live.is_live);
-            nextTitle = typeof live?.session_title === 'string' && live.session_title.trim()
-              ? live.session_title.trim()
-              : null;
-          }
-        } catch {
-          /* keep last known state */
-        }
+        /* Keep last known state; browser requests stay on the GM7 origin. */
       }
 
       if (!cancelled && nextIsLive !== null) {
@@ -258,12 +240,11 @@ export const StreamScheduleSection: React.FC<StreamScheduleSectionProps> = ({ on
 
               {/* Real Kick Live Iframe Embed */}
               <div className="relative flex-1 w-full min-h-[340px] sm:min-h-[400px] bg-black">
-                <iframe
+                <OptionalThirdPartyFrame
                   src="https://player.kick.com/snnsei?autoplay=true&muted=true"
                   title="Kick Live Stream - snnsei"
                   className="absolute inset-0 w-full h-full border-0"
                   allow="autoplay; fullscreen; picture-in-picture"
-                  allowFullScreen
                 />
               </div>
 

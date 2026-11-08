@@ -211,7 +211,7 @@ export const AboutIntroSection: React.FC = () => {
                 <Typewriter
                   segments={[
                     { text: 'GM7 is more than a stream—it’s ' },
-                    { text: 'a place to find your people.', className: 'italic text-[#FFBE0D]' },
+                    { text: 'a place to find your people.', className: `italic ${isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'}` },
                     {
                       text: ' Competitive play, open lobbies and tournament nights bring players together beyond the match.',
                     },
@@ -426,7 +426,7 @@ export const AboutPillarsSection: React.FC = () => {
           <SectionTitle>
             Three pillars
             <br />
-            <span className="text-[#FFBE0D]">we never trade</span>
+            <span className={isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'}>we never trade</span>
           </SectionTitle>
           <SectionCopy>
             Every layout, every lobby rule and every tournament format comes back to
@@ -578,7 +578,7 @@ export const AboutCommunitySection: React.FC = () => {
             <SectionTitle>
               Built in the
               <br />
-              <span className="text-[#FFBE0D]">chat</span>
+              <span className={isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'}>chat</span>
             </SectionTitle>
             <SectionCopy>
               GM7 is not a broadcast you watch, it is a lobby you join. Community nights,
@@ -650,7 +650,7 @@ export const AboutCtaSection: React.FC<AboutSectionsProps> = ({ onToast, onNavig
             >
               Pull up a chair,
               <br />
-              <span className="text-[#FFBE0D]">queue with us</span>
+              <span className={isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'}>queue with us</span>
             </h2>
             <p
               className={`mt-4 text-[13px] sm:text-[15px] leading-relaxed max-w-[48ch] ${

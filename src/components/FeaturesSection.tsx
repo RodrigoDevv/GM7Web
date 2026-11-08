@@ -233,7 +233,7 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({
                   <Trophy className="w-4 h-4 text-[#FFB800]" />
                   <span className="font-display text-sm font-bold">Community Perks</span>
                 </div>
-                <span className="text-[11px] font-extrabold text-[#FFBE0D] bg-[#FFBE0D]/15 px-2.5 py-0.5 rounded-full">
+                <span className="text-[11px] font-extrabold text-[#8C6500] bg-[#FFBE0D]/15 px-2.5 py-0.5 rounded-full">
                   Sensei Guild
                 </span>
               </div>

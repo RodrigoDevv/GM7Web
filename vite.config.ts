@@ -18,6 +18,7 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /auth/
+Disallow: /dashboard
 
 Sitemap: ${siteUrl}/sitemap.xml
 `;

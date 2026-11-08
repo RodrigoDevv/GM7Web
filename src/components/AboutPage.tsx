@@ -246,7 +246,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigateHome, onToast })
                 </p>
                 <h2 id="profile-card-title" className="text-5xl font-black uppercase leading-[0.9] tracking-[-0.05em] sm:text-6xl lg:text-7xl">
                   {selectedProfile === 'streamer' ? 'Snnsei' : 'Hatim'}
-                  <span className="mt-2 block text-2xl tracking-[-0.03em] text-[#FFBE0D] sm:text-3xl">
+                  <span className={`mt-2 block text-2xl tracking-[-0.03em] sm:text-3xl ${isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'}`}>
                     {selectedProfile === 'streamer' ? 'On the mic. In the game.' : 'Building the GM7 vision.'}
                   </span>
                 </h2>

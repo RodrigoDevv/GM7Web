@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowUpRight, Calendar, Gamepad2, MoreHorizontal, Users, X, YoutubeIcon } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useContent } from '../context/ContentContext';
 import { defaultGames, type GameItem } from '../data/games';
 
 import senseiShowcaseImg from '../assets/images/play.png';
@@ -19,6 +20,8 @@ interface WhatWePlaySectionProps {
 
 export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore }) => {
   const { isDark } = useTheme();
+  const { games: contentGames } = useContent();
+  const games = contentGames ?? defaultGames;
   const [activeIntelGame, setActiveIntelGame] = useState<GameItem | null>(null);
 
   useEffect(() => {
@@ -64,7 +67,7 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
               <span>Active Game Rotation</span>
             </span>
             <span className={`text-xs font-mono font-medium ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-              · 6 Broadcast Titlesles
+              · {games.length} Broadcast Titles
             </span>
           </div>
 
@@ -83,7 +86,7 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
           {/* Left: Cards, Two Per Line */}
           <div className="grid grid-cols-3 gap-1.5 sm:gap-2 content-start">
-            {defaultGames.slice(0, 5).map((game) => {
+            {games.slice(0, 5).map((game) => {
               return (
                 <div
                   key={game.id}
@@ -105,6 +108,19 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
                     <div className="pointer-events-none absolute inset-0 -translate-x-full skew-x-12 bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
 
                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 via-black/45 to-transparent" />
+
+                    {game.youtubeUrl?.trim() && (
+                      <a
+                        href={game.youtubeUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(event) => event.stopPropagation()}
+                        aria-label={`Watch ${game.title} on YouTube`}
+                        className="absolute right-1.5 top-1.5 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#FF0000] text-white shadow-lg transition-transform hover:scale-110 active:scale-95"
+                      >
+                        <YoutubeIcon className="h-4 w-4" />
+                      </a>
+                    )}
 
                     <div className="absolute bottom-0 left-0 right-0 p-1 text-white">
                       <h3 className="font-semibold text-[9px] leading-tight drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)] truncate">
@@ -275,7 +291,7 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
 
                   <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
                     <a
-                      href="https://www.youtube.com/@Snnsei"
+                      href={activeIntelGame.youtubeUrl?.trim() || 'https://www.youtube.com/@Snnsei'}
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#FF0000] px-5 py-3 text-xs font-black uppercase tracking-wider text-white transition-all shadow-[0_6px_24px_rgba(255,0,0,0.35)] hover:bg-[#d90000] active:scale-[0.98]"

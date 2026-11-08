@@ -1,0 +1,257 @@
+import fsp from 'node:fs/promises';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+import { getTursoClient, initDatabase } from './turso.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = path.join(__dirname, 'data');
+const CONTENT_FILE = path.join(DATA_DIR, 'content.json');
+
+// `null` means "no custom content yet" so the client can fall back to its
+// bundled defaults (images included). Once an admin saves a section it becomes
+// an array, even if empty.
+const INSTAGRAM_POSTS = [
+  'DfbtiVIKapv',
+  'DfZJAB_NI0U',
+  'DfWjSFEKFNk',
+  'DfUD1Wdu4xG',
+  'DfRcseROheZ',
+].map((shortcode) => ({
+  id: `instagram-${shortcode}`,
+  platform: 'instagram',
+  title: `Instagram video · ${shortcode}`,
+  url: `https://www.instagram.com/p/${shortcode}/`,
+  thumb: `https://www.instagram.com/p/${shortcode}/media/?size=l`,
+  category: 'Instagram video',
+  publishedAt: '',
+}));
+const EMPTY_CONTENT = { games: null, tournaments: null, socials: INSTAGRAM_POSTS };
+
+const TOURNAMENT_STATUSES = ['Registration Open', 'Closing Soon', 'Waitlist'];
+const SOCIAL_PLATFORMS = ['youtube', 'kick', 'tiktok', 'instagram'];
+const DEFAULT_VIDEO_CATEGORY = {
+  youtube: 'YouTube video',
+  kick: 'Kick clip',
+  tiktok: 'TikTok video',
+  instagram: 'Instagram post',
+};
+
+function asString(value, fallback = '') {
+  if (typeof value === 'string') return value;
+  if (value === null || value === undefined) return fallback;
+  return String(value);
+}
+
+function asNumber(value, fallback = 0) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function asBoolean(value) {
+  return value === true || value === 'true' || value === 1 || value === '1';
+}
+
+function withUniqueId(value, prefix, index, seen) {
+  let id = asString(value).trim();
+  if (!id) id = `${prefix}-${index + 1}`;
+  let candidate = id;
+  let suffix = 2;
+  while (seen.has(candidate)) {
+    candidate = `${id}-${suffix}`;
+    suffix += 1;
+  }
+  seen.add(candidate);
+  return candidate;
+}
+
+export function normalizeGame(raw = {}, index = 0, seen = new Set()) {
+  return {
+    id: withUniqueId(raw.id, 'game', index, seen),
+    title: asString(raw.title, 'Untitled game'),
+    genre: asString(raw.genre, 'Game'),
+    category: asString(raw.category, 'Game'),
+    tag: asString(raw.tag, 'Featured'),
+    image: asString(raw.image),
+    scheduleDay: asString(raw.scheduleDay),
+    initialHypes: asNumber(raw.initialHypes, 0),
+    rankBadge: asString(raw.rankBadge),
+    loadout: asString(raw.loadout),
+    squadStatus: asString(raw.squadStatus),
+    description: asString(raw.description),
+    youtubeUrl: asString(raw.youtubeUrl),
+  };
+}
+
+export function normalizeTournament(raw = {}, index = 0, seen = new Set()) {
+  const status = TOURNAMENT_STATUSES.includes(raw.status) ? raw.status : 'Registration Open';
+  return {
+    id: withUniqueId(raw.id, 'tournament', index, seen),
+    name: asString(raw.name, 'Untitled tournament'),
+    game: asString(raw.game, 'Game'),
+    format: asString(raw.format),
+    dateLabel: asString(raw.dateLabel),
+    startIso: asString(raw.startIso),
+    prizePool: asString(raw.prizePool, 'Free'),
+    entry: asString(raw.entry, 'Free entry'),
+    filledSlots: Math.max(0, asNumber(raw.filledSlots, 0)),
+    maxSlots: Math.max(1, asNumber(raw.maxSlots, 1)),
+    status,
+    platform: asString(raw.platform),
+    description: asString(raw.description),
+    image: asString(raw.image),
+    featured: asBoolean(raw.featured),
+  };
+}
+
+export function normalizeVideo(raw = {}, index = 0, seen = new Set()) {
+  const platform = SOCIAL_PLATFORMS.includes(raw.platform) ? raw.platform : 'youtube';
+  return {
+    id: withUniqueId(raw.id, 'video', index, seen),
+    platform,
+    title: asString(raw.title, 'Untitled video'),
+    url: asString(raw.url),
+    thumb: asString(raw.thumb),
+    category: asString(raw.category, DEFAULT_VIDEO_CATEGORY[platform]),
+    duration: asString(raw.duration),
+    views: asString(raw.views),
+    likes: asString(raw.likes),
+    publishedAt: asString(raw.publishedAt),
+  };
+}
+
+function normalizeList(list, normalizer) {
+  if (!Array.isArray(list)) return null;
+  const seen = new Set();
+  return list
+    .filter((item) => item && typeof item === 'object')
+    .map((item, index) => normalizer(item, index, seen));
+}
+
+async function readContentFile() {
+  try {
+    const raw = await fsp.readFile(CONTENT_FILE, 'utf8');
+    const parsed = JSON.parse(raw);
+    return {
+      games: Array.isArray(parsed.games)
+        ? normalizeList(parsed.games, normalizeGame)
+        : null,
+      tournaments: Array.isArray(parsed.tournaments)
+        ? normalizeList(parsed.tournaments, normalizeTournament)
+        : null,
+      socials: Array.isArray(parsed.socials)
+        ? normalizeList(parsed.socials, normalizeVideo) ?? []
+        : [],
+    };
+  } catch (error) {
+    if (error && error.code === 'ENOENT') return { ...EMPTY_CONTENT };
+    throw error;
+  }
+}
+
+async function writeContentFile(content) {
+  await fsp.mkdir(DATA_DIR, { recursive: true });
+  const tmp = `${CONTENT_FILE}.${crypto.randomBytes(4).toString('hex')}.tmp`;
+  await fsp.writeFile(tmp, JSON.stringify(content, null, 2), 'utf8');
+  await fsp.rename(tmp, CONTENT_FILE);
+}
+
+let writeQueue = Promise.resolve();
+
+function enqueueWrite(task) {
+  writeQueue = writeQueue.then(task, task);
+  return writeQueue;
+}
+
+let migratedContent = false;
+async function ensureTursoContentReady() {
+  const turso = getTursoClient();
+  if (!turso) return null;
+  await initDatabase();
+
+  if (!migratedContent) {
+    migratedContent = true;
+    try {
+      const res = await turso.execute('SELECT COUNT(*) as count FROM content');
+      const count = Number(res.rows[0]?.count || 0);
+      if (count === 0) {
+        const local = await readContentFile();
+        console.log('[Turso] Seeding initial content into Turso database...');
+        for (const [sec, items] of Object.entries(local)) {
+          if (items !== null && items !== undefined) {
+            await turso.execute({
+              sql: 'INSERT OR REPLACE INTO content (key, data, updated_at) VALUES (?, ?, ?)',
+              args: [sec, JSON.stringify(items), Date.now()],
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[Turso] Content migration check skipped:', err.message);
+    }
+  }
+
+  return turso;
+}
+
+export async function getContent() {
+  await writeQueue;
+  const turso = await ensureTursoContentReady();
+  if (turso) {
+    try {
+      const res = await turso.execute('SELECT key, data FROM content');
+      const map = {};
+      for (const row of res.rows) {
+        try {
+          map[row.key] = JSON.parse(row.data);
+        } catch {
+          map[row.key] = null;
+        }
+      }
+      return {
+        games: Array.isArray(map.games) ? normalizeList(map.games, normalizeGame) : null,
+        tournaments: Array.isArray(map.tournaments) ? normalizeList(map.tournaments, normalizeTournament) : null,
+        socials: Array.isArray(map.socials) ? normalizeList(map.socials, normalizeVideo) ?? [] : (EMPTY_CONTENT.socials || []),
+      };
+    } catch (err) {
+      console.error('[Turso] Error reading content from Turso, falling back to local file:', err);
+    }
+  }
+  return readContentFile();
+}
+
+async function saveSection(section, normalizer, items) {
+  const list = normalizeList(items, normalizer);
+  if (list === null) throw new Error('Expected an array of items');
+  return enqueueWrite(async () => {
+    const turso = await ensureTursoContentReady();
+    if (turso) {
+      try {
+        await turso.execute({
+          sql: `INSERT INTO content (key, data, updated_at) VALUES (?, ?, ?)
+                ON CONFLICT(key) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at`,
+          args: [section, JSON.stringify(list), Date.now()],
+        });
+      } catch (err) {
+        console.error('[Turso] Error saving content to Turso:', err);
+      }
+    }
+    // Also update local file cache
+    const content = await readContentFile();
+    content[section] = list;
+    await writeContentFile(content);
+    return list;
+  });
+}
+
+export function saveGames(games) {
+  return saveSection('games', normalizeGame, games);
+}
+
+export function saveTournaments(tournaments) {
+  return saveSection('tournaments', normalizeTournament, tournaments);
+}
+
+export function saveVideos(videos) {
+  return saveSection('socials', normalizeVideo, videos);
+}

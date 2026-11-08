@@ -23,6 +23,7 @@ import {
   Power
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { OptionalThirdPartyFrame } from '../context/PrivacyConsentContext';
 import senseiImage from '../assets/images/Chibi Sensei in a Red Jacket.png';
 
 interface LiveKickSectionProps {
@@ -563,14 +564,8 @@ export const LiveKickSection: React.FC<LiveKickSectionProps> = ({
             {isLive || forcePlayerWhenOffline ? (
               <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-white/10 shadow-inner group">
                 {/* Kick Live Embed Iframe */}
-                <iframe
-                  key={`player-${channel}-${reloadKey}-${muted}`}
+                <OptionalThirdPartyFrame
                   src={`https://player.kick.com/${channel}?autoplay=${autoplay}&muted=${muted}`}
-                  height="100%"
-                  width="100%"
-                  frameBorder="0"
-                  scrolling="no"
-                  allowFullScreen
                   allow="autoplay; fullscreen; picture-in-picture"
                   title={`Kick live stream - ${channel}`}
                   className="w-full h-full border-0 rounded-2xl"
@@ -621,7 +616,7 @@ export const LiveKickSection: React.FC<LiveKickSectionProps> = ({
                 {/* Center Content: Sensei Avatar, Notice, Countdown */}
                 <div className="relative z-10 max-w-lg mx-auto flex flex-col items-center">
                   {/* Sensei Avatar Preview */}
-                  <div className="relative mb-3 group cursor-pointer" onClick={() => onToast?.('Sensei is prepping tonight’s ranked session!')}>
+                  <button type="button" className="relative mb-3 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400" onClick={() => onToast?.('Sensei is prepping tonight’s ranked session!')}>
                     <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-neutral-900/90 border border-neutral-700/80 p-1 flex items-center justify-center shadow-xl overflow-hidden relative">
                       <img
                         src={senseiImage}
@@ -633,7 +628,7 @@ export const LiveKickSection: React.FC<LiveKickSectionProps> = ({
                     <span className="absolute -bottom-1.5 -right-1 px-1.5 py-0.2 rounded text-[9px] font-mono font-black bg-neutral-800 text-amber-300 border border-neutral-700">
                       OFF
                     </span>
-                  </div>
+                  </button>
 
                   {/* Title & Status */}
                   <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
@@ -803,15 +798,11 @@ export const LiveKickSection: React.FC<LiveKickSectionProps> = ({
 
               {/* Chat Iframe */}
               <div className="flex-1 relative rounded-b-2xl overflow-hidden border border-t-0 bg-neutral-950 border-neutral-800">
-                <iframe
-                  key={`chat-${channel}-${reloadKey}`}
+                <OptionalThirdPartyFrame
                   src={`https://kick.com/${channel}/chatroom`}
-                  height="100%"
-                  width="100%"
-                  frameBorder="0"
-                  scrolling="yes"
                   title={`Kick chat - ${channel}`}
                   className="w-full h-full border-0"
+                  scrolling="yes"
                 />
               </div>
 

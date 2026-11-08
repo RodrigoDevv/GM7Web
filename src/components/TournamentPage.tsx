@@ -20,199 +20,21 @@ import {
   Zap,
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useContent } from '../context/ContentContext';
+import {
+  defaultAvailableTournaments,
+  defaultRecentTournaments,
+  type AvailableTournament,
+  type RecentTournament,
+  type RegistrationStatus,
+} from '../data/tournaments';
 
 import discordImg from '../assets/images/discord.jpg';
-import apexHeroImg from '../assets/images/ps5_apex_hero_1791730950598.jpg';
-import tacticalFpsImg from '../assets/images/ps5_tactical_fps_1791731000845.jpg';
-import heistCityImg from '../assets/images/ps5_city_heist_1791730967151.jpg';
-import soccerEsportsImg from '../assets/images/ps5_esports_soccer_1791731018539.jpg';
-import soulsEldenImg from '../assets/images/ps5_souls_elden_1791730984139.jpg';
 
 interface TournamentPageProps {
   onNavigateHome: (targetSection?: string) => void;
   onToast?: (msg: string) => void;
 }
-
-type RegistrationStatus = 'Registration Open' | 'Closing Soon' | 'Waitlist';
-
-interface AvailableTournament {
-  id: string;
-  name: string;
-  game: string;
-  format: string;
-  dateLabel: string;
-  startIso: string;
-  prizePool: string;
-  entry: string;
-  filledSlots: number;
-  maxSlots: number;
-  status: RegistrationStatus;
-  platform: string;
-  description: string;
-  image: string;
-  featured?: boolean;
-}
-
-interface RecentTournament {
-  id: string;
-  name: string;
-  game: string;
-  dateLabel: string;
-  participants: number;
-  matches: number;
-  prizePool: string;
-  winner: {
-    name: string;
-    handle: string;
-    prize: string;
-  };
-  runnerUp: {
-    name: string;
-    handle: string;
-  };
-  mvp: string;
-  image: string;
-}
-
-const availableTournaments: AvailableTournament[] = [
-  {
-    id: 'dojo-cup-7',
-    name: 'GM7 Dojo Cup #7',
-    game: 'Apex Legends',
-    format: '3v3 · Double Elimination · Bo3',
-    dateLabel: 'Sat, Nov 7 · 18:00 UTC',
-    startIso: '2026-11-07T18:00:00Z',
-    prizePool: '$2,000',
-    entry: 'Free entry',
-    filledSlots: 47,
-    maxSlots: 64,
-    status: 'Registration Open',
-    platform: 'PC / Console crossplay',
-    description:
-      'The flagship community cup returns. Squad up with two teammates, survive the double-elimination bracket, and take the Dojo Cup trophy live on Kick.',
-    image: apexHeroImg,
-    featured: true,
-  },
-  {
-    id: 'midnight-vault',
-    name: 'Midnight Vault Heist',
-    game: 'GTA V RP',
-    format: '4-player crews · Point race',
-    dateLabel: 'Sat, Nov 14 · 20:00 UTC',
-    startIso: '2026-11-14T20:00:00Z',
-    prizePool: '$1,000',
-    entry: 'Free entry',
-    filledSlots: 21,
-    maxSlots: 32,
-    status: 'Registration Open',
-    platform: 'PC only · NoPixel ruleset',
-    description:
-      'Four-player crews race the clock through three custom heists. Fastest clean getaway takes the vault, with bonus cash for zero alerts.',
-    image: heistCityImg,
-  },
-  {
-    id: 'fc-clash',
-    name: 'FC Clash Invitational',
-    game: 'EA Sports FC 27',
-    format: '1v1 · Single Elimination · Bo3',
-    dateLabel: 'Sat, Nov 21 · 17:00 UTC',
-    startIso: '2026-11-21T17:00:00Z',
-    prizePool: '$750',
-    entry: 'Free entry',
-    filledSlots: 96,
-    maxSlots: 128,
-    status: 'Closing Soon',
-    platform: 'Crossplay · 6-min halves',
-    description:
-      'The fastest 128 players on the server go head-to-head. Ultimate Team or preset squads allowed, custom tactics encouraged.',
-    image: soccerEsportsImg,
-  },
-  {
-    id: 'precision-protocol',
-    name: 'Precision Protocol',
-    game: 'Valorant / CS2',
-    format: '5v5 · Swiss into playoffs',
-    dateLabel: 'Sat, Nov 28 · 19:00 UTC',
-    startIso: '2026-11-28T19:00:00Z',
-    prizePool: '$1,500',
-    entry: 'Free entry',
-    filledSlots: 32,
-    maxSlots: 32,
-    status: 'Waitlist',
-    platform: 'PC only · Anti-cheat required',
-    description:
-      'A tactical shooter gauntlet for full five-stacks. Swiss stage seeds the top eight into a single-elimination playoff on stream.',
-    image: tacticalFpsImg,
-  },
-];
-
-const recentTournaments: RecentTournament[] = [
-  {
-    id: 'summer-showdown',
-    name: 'Summer Showdown 2026',
-    game: 'Apex Legends',
-    dateLabel: 'Aug 22, 2026',
-    participants: 96,
-    matches: 58,
-    prizePool: '$2,500',
-    winner: { name: 'Team Phantom', handle: '@KiraFPS · @WraithMain_99 · @ApexPredator_NA', prize: '$1,500' },
-    runnerUp: { name: 'Dojo Disciples', handle: '@Dojo_Disciple' },
-    mvp: 'KiraFPS — 41 eliminations',
-    image: apexHeroImg,
-  },
-  {
-    id: 'vault-breakers',
-    name: 'Vault Breakers Invitational',
-    game: 'GTA V RP',
-    dateLabel: 'Jul 18, 2026',
-    participants: 40,
-    matches: 32,
-    prizePool: '$1,200',
-    winner: { name: 'GhostRider Crew', handle: '@GhostRider_RP', prize: '$700' },
-    runnerUp: { name: 'Pier Pressure', handle: '@NoPixelCop_01' },
-    mvp: 'GhostRider_RP — 3 clean escapes',
-    image: heistCityImg,
-  },
-  {
-    id: 'radiant-rumble',
-    name: 'Radiant Rumble',
-    game: 'Valorant',
-    dateLabel: 'Jun 27, 2026',
-    participants: 64,
-    matches: 48,
-    prizePool: '$1,800',
-    winner: { name: 'Snnsei', handle: '@snnsei', prize: '$1,000' },
-    runnerUp: { name: 'Viper Society', handle: '@ViperMommy' },
-    mvp: 'Snnsei — 1.42 tournament rating',
-    image: tacticalFpsImg,
-  },
-  {
-    id: 'fc-champions',
-    name: 'FC Champions Cup',
-    game: 'EA Sports FC 27',
-    dateLabel: 'May 30, 2026',
-    participants: 128,
-    matches: 96,
-    prizePool: '$900',
-    winner: { name: 'GoalMachine', handle: '@GoalMachine', prize: '$550' },
-    runnerUp: { name: 'FUT Champs', handle: '@FUT_Champs' },
-    mvp: 'GoalMachine — 20-0 undefeated',
-    image: soccerEsportsImg,
-  },
-  {
-    id: 'souls-gauntlet',
-    name: 'Souls Gauntlet',
-    game: 'Action RPG',
-    dateLabel: 'Apr 25, 2026',
-    participants: 32,
-    matches: 26,
-    prizePool: '$600',
-    winner: { name: 'BladeMaster', handle: '@BladeMaster', prize: '$400' },
-    runnerUp: { name: 'SoulsVeteran', handle: '@SoulsVeteran' },
-    mvp: 'BladeMaster — no-hit final run',
-    image: soulsEldenImg,
-  },
-];
 
 const seasonStats = [
   { label: 'Tournaments hosted', value: '24', hint: 'Across 6 game titles', icon: Trophy },
@@ -261,11 +83,14 @@ const statusStyles: Record<RegistrationStatus, { dark: string; light: string }> 
 
 export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, onToast }) => {
   const { isDark } = useTheme();
+  const { tournaments: contentTournaments } = useContent();
+  const availableTournaments = contentTournaments ?? defaultAvailableTournaments;
+  const recentTournaments = defaultRecentTournaments;
   const [registrationTournament, setRegistrationTournament] = useState<AvailableTournament | null>(null);
   const [registrationDetails, setRegistrationDetails] = useState<{ playerName: string; discordHandle: string; squadName: string } | null>(null);
-  const featured = availableTournaments.find((tournament) => tournament.featured) ?? availableTournaments[0];
-  const countdown = useCountdown(featured.startIso);
-  const featuredProgress = Math.round((featured.filledSlots / featured.maxSlots) * 100);
+  const featured = availableTournaments.find((tournament) => tournament.featured) ?? availableTournaments[0] ?? null;
+  const countdown = useCountdown(featured?.startIso ?? new Date().toISOString());
+  const featuredProgress = featured ? Math.round((featured.filledSlots / Math.max(1, featured.maxSlots)) * 100) : 0;
 
   useEffect(() => {
     if (!registrationTournament) return;
@@ -361,6 +186,7 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
         </div>
 
         {/* Announcement hero */}
+        {featured ? (
         <section
           aria-labelledby="available-tournament-heading"
           className={`relative overflow-hidden rounded-3xl border shadow-2xl ${
@@ -530,6 +356,19 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
             </div>
           </div>
         </section>
+        ) : (
+          <section
+            className={`relative overflow-hidden rounded-3xl border p-8 text-center sm:p-12 ${
+              isDark ? 'border-neutral-800 bg-neutral-950' : 'border-neutral-200 bg-white shadow-sm'
+            }`}
+          >
+            <Trophy className="mx-auto h-10 w-10 text-[#FFBE0D]" />
+            <h1 className="mt-4 text-2xl font-black tracking-tight sm:text-3xl">No tournaments announced yet</h1>
+            <p className={`mx-auto mt-2 max-w-md text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
+              New cups are added from the dashboard. Check back soon or join the Discord for early bracket drops.
+            </p>
+          </section>
+        )}
 
         {/* Available tournaments */}
         <section aria-labelledby="open-tournaments-heading" className="mt-12 sm:mt-16">
@@ -931,6 +770,9 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
                     </label>
                     <p className={`text-xs leading-relaxed ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>
                       You’ll review these details and finish registration in the GM7 Discord.
+                    </p>
+                    <p className={`text-xs leading-relaxed ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
+                      Your details stay in this browser form until you continue to Discord. Read the <a href="/legal/privacy" className="font-semibold underline underline-offset-2">draft privacy policy</a> and <a href="/legal/terms" className="font-semibold underline underline-offset-2">draft terms</a>.
                     </p>
                     <button
                       type="submit"
