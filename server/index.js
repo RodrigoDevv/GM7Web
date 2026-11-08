@@ -12,7 +12,13 @@ import { initDatabase, isTursoConfigured } from './turso.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const PORT = Number(process.env.PORT || 3001);
-const APP_URL = (process.env.APP_URL || 'http://localhost:3000').replace(/\/+$/, '');
+// On Vercel, fall back to the deployment URL so OAuth callbacks and links work
+// without extra configuration (set APP_URL for a custom domain).
+const APP_URL = (
+  process.env.APP_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '') ||
+  'http://localhost:3000'
+).replace(/\/+$/, '');
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || '';
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || '';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'gm7-dev-session-secret-change-me';
@@ -1137,27 +1143,33 @@ if (fs.existsSync(distDir)) {
   });
 }
 
-app.listen(PORT, () => {
-  const configured = DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET;
-  console.log(`[GM7] server listening on http://localhost:${PORT}`);
-  console.log(`[GM7] OAuth redirect URI: ${REDIRECT_URI}`);
-  if (isTursoConfigured()) {
-    console.log(`[GM7] Connecting to Turso database: ${process.env.TURSO_DATABASE_URL}`);
-    initDatabase().catch((err) => {
-      console.error('[GM7] Turso initialization error:', err.message);
-    });
-  } else {
-    console.log('[GM7] Turso not configured — using local file storage. Set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN in .env to connect to Turso.');
-  }
-  if (!configured) {
-    console.warn('[GM7] DISCORD_CLIENT_ID / DISCORD_CLIENT_SECRET not set — login will not work yet.');
-  }
-  if (SESSION_SECRET === 'gm7-dev-session-secret-change-me') {
-    console.warn('[GM7] Using the default SESSION_SECRET — set it in .env for production.');
-  }
-  if (ADMIN_AUTH_DISABLED) {
-    console.warn('[GM7] ADMIN_AUTH_DISABLED is on — the dashboard is open without a login. Anyone with the URL can edit content.');
-  } else if (USING_DEFAULT_ADMIN_PASSWORD) {
-    console.warn('[GM7] Dashboard uses the default password "gm7-admin" — set ADMIN_PASSWORD in .env to change it.');
-  }
-});
+// Vercel imports this module and invokes the exported app as a serverless
+// function, so only start a standalone HTTP server when running locally.
+export default app;
+
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    const configured = DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET;
+    console.log(`[GM7] server listening on http://localhost:${PORT}`);
+    console.log(`[GM7] OAuth redirect URI: ${REDIRECT_URI}`);
+    if (isTursoConfigured()) {
+      console.log(`[GM7] Connecting to Turso database: ${process.env.TURSO_DATABASE_URL}`);
+      initDatabase().catch((err) => {
+        console.error('[GM7] Turso initialization error:', err.message);
+      });
+    } else {
+      console.log('[GM7] Turso not configured — using local file storage. Set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN in .env to connect to Turso.');
+    }
+    if (!configured) {
+      console.warn('[GM7] DISCORD_CLIENT_ID / DISCORD_CLIENT_SECRET not set — login will not work yet.');
+    }
+    if (SESSION_SECRET === 'gm7-dev-session-secret-change-me') {
+      console.warn('[GM7] Using the default SESSION_SECRET — set it in .env for production.');
+    }
+    if (ADMIN_AUTH_DISABLED) {
+      console.warn('[GM7] ADMIN_AUTH_DISABLED is on — the dashboard is open without a login. Anyone with the URL can edit content.');
+    } else if (USING_DEFAULT_ADMIN_PASSWORD) {
+      console.warn('[GM7] Dashboard uses the default password "gm7-admin" — set ADMIN_PASSWORD in .env to change it.');
+    }
+  });
+}

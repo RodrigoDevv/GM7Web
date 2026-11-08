@@ -1,11 +1,9 @@
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { fileURLToPath } from 'node:url';
 import { getTursoClient, initDatabase } from './turso.js';
+import { DATA_DIR } from './data-dir.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(__dirname, 'data');
 const ANALYTICS_FILE = path.join(DATA_DIR, 'analytics.json');
 const PAGE_KEYS = new Set(['home', 'about', 'socials', 'tournaments', 'games', 'dashboard', 'legal']);
 

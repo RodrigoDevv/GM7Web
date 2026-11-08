@@ -1,11 +1,9 @@
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { fileURLToPath } from 'node:url';
 import { getTursoClient, initDatabase } from './turso.js';
+import { DATA_DIR } from './data-dir.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(__dirname, 'data');
 const CONTENT_FILE = path.join(DATA_DIR, 'content.json');
 
 // `null` means "no custom content yet" so the client can fall back to its
