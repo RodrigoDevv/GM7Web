@@ -216,10 +216,7 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
                   <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFBE0D] px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-black">
-                      <Gamepad2 className="h-3 w-3" />
-                      {activeIntelGame.tag}
-                    </span>
+                
                     <h3 className="mt-2.5 text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
                       {activeIntelGame.title}
                     </h3>
