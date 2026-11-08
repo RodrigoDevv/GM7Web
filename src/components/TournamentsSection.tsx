@@ -30,13 +30,7 @@ import heistCityImg from '../assets/images/ps5_city_heist_1791730967151.jpg';
 import soulsEldenImg from '../assets/images/ps5_souls_elden_1791730984139.jpg';
 import soccerEsportsImg from '../assets/images/ps5_esports_soccer_1791731018539.jpg';
 import kickBgImg from '../assets/images/discord.jpg';
-
-// Authentic Kick Icon
-const KickIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M3 3h5.5v6.5h3V4h5.5v6h-3v4h3v6H11.5v-5.5h-3V21H3V3z" />
-  </svg>
-);
+import { KickIcon } from './BrandIcons';
 
 interface TournamentsSectionProps {
   onToast?: (msg: string) => void;

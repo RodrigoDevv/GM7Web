@@ -18,12 +18,7 @@ import soccerImage from '../assets/images/ps5_esports_soccer_1791731018539.jpg';
 // import below to point to your image file.
 // ════════════════════════════════════════════════════════════════════════════
 import customStreamPoster from '../assets/images/welcoming.png';
-
-const KickIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M3 3h5.5v6.5h3V4h5.5v6h-3v4h3v6H11.5v-5.5h-3V21H3V3z" />
-  </svg>
-);
+import { KickIcon } from './BrandIcons';
 
 interface StreamScheduleSectionProps {
   onToast?: (msg: string) => void;

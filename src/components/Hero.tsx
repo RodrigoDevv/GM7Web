@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import chibiSensei from '../assets/images/Chibi Sensei in a Red Jacket.png';
 import { useTheme } from '../context/ThemeContext';
 import { OptionalThirdPartyFrame } from '../context/PrivacyConsentContext';
+import { KickIcon } from './BrandIcons';
 
 const KICK_CHANNEL_URL = 'https://kick.com/snnsei';
 const KICK_EMBED_URL = 'https://player.kick.com/snnsei';
@@ -30,13 +31,6 @@ interface HeroProps {
   onLearnMore?: () => void;
   onToast?: (msg: string) => void;
 }
-
-// Authentic Kick SVG Icon
-const KickIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M3 3h5.5v6.5h3V4h5.5v6h-3v4h3v6H11.5v-5.5h-3V21H3V3z" />
-  </svg>
-);
 
 const quotes = [
   'Grind never stops — welcome to the Dojo.',

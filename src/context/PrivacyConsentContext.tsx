@@ -18,9 +18,9 @@ export const PrivacyConsentProvider: React.FC<{ children: React.ReactNode }> = (
   const [choice, setChoiceState] = useState<ConsentChoice>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      return stored === 'accepted' || stored === 'rejected' ? stored : null;
+      return stored === 'accepted' || stored === 'rejected' ? stored : 'rejected';
     } catch {
-      return null;
+      return 'rejected';
     }
   });
 

@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowUpRight, Calendar, Gamepad2, MoreHorizontal, Users, X, YoutubeIcon } from 'lucide-react';
+import { ArrowUpRight, Calendar, Gamepad2, MoreHorizontal, Users, X } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useContent } from '../context/ContentContext';
 import { defaultGames, type GameItem } from '../data/games';
+import { KickIcon, YouTubeIcon } from './BrandIcons';
 
 import senseiShowcaseImg from '../assets/images/play.png';
-
-// Authentic Kick Icon
-const KickIcon: React.FC<{ className?: string }> = ({ className = 'w-3.5 h-3.5' }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M3 3h5.5v6.5h3V4h5.5v6h-3v4h3v6H11.5v-5.5h-3V21H3V3z" />
-  </svg>
-);
 
 interface WhatWePlaySectionProps {
   onToast?: (msg: string) => void;
@@ -118,7 +112,7 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
                         aria-label={`Watch ${game.title} on YouTube`}
                         className="absolute right-1.5 top-1.5 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#FF0000] text-white shadow-lg transition-transform hover:scale-110 active:scale-95"
                       >
-                        <YoutubeIcon className="h-4 w-4" />
+                        <YouTubeIcon className="h-4 w-4" />
                       </a>
                     )}
 
@@ -296,7 +290,7 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
                       rel="noreferrer"
                       className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#FF0000] px-5 py-3 text-xs font-black uppercase tracking-wider text-white transition-all shadow-[0_6px_24px_rgba(255,0,0,0.35)] hover:bg-[#d90000] active:scale-[0.98]"
                     >
-                      <YoutubeIcon className="h-4 w-4" />
+                      <YouTubeIcon className="h-4 w-4" />
                       <span>Watch on YouTube</span>
                       <ArrowUpRight className="h-3.5 w-3.5" />
                     </a>

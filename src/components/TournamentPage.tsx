@@ -771,9 +771,6 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
                     <p className={`text-xs leading-relaxed ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>
                       You’ll review these details and finish registration in the GM7 Discord.
                     </p>
-                    <p className={`text-xs leading-relaxed ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
-                      Your details stay in this browser form until you continue to Discord. Read the <a href="/legal/privacy" className="font-semibold underline underline-offset-2">draft privacy policy</a> and <a href="/legal/terms" className="font-semibold underline underline-offset-2">draft terms</a>.
-                    </p>
                     <button
                       type="submit"
                       className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#FFBE0D] px-5 text-xs font-black uppercase tracking-wider text-black transition-colors hover:bg-[#ffd44d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFBE0D] focus-visible:ring-offset-2"

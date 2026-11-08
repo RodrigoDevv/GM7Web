@@ -4,9 +4,7 @@ import {
   ChevronLeft,
   Eye,
   EyeOff,
-  Gamepad2,
   KeyRound,
-  LayoutDashboard,
   Loader2,
   Lock,
   LogOut,
@@ -14,10 +12,9 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sparkles,
-  Trophy,
   User,
-  Users,
 } from 'lucide-react';
+import { AudienceIcon, GamesIcon, OverviewIcon, TournamentIcon, VisitsIcon } from './DashboardIcons';
 import { useTheme } from '../../context/ThemeContext';
 import { useContent } from '../../context/ContentContext';
 import { defaultGames, type GameItem } from '../../data/games';
@@ -42,9 +39,9 @@ interface AdminSession {
 }
 
 const TABS: Array<{ key: TabKey; label: string; icon: React.ComponentType<{ className?: string }> }> = [
-  { key: 'overview', label: 'Overview', icon: LayoutDashboard },
-  { key: 'tournaments', label: 'Tournaments', icon: Trophy },
-  { key: 'games', label: 'What We Play', icon: Gamepad2 },
+  { key: 'overview', label: 'Overview', icon: OverviewIcon },
+  { key: 'tournaments', label: 'Tournaments', icon: TournamentIcon },
+  { key: 'games', label: 'What We Play', icon: GamesIcon },
 ];
 
 interface AnalyticsStats {
@@ -372,7 +369,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
               const count = tab.key === 'games' ? gameDraft.length : tab.key === 'tournaments' ? tournamentDraft.length : null;
               return (
                 <button key={tab.key} type="button" onClick={() => setActiveTab(tab.key)} aria-current={active ? 'page' : undefined} className={`flex min-h-10 w-full items-center gap-3 border-l-2 px-3 text-left text-sm font-medium transition-colors ${active ? 'border-[#FFBE0D] text-[#FFBE0D]' : `border-transparent ${isDark ? 'text-neutral-400 hover:text-white' : 'text-neutral-600 hover:text-black'}`}`}>
-                  <Icon className="h-4 w-4" /><span className="flex-1">{tab.label}</span>
+                  <Icon className="h-4 w-4 shrink-0" /><span className="flex-1">{tab.label}</span>
                   {count !== null && <span className={`rounded-full px-2 py-0.5 text-[10px] ${active ? 'bg-white/20' : isDark ? 'bg-neutral-800' : 'bg-neutral-100'}`}>{count}</span>}
                 </button>
               );
@@ -403,12 +400,25 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
             <div className="space-y-5">
               <section aria-label="Key statistics" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 {[
-                  { label: 'Visits · last 7 days', value: stats?.visits7d ?? 0, icon: Users, accent: true },
-                  { label: 'Visits · all time', value: stats?.visitsAllTime ?? 0, icon: Eye },
-                  { label: 'Games in library', value: gameDraft.length, icon: Gamepad2 },
-                  { label: 'Upcoming tournaments', value: upcomingTournaments, icon: Trophy },
+                  { label: 'Visits · last 7 days', value: stats?.visits7d ?? 0, icon: AudienceIcon, accent: true },
+                  { label: 'Visits · all time', value: stats?.visitsAllTime ?? 0, icon: VisitsIcon },
+                  { label: 'Games in library', value: gameDraft.length, icon: GamesIcon },
+                  { label: 'Upcoming tournaments', value: upcomingTournaments, icon: TournamentIcon },
                 ].map((item) => {
-                  return <article key={item.label} className={`border-l-2 py-1 pl-4 ${item.accent ? 'border-[#FFBE0D]' : isDark ? 'border-white/15' : 'border-black/15'}`}><p className={`text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>{item.label}</p><p className="mt-1 text-2xl font-semibold tabular-nums">{Number(item.value).toLocaleString()}</p></article>;
+                  const Icon = item.icon;
+                  return (
+                    <article key={item.label} className={`border-l-2 py-1 pl-4 ${item.accent ? 'border-[#FFBE0D]' : isDark ? 'border-white/15' : 'border-black/15'}`}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className={`text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>{item.label}</p>
+                          <p className="mt-1 text-2xl font-semibold tabular-nums">{Number(item.value).toLocaleString()}</p>
+                        </div>
+                        <span aria-hidden="true" className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${item.accent ? 'border-[#FFBE0D]/30 bg-[#FFBE0D]/10 text-[#d99c00]' : isDark ? 'border-white/10 bg-white/5 text-neutral-300' : 'border-black/10 bg-black/[0.04] text-neutral-600'}`}>
+                          <Icon className="h-4 w-4" />
+                        </span>
+                      </div>
+                    </article>
+                  );
                 })}
               </section>
 
@@ -431,9 +441,20 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
 
               <section className="grid gap-4 md:grid-cols-2">
                 {[
-                  { key: 'tournaments' as const, title: 'Manage tournaments', description: `${tournamentDraft.length} tournament entries · ${upcomingTournaments} upcoming`, icon: Trophy },
-                  { key: 'games' as const, title: 'Edit What We Play', description: `${gameDraft.length} games in the library`, icon: Gamepad2 },
-                ].map((item) => <button type="button" key={item.key} onClick={() => setActiveTab(item.key)} className={`flex min-h-16 items-center justify-between gap-4 border-y py-3 text-left transition-colors ${isDark ? 'border-white/10 hover:text-[#FFBE0D]' : 'border-black/10 hover:text-[#8c6500]'}`}><span className="min-w-0"><strong className="block text-sm font-semibold">{item.title}</strong><span className={`mt-1 block text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>{item.description}</span></span><span aria-hidden="true" className="text-lg">→</span></button>)}
+                  { key: 'tournaments' as const, title: 'Manage tournaments', description: `${tournamentDraft.length} tournament entries · ${upcomingTournaments} upcoming`, icon: TournamentIcon },
+                  { key: 'games' as const, title: 'Edit What We Play', description: `${gameDraft.length} games in the library`, icon: GamesIcon },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button type="button" key={item.key} onClick={() => setActiveTab(item.key)} className={`flex min-h-16 items-center justify-between gap-4 border-y py-3 text-left transition-colors ${isDark ? 'border-white/10 hover:text-[#FFBE0D]' : 'border-black/10 hover:text-[#8c6500]'}`}>
+                      <span className="flex min-w-0 items-center gap-3">
+                        <span aria-hidden="true" className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${isDark ? 'border-white/10 bg-white/5 text-neutral-300' : 'border-black/10 bg-black/[0.04] text-neutral-600'}`}><Icon className="h-4 w-4" /></span>
+                        <span className="min-w-0"><strong className="block text-sm font-semibold">{item.title}</strong><span className={`mt-1 block text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>{item.description}</span></span>
+                      </span>
+                      <span aria-hidden="true" className="text-lg">→</span>
+                    </button>
+                  );
+                })}
               </section>
             </div>
           ) : (

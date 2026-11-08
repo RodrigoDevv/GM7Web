@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowUpRight, Calendar, Gamepad2, Users, X, YoutubeIcon } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Calendar, Gamepad2, Users, X } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useContent } from '../context/ContentContext';
 import { defaultGames, upcomingGames, type GameItem } from '../data/games';
-
-const KickIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M3 3h5.5v6.5h3V4h5.5v6h-3v4h3v6H11.5v-5.5h-3V21H3V3z" />
-  </svg>
-);
+import { KickIcon, YouTubeIcon } from './BrandIcons';
 
 interface GamesPageProps {
   onNavigateHome: (targetSection?: string) => void;
@@ -154,7 +149,7 @@ export const GamesPage: React.FC<GamesPageProps> = ({ onNavigateHome }) => {
             rel="noopener noreferrer"
             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#ee0f0f] px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white transition-all hover:bg-[#bf2626] active:scale-95"
           >
-            <YoutubeIcon className="h-4 w-4" />
+            <YouTubeIcon className="h-4 w-4" />
             Watch on Youtube
             <ArrowUpRight className="h-3.5 w-3.5" />
           </a>
@@ -258,7 +253,7 @@ export const GamesPage: React.FC<GamesPageProps> = ({ onNavigateHome }) => {
                     rel="noreferrer"
                     className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#FF0000] px-5 py-3 text-xs font-black uppercase tracking-wider text-white transition-all shadow-[0_6px_24px_rgba(255,0,0,0.35)] hover:bg-[#d90000] active:scale-[0.98]"
                   >
-                    <YoutubeIcon className="h-4 w-4" />
+                    <YouTubeIcon className="h-4 w-4" />
                     <span>Watch on YouTube</span>
                     <ArrowUpRight className="h-3.5 w-3.5" />
                   </a>

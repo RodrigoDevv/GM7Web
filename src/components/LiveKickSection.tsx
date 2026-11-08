@@ -25,19 +25,13 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import { OptionalThirdPartyFrame } from '../context/PrivacyConsentContext';
 import senseiImage from '../assets/images/Chibi Sensei in a Red Jacket.png';
+import { KickIcon } from './BrandIcons';
 
 interface LiveKickSectionProps {
   onToast?: (msg: string) => void;
   defaultChannel?: string;
   initialOffline?: boolean;
 }
-
-// Authentic Kick Streaming SVG Icon
-const KickIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M3 3h5.5v6.5h3V4h5.5v6h-3v4h3v6H11.5v-5.5h-3V21H3V3z" />
-  </svg>
-);
 
 interface HighlightVOD {
   id: string;
