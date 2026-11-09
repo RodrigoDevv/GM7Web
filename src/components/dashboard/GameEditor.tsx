@@ -111,28 +111,8 @@ export const GameEditor: React.FC<GameEditorProps> = ({ items, onCommit, saving,
             <Field label="Category">
               <TextInput value={draft.category} onChange={(event) => update('category', event.target.value)} placeholder="e.g. RPG / FPS / Sports" />
             </Field>
-            <Field label="Tag">
-              <TextInput value={draft.tag} onChange={(event) => update('tag', event.target.value)} placeholder="e.g. Main Grind" />
-            </Field>
             <Field label="Since">
               <TextInput value={draft.scheduleDay} onChange={(event) => update('scheduleDay', event.target.value)} placeholder="e.g. 2012" />
-            </Field>
-            <Field label="Hype count">
-              <TextInput
-                type="number"
-                min={0}
-                value={draft.initialHypes}
-                onChange={(event) => update('initialHypes', Number(event.target.value) || 0)}
-              />
-            </Field>
-            <Field label="Rank badge">
-              <TextInput value={draft.rankBadge} onChange={(event) => update('rankBadge', event.target.value)} placeholder="e.g. Predator Top 500" />
-            </Field>
-            <Field label="Loadout">
-              <TextInput value={draft.loadout} onChange={(event) => update('loadout', event.target.value)} placeholder="e.g. Wingman + R-99" />
-            </Field>
-            <Field label="Squad access" className="sm:col-span-2">
-              <TextInput value={draft.squadStatus} onChange={(event) => update('squadStatus', event.target.value)} placeholder="e.g. Open for community 1v1s" />
             </Field>
             <div className="sm:col-span-2">
               <ImageField value={draft.image} onChange={(value) => update('image', value)} />
