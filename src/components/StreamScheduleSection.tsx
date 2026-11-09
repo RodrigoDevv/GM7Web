@@ -138,7 +138,7 @@ export const StreamScheduleSection: React.FC<StreamScheduleSectionProps> = ({ on
         <div className="absolute top-1/2 left-1/3 w-[600px] h-[350px] bg-gradient-to-r from-[#FFBE0D]/12 via-orange-600/8 to-transparent rounded-full blur-[140px]" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 sm:mb-12">
@@ -274,7 +274,7 @@ export const StreamScheduleSection: React.FC<StreamScheduleSectionProps> = ({ on
               <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-orange-600/10 rounded-full blur-[90px] pointer-events-none" />
 
               {/* Status Header Pill */}
-              <div className="relative z-10 p-5 sm:p-6 pb-2 flex items-center justify-between gap-3">
+              <div className="relative z-10 p-5 sm:p-6 pb-2 flex flex-wrap items-center justify-between gap-3">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-black/60 border border-[#FFBE0D]/30 text-[#FFBE0D] backdrop-blur-md shadow-xs">
                   <span className="w-2 h-2 rounded-full bg-[#FFBE0D] animate-ping" />
                   <span>{`Next Broadcast ${targetLabel.toLowerCase()}`}</span>
@@ -304,7 +304,7 @@ export const StreamScheduleSection: React.FC<StreamScheduleSectionProps> = ({ on
                 </h3>
 
                 {/* Futuristic Ticker Cards */}
-                <div className="mt-5 flex items-center justify-center gap-2.5 sm:gap-4">
+                <div className="mt-5 flex items-center justify-center gap-2 sm:gap-4">
                   {[
                     { value: pad2(hours), label: 'Hours' },
                     { value: pad2(minutes), label: 'Minutes' },
@@ -320,12 +320,12 @@ export const StreamScheduleSection: React.FC<StreamScheduleSectionProps> = ({ on
 
                       <div className="flex flex-col items-center">
                         {/* Split-Flap Ticker Card */}
-                        <div className="relative rounded-2xl min-w-[74px] sm:min-w-[102px] py-3 sm:py-4 px-2 sm:px-3 bg-gradient-to-b from-neutral-800/90 via-neutral-900/95 to-neutral-950 border border-white/10 shadow-[0_12px_28px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.18)] backdrop-blur-md overflow-hidden">
+                        <div className="relative rounded-2xl min-w-[62px] sm:min-w-[102px] py-3 sm:py-4 px-2 sm:px-3 bg-gradient-to-b from-neutral-800/90 via-neutral-900/95 to-neutral-950 border border-white/10 shadow-[0_12px_28px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.18)] backdrop-blur-md overflow-hidden">
                           {/* Center Divider Line */}
                           <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/80 shadow-[0_1px_0_rgba(255,255,255,0.06)] pointer-events-none" />
 
                           {/* Digits */}
-                          <div className="relative z-10 font-anton text-4xl sm:text-6xl text-[#FFBE0D] leading-none tracking-wider text-center drop-shadow-[0_0_20px_rgba(255,190,13,0.35)] tabular-nums">
+                          <div className="relative z-10 font-anton text-3xl sm:text-6xl text-[#FFBE0D] leading-none tracking-wider text-center drop-shadow-[0_0_20px_rgba(255,190,13,0.35)] tabular-nums">
                             {unit.value}
                           </div>
                         </div>

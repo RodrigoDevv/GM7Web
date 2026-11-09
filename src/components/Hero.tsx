@@ -173,14 +173,14 @@ export const Hero: React.FC<HeroProps> = ({ onToast }) => {
         </span>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-8 lg:gap-12 items-stretch">
           
           {/* LEFT: Creator Profile & Story */}
           <div className="flex flex-col justify-center order-2 lg:order-1 relative z-10">
             
             <div className="mb-4">
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight bg-gradient-to-br bg-clip-text text-transparent drop-shadow-sm ${
                   isDark ? 'from-white via-neutral-100 to-neutral-400' : 'from-neutral-950 via-neutral-800 to-neutral-500'
                 }`}>

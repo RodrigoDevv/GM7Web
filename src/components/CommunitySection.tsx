@@ -44,7 +44,7 @@ export const CommunitySection: React.FC<CommunitySectionProps> = ({ onToast }) =
           : 'bg-neutral-50 text-neutral-900 border-t border-neutral-200'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Simple Centered Header */}
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">

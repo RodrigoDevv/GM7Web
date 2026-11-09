@@ -76,7 +76,7 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({
 
   return (
     <section id="features" className="py-20 sm:py-28 bg-neutral-50/60 border-t border-neutral-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">

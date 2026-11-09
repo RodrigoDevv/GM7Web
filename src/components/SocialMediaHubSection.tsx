@@ -26,7 +26,7 @@ const PLATFORMS: Record<PlatformKey, PlatformMeta> = {
   tiktok: { key: 'tiktok', name: 'TikTok', handle: '@snnsei_', color: '#25F4EE', lightColor: '#0B7A80', onColor: '#0A0A0A', url: 'https://www.tiktok.com/@snnsei_', cta: 'View all on TikTok', icon: TikTokIcon },
   instagram: { key: 'instagram', name: 'Instagram', handle: '@snnseii', color: '#E4405F', lightColor: '#B3243E', onColor: '#fff', url: 'https://www.instagram.com/snnseii/', cta: 'View all on Instagram', icon: InstagramIcon },
 };
-const PLATFORM_ORDER: PlatformKey[] = ['youtube', 'kick', 'tiktok', 'instagram'];
+const PLATFORM_ORDER: PlatformKey[] = ['youtube', 'instagram', 'tiktok', 'kick'];
 
 export interface FeedChannel {
   key: PlatformKey;
@@ -196,12 +196,12 @@ export const SocialMediaHubSection: React.FC<SocialMediaHubSectionProps> = ({ on
 
   return (
     <section id="media" className={`min-h-[60vh] border-b py-16 sm:py-24 ${isDark ? 'border-neutral-800/80 bg-[#080a0d] text-neutral-100' : 'border-neutral-200 bg-neutral-50/80 text-neutral-900'}`}>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl 2xl:max-w-[90rem] px-4 sm:px-6 lg:px-8">
         <div className="mb-12 max-w-2xl">
        
           <h2 className="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">Latest from Snnsei</h2>
           <p className={`mt-2.5 text-sm leading-relaxed sm:text-base ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
-            Find the latest videos, clips and posts from Snnsei across YouTube, Kick, Instagram and TikTok.
+            Find the latest videos, clips and posts from Snnsei across YouTube, Instagram, TikTok and Kick.
           </p>
         </div>
 

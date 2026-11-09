@@ -193,7 +193,7 @@ export const AboutIntroSection: React.FC = () => {
 
   return (
     <SectionShell>
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-16">
           <Reveal delay={80}>
           <div>
@@ -248,7 +248,7 @@ export const AboutStreamerSection: React.FC = () => {
 
   return (
     <SectionShell>
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] gap-10 lg:gap-16 items-center">
           {/* Full bleed image panel */}
           <div className="relative overflow-hidden min-h-[320px] sm:min-h-[420px] lg:min-h-[520px] -mx-4 sm:-mx-6 lg:-mx-8">
@@ -324,7 +324,7 @@ export const AboutFounderSection: React.FC = () => {
 
   return (
     <SectionShell>
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] gap-10 lg:gap-16 items-center">
           <div className="order-2 lg:order-1">
             <Eyebrow>02 · The founder</Eyebrow>
@@ -420,7 +420,7 @@ export const AboutPillarsSection: React.FC = () => {
 
   return (
     <SectionShell>
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <Eyebrow>What we build</Eyebrow>
           <SectionTitle>
@@ -484,7 +484,7 @@ export const AboutTimelineSection: React.FC = () => {
 
   return (
     <SectionShell>
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.6fr)] gap-10 lg:gap-16 items-start">
           <div>
             <Eyebrow>The road so far</Eyebrow>
@@ -563,7 +563,7 @@ export const AboutCommunitySection: React.FC = () => {
 
   return (
     <SectionShell>
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] gap-10 lg:gap-16 items-center">
           <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 overflow-hidden min-h-[300px] sm:min-h-[400px]">
             <img
@@ -632,7 +632,7 @@ export const AboutCtaSection: React.FC<AboutSectionsProps> = ({ onToast, onNavig
 
   return (
     <SectionShell>
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className={`relative overflow-hidden p-8 sm:p-12 ${
             isDark

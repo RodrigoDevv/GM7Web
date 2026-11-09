@@ -32,7 +32,7 @@ const principles = [
 export const PhilosophySection: React.FC<PhilosophySectionProps> = ({ onToast }) => {
   return (
     <section id="philosophy" className="py-14 sm:py-20 bg-white text-neutral-900 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Simple Header */}
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">

@@ -253,7 +253,7 @@ export const SupportersSection: React.FC<SupportersSectionProps> = ({ onToast })
         <div className="absolute bottom-1/4 right-1/4 w-[480px] h-[320px] bg-[#FFBE0D]/8 rounded-full blur-[130px] pointer-events-none" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
         <div className="max-w-3xl mx-auto mb-12 sm:mb-16 text-center">

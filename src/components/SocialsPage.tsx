@@ -58,7 +58,7 @@ export const SocialsPage: React.FC<SocialsPageProps> = ({ onToast }) => {
   const refreshFeed = () => {
     if (refreshing) return;
     setRefreshing(true);
-    onToast?.('Syncing the latest YouTube, Kick, TikTok and Instagram content…');
+    onToast?.('Syncing the latest YouTube, Instagram, TikTok and Kick content…');
     setRefreshToken((value) => value + 1);
   };
 
@@ -70,7 +70,7 @@ export const SocialsPage: React.FC<SocialsPageProps> = ({ onToast }) => {
   return (
     <div className={`relative flex min-h-[80vh] flex-col transition-colors duration-300 ${isDark ? 'bg-[#080a0d] text-white' : 'bg-neutral-50/80 text-neutral-900'}`}>
       <div className={`sticky top-16 z-30 border-b backdrop-blur-xl ${isDark ? 'border-neutral-800/80 bg-[#080a0d]/85' : 'border-neutral-200 bg-neutral-50/90'}`}>
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl 2xl:max-w-[90rem] items-center gap-3 px-4 py-2.5 sm:px-6 lg:px-8">
           <nav aria-label="Jump to a channel" className="no-scrollbar flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto">
             {channels.map((channel) => {
               const Icon = channel.icon;
@@ -87,9 +87,6 @@ export const SocialsPage: React.FC<SocialsPageProps> = ({ onToast }) => {
                 >
                   <Icon className="h-3.5 w-3.5" />
                   <span>{channel.name}</span>
-                  <span className={`rounded-full px-1.5 text-[9px] font-mono ${active ? 'bg-black/10' : isDark ? 'bg-neutral-800 text-neutral-500' : 'bg-neutral-100 text-neutral-500'}`}>
-                    {channel.count}
-                  </span>
                 </button>
               );
             })}

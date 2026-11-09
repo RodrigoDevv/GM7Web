@@ -195,7 +195,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onToast }) => {
         <div className="absolute bottom-1/4 left-1/4 w-[450px] h-[300px] bg-[#00e5ff]/6 rounded-full blur-[130px] pointer-events-none" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* ============================================================== */}
         {/* SECTION HEADER                                                 */}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowUpRight, Calendar, Gamepad2, Users, X } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Calendar, Gamepad2, X } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useContent } from '../context/ContentContext';
 import { defaultGames, upcomingGames, type GameItem } from '../data/games';
@@ -48,7 +48,7 @@ export const GamesPage: React.FC<GamesPageProps> = ({ onNavigateHome }) => {
         }}
       />
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+      <div className="relative z-10 mx-auto w-full max-w-7xl 2xl:max-w-[90rem] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
         <button
           type="button"
           onClick={() => onNavigateHome('what-we-play')}
@@ -95,10 +95,10 @@ export const GamesPage: React.FC<GamesPageProps> = ({ onNavigateHome }) => {
                   <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 via-black/45 to-transparent" />
 
                   <div className="absolute bottom-0 left-0 right-0 p-1 text-white">
-                    <h3 className="truncate text-[9px] font-semibold leading-tight drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+                    <h3 className="truncate text-[10px] font-semibold leading-tight drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
                       {game.title}
                     </h3>
-                    <p className="mt-0 truncate text-[8px] text-neutral-200 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+                    <p className="mt-0 truncate text-[9px] text-neutral-200 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
                       {game.genre}
                     </p>
                   </div>
@@ -179,10 +179,6 @@ export const GamesPage: React.FC<GamesPageProps> = ({ onNavigateHome }) => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
                 <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFBE0D] px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-black">
-                    <Gamepad2 className="h-3 w-3" />
-                    {activeIntelGame.tag}
-                  </span>
                   <h3 className="mt-2.5 text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
                     {activeIntelGame.title}
                   </h3>
@@ -220,30 +216,21 @@ export const GamesPage: React.FC<GamesPageProps> = ({ onNavigateHome }) => {
                   </p>
                 </div>
 
-                <div className="mt-5 flex items-stretch gap-4">
-                  <div className="min-w-0 flex-1">
+                <div className="mt-5 space-y-3">
+                  <div className="min-w-0">
                     <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-500">
                       <Gamepad2 className="h-3 w-3 text-[#FFBE0D]" />
-                      Genre
+                      Type
                     </span>
                     <span className="mt-1 block truncate text-sm font-bold">{activeIntelGame.genre}</span>
                   </div>
-                  <div className={`w-px shrink-0 ${isDark ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0">
                     <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-500">
                       <Calendar className="h-3 w-3 text-[#FFBE0D]" />
-                      Streams
+                      Since
                     </span>
-                    <span className="mt-1 block truncate text-sm font-bold">{activeIntelGame.scheduleDay}</span>
+                    <span className="mt-1 block text-sm font-bold">{activeIntelGame.scheduleDay}</span>
                   </div>
-                </div>
-
-                <div className={`mt-5 border-l-2 pl-3 ${isDark ? 'border-[#FFBE0D]/60' : 'border-orange-400'}`}>
-                  <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-neutral-500">
-                    <Users className="h-3 w-3 text-[#FFBE0D]" />
-                    Squad Access
-                  </span>
-                  <span className="mt-1 block text-sm font-semibold leading-snug">{activeIntelGame.squadStatus}</span>
                 </div>
 
                 <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">

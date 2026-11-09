@@ -267,7 +267,7 @@ function AppContent() {
         <div
           role="status"
           aria-live="polite"
-          className={`fixed bottom-6 right-6 z-50 animate-slide-up flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl text-xs sm:text-sm font-semibold max-w-md border transition-all ${
+          className={`fixed bottom-6 left-4 right-4 z-50 animate-slide-up flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl text-xs sm:text-sm font-semibold border transition-all sm:left-6 sm:right-auto sm:max-w-md ${
             isDark
               ? 'bg-neutral-900 text-white border-white/10'
               : 'bg-white text-neutral-900 border-neutral-200 shadow-xl'
@@ -285,7 +285,7 @@ function AppContent() {
           onClick={scrollToTop}
           title="Back to top"
           aria-label="Back to top"
-          className={`fixed bottom-6 right-6 z-40 p-3 rounded-full shadow-xl border backdrop-blur-md transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer animate-fade-in ${
+          className={`fixed bottom-24 right-6 z-40 p-3 rounded-full shadow-xl border backdrop-blur-md transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer animate-fade-in sm:bottom-6 ${
             isDark
               ? 'bg-neutral-900/90 hover:bg-neutral-800 text-white border-neutral-700 hover:text-[#FFBE0D]'
               : 'bg-white/95 hover:bg-neutral-100 text-neutral-900 border-neutral-200 hover:text-[#8C6500]'

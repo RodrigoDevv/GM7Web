@@ -79,7 +79,7 @@ export const SocialsSection: React.FC<SocialsSectionProps> = ({ onToast }) => {
         <div className="absolute -top-24 left-1/2 h-[320px] w-[720px] -translate-x-1/2 rounded-full bg-[#FFBE0D]/8 blur-[150px]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto max-w-7xl 2xl:max-w-[90rem] px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-12 max-w-2xl sm:mb-14">
           <div

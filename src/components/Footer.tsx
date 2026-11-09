@@ -26,7 +26,7 @@ export const Footer: React.FC = () => {
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div
           className={`grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b ${
             isDark ? 'border-neutral-800/80' : 'border-neutral-300'

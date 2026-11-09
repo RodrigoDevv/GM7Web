@@ -65,7 +65,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigateHome, onToast })
       <div className="relative z-10 w-full flex-1 flex flex-col">
         <AboutHeroSection />
 
-        <section className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-8 px-4 pb-16 sm:px-6 sm:pb-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-8">
+        <section className="mx-auto grid w-full max-w-7xl 2xl:max-w-[90rem] grid-cols-1 items-center gap-8 px-4 pb-16 sm:px-6 sm:pb-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-8">
           <div className="relative overflow-hidden rounded-3xl border border-neutral-200 dark:border-neutral-800">
             <img
               src={communityMeetupImg}

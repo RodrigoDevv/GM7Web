@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, Moon, LogOut, Trash2 } from 'lucide-react';
+import { Sun, Moon, LogOut, Trash2, Menu, X } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import type { Page } from '../types/navigation';
@@ -16,6 +16,21 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'home', onNavigate
   const { user, loading: authLoading, logout, deleteAccount } = useAuth();
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Close the mobile menu on navigation or when the viewport grows past the breakpoint.
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [currentPage]);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const onChange = () => {
+      if (mq.matches) setMobileMenuOpen(false);
+    };
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   // Scrollspy to detect active viewport section (active when on home page)
   useEffect(() => {
@@ -97,31 +112,40 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'home', onNavigate
           : 'bg-white/90 border-b border-neutral-200/80 text-neutral-900 shadow-xs'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-        {/* Left: GM7 Logo with live indicator */}
+      <div className="max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+        {/* Left: GM7 brand logo */}
         <a
           href="#hero"
           onClick={(e) => {
             e.preventDefault();
             onNavigate?.('home', 'hero');
           }}
-          className="flex items-center gap-1.5 font-display text-2xl font-black tracking-tight whitespace-nowrap shrink-0 group cursor-pointer"
+          aria-label="GM7 — l'Gamers Lmla7 home"
+          className="group flex shrink-0 items-center gap-2 cursor-pointer select-none"
         >
-          <span
-            className={`text-white ${
-              isDark
-                ? '[-webkit-text-stroke:1.5px_#ffffff]'
-                : '[-webkit-text-stroke:1.5px_#0a0a0a]'
-            }`}
-          >
-            GM
+          <span className="flex flex-col justify-center leading-none">
+            <span className="flex items-center gap-0.5 leading-none">
+              <span
+                className={`font-display text-[22px] font-black leading-none tracking-tight transition-colors ${
+                  isDark ? 'text-white' : 'text-neutral-950'
+                }`}
+              >
+                GM
+              </span>
+              <span className="bg-gradient-to-br from-[#FFD966] via-[#FFBE0D] to-[#D99A00] bg-clip-text font-display text-[22px] font-black leading-none tracking-tight text-transparent transition-transform duration-300 ease-out group-hover:scale-110">
+                7
+              </span>
+            </span>
+            <span
+              className={`mt-1 hidden text-[8px] font-bold uppercase leading-none tracking-[0.28em] transition-colors sm:block ${
+                isDark
+                  ? 'text-neutral-500 group-hover:text-[#FFBE0D]'
+                  : 'text-neutral-400 group-hover:text-[#8C6500]'
+              }`}
+            >
+              Gamers Lmla7
+            </span>
           </span>
-          <span
-            className="text-[#FFBE0D] [-webkit-text-stroke:1.5px_#FFBE0D] group-hover:scale-110 transition-transform"
-          >
-            7
-          </span>
-         
         </a>
 
         {/* Center: Navigation Links with Scrollspy & Page Routing */}
@@ -195,7 +219,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'home', onNavigate
           </button>
 
           {/* Social Icons */}
-          <div className="flex items-center gap-1.5">
+          <div className="hidden items-center gap-1.5 sm:flex">
             {socialLinks.map((social) => {
               const Icon = social.icon;
               return (
@@ -297,8 +321,93 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'home', onNavigate
               )}
             </div>
           )}
+
+          {/* Mobile menu toggle */}
+          <button
+            onClick={() => setMobileMenuOpen((open) => !open)}
+            type="button"
+            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={mobileMenuOpen}
+            className={`md:hidden w-9 h-9 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${
+              isDark
+                ? 'text-neutral-300 hover:text-[#FFBE0D] hover:bg-white/5'
+                : 'text-neutral-700 hover:text-[#8C6500] hover:bg-neutral-100'
+            }`}
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile navigation menu */}
+      {mobileMenuOpen && (
+        <div
+          className={`md:hidden border-t animate-fade-in ${
+            isDark ? 'border-white/5 bg-[#07080a]' : 'border-neutral-200 bg-white'
+          }`}
+        >
+          <nav aria-label="Mobile navigation" className="mx-auto flex max-w-7xl 2xl:max-w-[90rem] flex-col gap-1 px-4 py-3 sm:px-6">
+            {navLinks.map((link) => {
+              const isActive = link.page !== 'home'
+                ? currentPage === link.page
+                : currentPage === 'home' && activeSection === link.id && !link.external;
+              return (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target={link.external ? '_blank' : undefined}
+                  rel={link.external ? 'noopener noreferrer' : undefined}
+                  onClick={(e) => {
+                    setMobileMenuOpen(false);
+                    if (link.external) return;
+                    e.preventDefault();
+                    if (link.page !== 'home') {
+                      onNavigate?.(link.page);
+                    } else {
+                      onNavigate?.('home', link.id);
+                    }
+                  }}
+                  className={`flex items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-colors ${
+                    isActive
+                      ? isDark
+                        ? 'bg-[#FFBE0D]/12 text-[#FFBE0D]'
+                        : 'bg-orange-50 text-[#8C6500]'
+                      : isDark
+                      ? 'text-neutral-300 hover:bg-white/5'
+                      : 'text-neutral-700 hover:bg-neutral-100'
+                  }`}
+                >
+                  <span>{link.label}</span>
+                  {isActive && (
+                    <span className={`h-1.5 w-1.5 rounded-full ${isDark ? 'bg-[#FFBE0D]' : 'bg-[#8C6500]'}`} />
+                  )}
+                </a>
+              );
+            })}
+            <div className={`mt-2 flex items-center gap-2 border-t pt-3 ${isDark ? 'border-white/5' : 'border-neutral-200'}`}>
+              {socialLinks.map((social) => {
+                const Icon = social.icon;
+                return (
+                  <a
+                    key={social.name}
+                    href={social.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`flex h-9 flex-1 items-center justify-center gap-2 rounded-xl border text-xs font-semibold transition-colors ${
+                      isDark
+                        ? 'border-white/10 text-neutral-300 hover:border-[#FFBE0D]/40 hover:text-[#FFBE0D]'
+                        : 'border-neutral-200 text-neutral-600 hover:border-orange-300 hover:text-[#8C6500]'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{social.name}</span>
+                  </a>
+                );
+              })}
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };

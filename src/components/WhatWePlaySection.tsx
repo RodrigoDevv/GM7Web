@@ -47,7 +47,7 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
         <div className="absolute top-1/3 -right-20 w-[450px] h-[350px] bg-purple-600/10 rounded-full blur-[140px]" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="max-w-2xl mb-12 sm:mb-14">
@@ -117,10 +117,10 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
                     )}
 
                     <div className="absolute bottom-0 left-0 right-0 p-1 text-white">
-                      <h3 className="font-semibold text-[9px] leading-tight drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)] truncate">
+                      <h3 className="font-semibold text-[10px] leading-tight drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)] truncate">
                         {game.title}
                       </h3>
-                      <p className="text-[8px] mt-0 text-neutral-200 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)] truncate">
+                      <p className="text-[9px] mt-0 text-neutral-200 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)] truncate">
                         {game.genre}
                       </p>
                     </div>

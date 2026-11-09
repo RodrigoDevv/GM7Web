@@ -105,7 +105,7 @@ export const SetupSection: React.FC<SetupSectionProps> = () => {
         <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[380px] bg-[#FFBE0D]/10 rounded-full blur-[150px]" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-10 sm:mb-12">
           <div className="inline-flex items-center gap-2 mb-3">
             <span

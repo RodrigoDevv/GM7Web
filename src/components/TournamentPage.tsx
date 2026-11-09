@@ -143,7 +143,7 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
         />
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-16 pt-8 sm:px-6 sm:pb-24 lg:px-8">
+      <div className="relative z-10 mx-auto w-full max-w-7xl 2xl:max-w-[90rem] px-4 pb-16 pt-8 sm:px-6 sm:pb-24 lg:px-8">
         {/* Page bar */}
         <div className="mb-8 flex items-center justify-between gap-4 border-b border-neutral-200 pb-5 dark:border-neutral-800">
           <div className="flex items-center gap-3">

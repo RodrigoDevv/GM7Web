@@ -193,7 +193,7 @@ export const LiveKickSection: React.FC<LiveKickSectionProps> = ({
         <div className="absolute bottom-10 left-1/4 w-[420px] h-[300px] bg-neutral-800/10 rounded-full blur-[130px] pointer-events-none" />
       </div>
 
-      <div className={`${cinemaMode ? 'max-w-[96vw]' : 'max-w-7xl'} mx-auto px-4 sm:px-6 lg:px-8 relative z-10 transition-all duration-300`}>
+      <div className={`${cinemaMode ? 'max-w-[96vw]' : 'max-w-7xl 2xl:max-w-[90rem]'} mx-auto px-4 sm:px-6 lg:px-8 relative z-10 transition-all duration-300`}>
         
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
