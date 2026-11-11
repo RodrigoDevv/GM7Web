@@ -50,6 +50,14 @@ export const GamesIcon: React.FC<DashboardIconProps> = (props) => (
   </IconFrame>
 );
 
+export const SetupIcon: React.FC<DashboardIconProps> = (props) => (
+  <IconFrame {...props}>
+    <rect x="3" y="4.5" width="18" height="11" rx="2" {...line} />
+    <path d="M8.5 20h7M12 15.5V20" {...line} />
+    <path d="M7 8.5h6M7 11.5h3" {...gold} />
+  </IconFrame>
+);
+
 export const VisitsIcon: React.FC<DashboardIconProps> = (props) => (
   <IconFrame {...props}>
     <path d="M2.5 12S6 6.2 12 6.2 21.5 12 21.5 12 18 17.8 12 17.8 2.5 12 2.5 12Z" {...line} />

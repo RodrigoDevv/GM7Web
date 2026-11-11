@@ -182,7 +182,7 @@ export const Footer: React.FC = () => {
             <span className="text-[#FFBE0D]" aria-label="love">❤</span>
             <span>by</span>
             <a
-              href="https://emberlyn.xyz"
+              href="https://www.instagram.com/emberlyn.ma/"
               target="_blank"
               rel="noopener noreferrer"
               className={`font-bold transition-colors ${isDark ? 'text-neutral-300 hover:text-[#FFBE0D]' : 'text-neutral-700 hover:text-[#8C6500]'}`}

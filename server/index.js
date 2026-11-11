@@ -4,8 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
-import { deleteUserById, getUserById, upsertDiscordUser, toPublicUser } from './db.js';
-import { getContent, saveGames, saveTournaments, saveVideos } from './content.js';
+import { deleteUserById, getUserById, listDiscordUsers, upsertDiscordUser, toPublicUser } from './db.js';
+import { getContent, saveGames, saveSetup, saveTournaments, saveVideos } from './content.js';
 import { getAnalyticsSummary, recordPageView, recordVisit } from './analytics.js';
 import { initDatabase, isTursoConfigured } from './turso.js';
 
@@ -36,9 +36,31 @@ const ADMIN_AUTH_DISABLED =
 const SESSION_COOKIE = 'gm7_session';
 const ADMIN_COOKIE = 'gm7_admin';
 const STATE_COOKIE = 'gm7_oauth_state';
+const AUTH_RETURN_COOKIE = 'gm7_auth_return';
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 days for user sessions
 const ADMIN_SESSION_TTL_MS = 1000 * 60 * 60 * 8; // 8 hours for admin session
 const STATE_TTL_SEC = 600; // 10 minutes
+
+function sanitizeAuthReturnPath(value) {
+  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//') || value.includes('\\')) {
+    return '/';
+  }
+  try {
+    const url = new URL(value, APP_URL);
+    if (url.origin !== APP_URL || url.pathname !== '/tournaments') return '/';
+    const tournamentId = url.searchParams.get('tournamentRegistration');
+    if (tournamentId) {
+      url.search = '';
+      url.searchParams.set('tournamentRegistration', tournamentId.slice(0, 120));
+    } else {
+      url.search = '';
+    }
+    url.hash = '';
+    return `${url.pathname}${url.search}`;
+  } catch {
+    return '/';
+  }
+}
 
 // Brute-force protection for admin login
 const ADMIN_LOGIN_WINDOW_MS = 15 * 60 * 1000; // 15-minute lockout window
@@ -200,24 +222,23 @@ const app = express();
 // JSON body parsing for the admin dashboard + content APIs.
 app.use(express.json({ limit: '12mb' }));
 
-// Show policy links before Discord sign-in and account creation.
-app.get('/auth/discord', (req, res) => {
-  if (!requireDiscordConfig(res)) return;
-  res.type('html').send(`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Continue with Discord · GM7</title><body style="font:16px system-ui,sans-serif;max-width:42rem;margin:10vh auto;padding:1.5rem;line-height:1.6;color:#171717"><h1>Continue with Discord</h1><p>GM7 uses Discord sign-in to create or access your account. Review the <a href="${APP_URL}/legal/privacy">draft Privacy Policy</a> and <a href="${APP_URL}/legal/terms">draft Terms of Service</a> before continuing. These documents are marked as drafts and require lawyer review.</p><p><a href="/auth/discord/continue" style="display:inline-block;padding:.7rem 1rem;background:#ffbe0d;color:#111;border-radius:.5rem;font-weight:700;text-decoration:none">Continue to Discord</a></p><p><a href="${APP_URL}/">Return to GM7</a></p></body></html>`);
-});
-
 // Start Discord OAuth flow: set CSRF state cookie, redirect to Discord.
-app.get('/auth/discord/continue', (req, res) => {
+function startDiscordOAuth(req, res) {
   if (!requireDiscordConfig(res)) return;
+  const next = sanitizeAuthReturnPath(req.query.next);
   const state = crypto.randomBytes(16).toString('hex');
-  res.setHeader(
-    'Set-Cookie',
+  res.setHeader('Set-Cookie', [
     serializeCookie(STATE_COOKIE, state, {
       maxAge: STATE_TTL_SEC,
       httpOnly: true,
       secure: IS_SECURE,
     }),
-  );
+    serializeCookie(AUTH_RETURN_COOKIE, next, {
+      maxAge: STATE_TTL_SEC,
+      httpOnly: true,
+      secure: IS_SECURE,
+    }),
+  ]);
   const url = `https://discord.com/oauth2/authorize?${new URLSearchParams({
     client_id: DISCORD_CLIENT_ID,
     response_type: 'code',
@@ -226,17 +247,21 @@ app.get('/auth/discord/continue', (req, res) => {
     state,
   })}`;
   res.redirect(url);
-});
+}
+
+// Send visitors straight to Discord's authorization screen.
+app.get('/auth/discord', startDiscordOAuth);
+app.get('/auth/discord/continue', startDiscordOAuth);
 
 // Discord OAuth callback: exchange code, create/find user, set session.
 app.get(
   '/auth/discord/callback',
   asyncHandler(async (req, res) => {
     const fail = () => {
-      res.setHeader(
-        'Set-Cookie',
+      res.setHeader('Set-Cookie', [
         serializeCookie(STATE_COOKIE, '', { maxAge: 0, httpOnly: true, secure: IS_SECURE }),
-      );
+        serializeCookie(AUTH_RETURN_COOKIE, '', { maxAge: 0, httpOnly: true, secure: IS_SECURE }),
+      ]);
       res.redirect(`${APP_URL}/?auth=error`);
     };
 
@@ -270,6 +295,7 @@ app.get(
 
     const profile = await userRes.json();
     const { user, created } = await upsertDiscordUser(profile);
+    const returnPath = sanitizeAuthReturnPath(cookies[AUTH_RETURN_COOKIE] || '/');
 
     res.setHeader('Set-Cookie', [
       serializeCookie(SESSION_COOKIE, signSession(user.id), {
@@ -278,8 +304,11 @@ app.get(
         secure: IS_SECURE,
       }),
       serializeCookie(STATE_COOKIE, '', { maxAge: 0, httpOnly: true, secure: IS_SECURE }),
+      serializeCookie(AUTH_RETURN_COOKIE, '', { maxAge: 0, httpOnly: true, secure: IS_SECURE }),
     ]);
-    res.redirect(`${APP_URL}/?auth=${created ? 'signup' : 'login'}`);
+    const destination = new URL(returnPath, APP_URL);
+    destination.searchParams.set('auth', created ? 'signup' : 'login');
+    res.redirect(destination.toString());
   }),
 );
 
@@ -1055,6 +1084,11 @@ app.get('/api/admin/stats', requireAdmin, asyncHandler(async (_req, res) => {
   res.json(await getAnalyticsSummary());
 }));
 
+app.get('/api/admin/discord-users', requireAdmin, asyncHandler(async (_req, res) => {
+  const users = await listDiscordUsers();
+  res.json({ users: users.map(toPublicUser) });
+}));
+
 // --- editable site content -------------------------------------------------
 
 // Public read. The browser falls back to bundled defaults when a section is null.
@@ -1101,6 +1135,18 @@ app.put(
   }),
 );
 
+app.put(
+  '/api/content/setup',
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    const setup = req.body?.setup;
+    if (!setup || typeof setup !== 'object' || Array.isArray(setup)) {
+      return res.status(400).json({ error: 'setup must be an object' });
+    }
+    res.json({ setup: await saveSetup(setup) });
+  }),
+);
+
 // Current session user.
 app.get('/api/me', asyncHandler(async (req, res) => {
   const uid = readSessionUserId(req);
@@ -1135,11 +1181,15 @@ app.use('/auth', (req, res) => res.status(404).json({ error: 'Not found' }));
 
 // Serve the built SPA when dist/ exists.
 const distDir = path.join(__dirname, '..', 'dist');
-if (fs.existsSync(distDir)) {
+if (fs.existsSync(path.join(distDir, 'index.html'))) {
   app.use(express.static(distDir));
   app.use((req, res, next) => {
     if (req.method !== 'GET') return next();
     res.sendFile(path.join(distDir, 'index.html'));
+  });
+} else {
+  app.get('/', (req, res) => {
+    res.type('html').send(`<!doctype html><html><head><title>GM7 Backend API</title></head><body style="font-family:system-ui,sans-serif;max-width:32rem;margin:10vh auto;padding:1.5rem;line-height:1.5;color:#171717"><h2>GM7 Backend API is running</h2><p>The backend server is active on port ${PORT}.</p><p>Open the frontend web application at <a href="${APP_URL}" style="color:#d99c00;font-weight:bold">${APP_URL}</a>.</p><p style="color:#666;font-size:0.9rem">To serve production static files directly from this server, run <code>npm run build</code> first.</p></body></html>`);
   });
 }
 
@@ -1148,7 +1198,7 @@ if (fs.existsSync(distDir)) {
 export default app;
 
 if (!process.env.VERCEL) {
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     const configured = DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET;
     console.log(`[GM7] server listening on http://localhost:${PORT}`);
     console.log(`[GM7] OAuth redirect URI: ${REDIRECT_URI}`);
@@ -1170,6 +1220,19 @@ if (!process.env.VERCEL) {
       console.warn('[GM7] ADMIN_AUTH_DISABLED is on — the dashboard is open without a login. Anyone with the URL can edit content.');
     } else if (USING_DEFAULT_ADMIN_PASSWORD) {
       console.warn('[GM7] Dashboard uses the default password "gm7-admin" — set ADMIN_PASSWORD in .env to change it.');
+    }
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`\n[GM7 Error] Port ${PORT} is already in use by another process.`);
+      console.error(`To free port ${PORT} on Windows, run this in PowerShell:`);
+      console.error(`  Get-Process -Id (Get-NetTCPConnection -LocalPort ${PORT}).OwningProcess | Stop-Process -Force`);
+      console.error(`Or set a different PORT in your .env file.\n`);
+      process.exit(1);
+    } else {
+      console.error('[GM7 Error] Server failed to start:', err);
+      process.exit(1);
     }
   });
 }

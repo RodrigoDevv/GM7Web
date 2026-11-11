@@ -42,7 +42,12 @@ let migratedUsers = false;
 async function ensureTursoReady() {
   const turso = getTursoClient();
   if (!turso) return null;
-  await initDatabase();
+  try {
+    const ready = await initDatabase();
+    if (!ready) return null;
+  } catch {
+    return null;
+  }
 
   if (!migratedUsers) {
     migratedUsers = true;
@@ -96,6 +101,20 @@ export async function getUserById(id) {
 
   const users = await readUsers();
   return users.find((u) => u.id === id) || null;
+}
+
+export async function listDiscordUsers(limit = 500) {
+  const boundedLimit = Math.max(1, Math.min(500, Number(limit) || 500));
+  const turso = await ensureTursoReady();
+  if (turso) {
+    const result = await turso.execute({
+      sql: 'SELECT id, discord_id, name, handle, avatar FROM users ORDER BY created_at DESC LIMIT ?',
+      args: [boundedLimit],
+    });
+    return result.rows.map(rowToUser);
+  }
+
+  return (await readUsers()).slice(-boundedLimit).reverse();
 }
 
 export async function deleteUserById(id) {

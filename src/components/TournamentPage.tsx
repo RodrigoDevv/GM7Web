@@ -20,6 +20,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import { useContent } from '../context/ContentContext';
 import {
   defaultAvailableTournaments,
@@ -83,12 +84,19 @@ const statusStyles: Record<RegistrationStatus, { dark: string; light: string }> 
 
 export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, onToast }) => {
   const { isDark } = useTheme();
+  const { user, loading: authLoading } = useAuth();
   const { tournaments: contentTournaments } = useContent();
   const availableTournaments = contentTournaments ?? defaultAvailableTournaments;
   const recentTournaments = defaultRecentTournaments;
   const [registrationTournament, setRegistrationTournament] = useState<AvailableTournament | null>(null);
   const [registrationDetails, setRegistrationDetails] = useState<{ playerName: string; discordHandle: string; squadName: string } | null>(null);
-  const featured = availableTournaments.find((tournament) => tournament.featured) ?? availableTournaments[0] ?? null;
+  const openTournaments = availableTournaments.filter((tournament) => !tournament.winner);
+  const featured =
+    availableTournaments.find((tournament) => tournament.featured && !tournament.winner) ??
+    openTournaments[0] ??
+    availableTournaments.find((tournament) => tournament.featured) ??
+    availableTournaments[0] ??
+    null;
   const countdown = useCountdown(featured?.startIso ?? new Date().toISOString());
   const featuredProgress = featured ? Math.round((featured.filledSlots / Math.max(1, featured.maxSlots)) * 100) : 0;
 
@@ -106,9 +114,31 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
     };
   }, [registrationTournament]);
 
+  useEffect(() => {
+    if (authLoading || !user) return;
+    const params = new URLSearchParams(window.location.search);
+    const tournamentId = params.get('tournamentRegistration');
+    if (!tournamentId) return;
+    const tournament = availableTournaments.find((item) => item.id === tournamentId);
+    if (tournament) handleRegister(tournament);
+    params.delete('tournamentRegistration');
+    const query = params.toString();
+    window.history.replaceState({}, '', `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`);
+  }, [authLoading, user, availableTournaments]);
+
   const handleRegister = (tournament: AvailableTournament) => {
+    if (tournament.winner) {
+      onToast?.(`${tournament.name} has finished — registration is closed.`);
+      return;
+    }
     setRegistrationDetails(null);
     setRegistrationTournament(tournament);
+  };
+
+  const handleDiscordLogin = () => {
+    if (!registrationTournament) return;
+    const next = `/tournaments?tournamentRegistration=${encodeURIComponent(registrationTournament.id)}`;
+    window.location.href = `/auth/discord?${new URLSearchParams({ next }).toString()}`;
   };
 
   const handleRegistrationSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -209,10 +239,17 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
           <div className="relative z-10 grid gap-8 p-6 sm:p-10 lg:grid-cols-[1.45fr_1fr] lg:items-center">
             <div>
               <div className="mb-4 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-2 rounded-full border border-[#FFBE0D]/40 bg-[#FFBE0D]/10 px-3 py-1.5 text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#8C6500] dark:text-[#FFBE0D]">
-                  <Radio className="h-3.5 w-3.5 animate-pulse" />
-                  Announcing · {featured.status}
-                </span>
+                {featured.winner ? (
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[#FFBE0D]/40 bg-[#FFBE0D]/10 px-3 py-1.5 text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#8C6500] dark:text-[#FFBE0D]">
+                    <Trophy className="h-3.5 w-3.5" />
+                    Finished · Won by {featured.winner.name}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[#FFBE0D]/40 bg-[#FFBE0D]/10 px-3 py-1.5 text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#8C6500] dark:text-[#FFBE0D]">
+                    <Radio className="h-3.5 w-3.5 animate-pulse" />
+                    Announcing · {featured.status}
+                  </span>
+                )}
                 <span
                   className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-mono font-bold uppercase tracking-wider ${
                     isDark ? 'border-white/10 bg-white/5 text-neutral-300' : 'border-neutral-200 bg-neutral-100 text-neutral-600'
@@ -273,15 +310,26 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
               </div>
 
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => handleRegister(featured)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#FFBE0D] px-5 py-3 text-xs font-black uppercase tracking-wider text-black shadow-[0_8px_24px_rgba(255,190,13,0.35)] transition-all hover:-translate-y-0.5 hover:bg-[#E5A800] active:scale-95"
-                >
-                  <Trophy className="h-4 w-4" />
-                  Register your squad
-                  <ArrowUpRight className="h-4 w-4 stroke-[3]" />
-                </button>
+                {featured.winner ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="inline-flex cursor-not-allowed items-center gap-2 rounded-xl bg-[#FFBE0D]/30 px-5 py-3 text-xs font-black uppercase tracking-wider text-[#8C6500]/70 dark:text-[#FFBE0D]/70"
+                  >
+                    <Trophy className="h-4 w-4" />
+                    Registration closed
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleRegister(featured)}
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#FFBE0D] px-5 py-3 text-xs font-black uppercase tracking-wider text-black shadow-[0_8px_24px_rgba(255,190,13,0.35)] transition-all hover:-translate-y-0.5 hover:bg-[#E5A800] active:scale-95"
+                  >
+                    <Trophy className="h-4 w-4" />
+                    Register your squad
+                    <ArrowUpRight className="h-4 w-4 stroke-[3]" />
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => onToast?.(`${featured.name} ruleset: ${featured.format}. Full rules are pinned in the GM7 Discord.`)}
@@ -308,14 +356,33 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
               <div className="mb-4 flex items-center justify-between">
                 <span className={`inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-[0.2em] ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
                   <Clock className="h-3.5 w-3.5 text-[#FFBE0D]" />
-                  Bracket goes live in
+                  {featured.winner ? 'Final result' : 'Bracket goes live in'}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-red-500/15 px-2 py-0.5 text-[9px] font-mono font-bold uppercase text-red-400">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
-                  Live
-                </span>
+                {featured.winner ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[9px] font-mono font-bold uppercase text-emerald-400">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    Finished
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-red-500/15 px-2 py-0.5 text-[9px] font-mono font-bold uppercase text-red-400">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
+                    Live
+                  </span>
+                )}
               </div>
 
+              {featured.winner ? (
+                <div className={`flex items-center gap-3 rounded-xl border p-4 ${isDark ? 'border-[#FFBE0D]/20 bg-[#FFBE0D]/5' : 'border-amber-200 bg-amber-50'}`}>
+                  {featured.winner.avatarUrl && <img src={featured.winner.avatarUrl} alt="" className="h-10 w-10 rounded-full object-cover" />}
+                  <div className="min-w-0">
+                    <p className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#8C6500] dark:text-[#FFBE0D]">Tournament winner</p>
+                    <p className="truncate text-sm font-black">
+                      {featured.winner.name} <span className={`font-normal ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>@{featured.winner.handle}</span>
+                    </p>
+                  </div>
+                  <Trophy className="ml-auto h-5 w-5 shrink-0 text-[#D49A00] dark:text-[#FFBE0D]" />
+                </div>
+              ) : (
               <div className="grid grid-cols-4 gap-2">
                 {[
                   { label: 'Days', value: countdown.days },
@@ -338,6 +405,7 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
                   </div>
                 ))}
               </div>
+              )}
 
               <div className={`mt-5 space-y-2.5 border-t pt-4 text-xs ${isDark ? 'border-white/10' : 'border-neutral-200'}`}>
                 <div className="flex items-center justify-between">
@@ -386,7 +454,7 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
             </div>
             <span className={`inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-mono font-bold uppercase tracking-wider ${isDark ? 'border-neutral-800 bg-neutral-900/70 text-neutral-300' : 'border-neutral-200 bg-white text-neutral-600'}`}>
               <Zap className="h-3.5 w-3.5 text-[#FFBE0D]" />
-              {availableTournaments.length} events taking sign-ups
+              {openTournaments.length} events taking sign-ups
             </span>
           </div>
 
@@ -412,10 +480,16 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     <span
                       className={`absolute left-3 top-3 rounded-full border px-2.5 py-1 text-[9px] font-mono font-black uppercase tracking-wider ${
-                        isDark ? statusStyles[tournament.status].dark : statusStyles[tournament.status].light
+                        tournament.winner
+                          ? isDark
+                            ? 'border-[#FFBE0D]/30 bg-[#FFBE0D]/15 text-[#FFBE0D]'
+                            : 'border-amber-300 bg-amber-50 text-amber-700'
+                          : isDark
+                            ? statusStyles[tournament.status].dark
+                            : statusStyles[tournament.status].light
                       }`}
                     >
-                      {tournament.status}
+                      {tournament.winner ? 'Finished' : tournament.status}
                     </span>
                     <div className="absolute bottom-3 left-3 right-3">
                       <p className="text-[10px] font-mono uppercase tracking-wider text-[#FFBE0D]">{tournament.game}</p>
@@ -427,6 +501,17 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
                     <p className={`text-xs leading-relaxed ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
                       {tournament.description}
                     </p>
+
+                    {tournament.winner && (
+                      <div className={`mt-3 flex items-center gap-2 rounded-xl border px-3 py-2 ${isDark ? 'border-[#FFBE0D]/20 bg-[#FFBE0D]/5' : 'border-amber-200 bg-amber-50'}`}>
+                        {tournament.winner.avatarUrl && <img src={tournament.winner.avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />}
+                        <div className="min-w-0">
+                          <p className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#8C6500] dark:text-[#FFBE0D]">Tournament winner</p>
+                          <p className="truncate text-xs font-bold">{tournament.winner.name} <span className={`font-normal ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>@{tournament.winner.handle}</span></p>
+                        </div>
+                        <Trophy className="ml-auto h-4 w-4 shrink-0 text-[#D49A00] dark:text-[#FFBE0D]" />
+                      </div>
+                    )}
 
                     <div className="mt-4 grid grid-cols-2 gap-2 text-[11px]">
                       <div className={`rounded-lg border p-2 ${isDark ? 'border-neutral-800 bg-black/30' : 'border-neutral-200 bg-neutral-50'}`}>
@@ -454,11 +539,16 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
                     <div className="mt-4 flex items-center gap-2 pt-3">
                       <button
                         type="button"
+                        disabled={Boolean(tournament.winner)}
                         onClick={() => handleRegister(tournament)}
-                        className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#FFBE0D] px-3 py-2.5 text-[11px] font-black uppercase tracking-wider text-black transition-all hover:bg-[#E5A800] active:scale-95"
+                        className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-[11px] font-black uppercase tracking-wider transition-all active:scale-95 ${
+                          tournament.winner
+                            ? 'cursor-not-allowed bg-[#FFBE0D]/30 text-[#8C6500]/70 dark:text-[#FFBE0D]/70'
+                            : 'bg-[#FFBE0D] text-black hover:bg-[#E5A800]'
+                        }`}
                       >
-                        <Swords className="h-3.5 w-3.5" />
-                        {tournament.status === 'Waitlist' ? 'Join waitlist' : 'Register'}
+                        {tournament.winner ? <Trophy className="h-3.5 w-3.5" /> : <Swords className="h-3.5 w-3.5" />}
+                        {tournament.winner ? 'Finished' : tournament.status === 'Waitlist' ? 'Join waitlist' : 'Register'}
                       </button>
                       <span className={`inline-flex h-9 w-9 items-center justify-center rounded-xl border ${isDark ? 'border-neutral-800 bg-neutral-900 text-neutral-400' : 'border-neutral-200 bg-neutral-50 text-neutral-500'}`}>
                         <Users className="h-4 w-4" />
@@ -701,7 +791,75 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
                 <X className="h-4 w-4" />
               </button>
 
-              {registrationDetails ? (
+              {!user ? (
+                <div className="relative overflow-hidden pt-2">
+                  <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-[#5865F2]/20 blur-3xl" />
+                  <div className="relative">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#5865F2]/30 bg-[#5865F2]/10 text-[#7289FF] shadow-[0_12px_35px_rgba(88,101,242,0.18)]">
+                      <ShieldCheck className="h-7 w-7" />
+                    </div>
+                    <p className="mt-6 text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-[#8C6500] dark:text-[#FFBE0D]">
+                      One quick step to compete
+                    </p>
+                    <h2 id="registration-dialog-title" className="mt-2 max-w-md pr-8 text-2xl font-black tracking-tight sm:text-3xl">
+                      Sign in to join {registrationTournament.name}
+                    </h2>
+                    <p className={`mt-3 max-w-md text-sm leading-relaxed ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
+                      Connect your Discord account to continue tournament registration and get the details you need to compete.
+                    </p>
+                    <div className={`mt-5 flex items-center gap-3 rounded-2xl border p-4 ${isDark ? 'border-neutral-800 bg-black/20' : 'border-neutral-200 bg-neutral-50'}`}>
+                      <img src={discordImg} alt="" className="h-10 w-10 rounded-xl object-cover" />
+                      <div>
+                        <p className="text-sm font-bold">Discord sign-in</p>
+                        <p className={`mt-0.5 text-xs ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>Secure account verification</p>
+                      </div>
+                      <ShieldCheck className="ml-auto h-5 w-5 text-emerald-500" />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleDiscordLogin}
+                      disabled={authLoading}
+                      className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#5865F2] px-5 text-xs font-black uppercase tracking-wider text-white transition-all hover:-translate-y-0.5 hover:bg-[#4752c4] active:scale-[0.98] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7289FF] focus-visible:ring-offset-2"
+                    >
+                      <ShieldCheck className="h-4 w-4" />
+                      {authLoading ? 'Checking sign-in…' : 'Login with Discord'}
+                      {!authLoading && <ArrowUpRight className="h-4 w-4" />}
+                    </button>
+                    <p className={`mt-3 text-center text-[11px] ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>
+                      You’ll return here to finish registering after sign-in.
+                    </p>
+                  </div>
+                </div>
+              ) : !registrationTournament.squadRegistration ? (
+                <div className="pt-2">
+                  <CheckCircle2 className="h-10 w-10 text-emerald-500" />
+                  <p className="mt-5 text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-[#8C6500] dark:text-[#FFBE0D]">
+                    Signed in with Discord
+                  </p>
+                  <h2 id="registration-dialog-title" className="mt-2 pr-8 text-2xl font-black tracking-tight sm:text-3xl">
+                    You're set for {registrationTournament.name}
+                  </h2>
+                  <p className={`mt-3 max-w-md text-sm leading-relaxed ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
+                    Your Discord account is verified. Continue to the GM7 Discord to join the bracket and get tournament announcements.
+                  </p>
+                  <div className={`mt-5 flex items-center gap-3 rounded-2xl border p-4 ${isDark ? 'border-neutral-800 bg-black/20' : 'border-neutral-200 bg-neutral-50'}`}>
+                    {user.avatarUrl && <img src={user.avatarUrl} alt="" className="h-10 w-10 rounded-full object-cover" />}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold">{user.name}</p>
+                      <p className={`mt-0.5 truncate text-xs ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>@{user.handle}</p>
+                    </div>
+                    <ShieldCheck className="ml-auto h-5 w-5 shrink-0 text-emerald-500" />
+                  </div>
+                  <a
+                    href="https://discord.gg/gm7"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#5865F2] px-5 text-xs font-black uppercase tracking-wider text-white transition-colors hover:bg-[#4752c4]"
+                  >
+                    Continue to Discord <ArrowUpRight className="h-4 w-4" />
+                  </a>
+                </div>
+              ) : registrationDetails ? (
                 <div className="pt-2">
                   <CheckCircle2 className="h-10 w-10 text-emerald-500" />
                   <p className="mt-5 text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-[#8C6500] dark:text-[#FFBE0D]">

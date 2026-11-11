@@ -1,43 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Cpu, Monitor, Keyboard, Mouse, Mic, Gamepad, LayoutGrid, CircleDot, Zap } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
-
-import battlestationImg from '../assets/images/Setup.jpeg';
-import pcRigImg from '../assets/images/setup_pc_rig_1792242100666.jpg';
-import monitorImg from '../assets/images/setup_monitor_screen_1792242115384.jpg';
-import keyboardImg from '../assets/images/setup_keyboard_compact_1792241648774.jpg';
-import mouseImg from '../assets/images/setup_mouse_rgb_1792241618438.jpg';
-import controllerImg from '../assets/images/ps5_esports_soccer_1791731018539.jpg';
-import micImg from '../assets/images/setup_microphone_1792242128908.jpg';
-import mousepadImg from '../assets/images/setup_mousepad_mat_1792241699048.jpg';
+import { useContent } from '../context/ContentContext';
+import { defaultSetup, getSetupIcon } from '../data/setup';
+import { proxiedImageUrl } from '../lib/media';
 
 interface SetupSectionProps {
   onToast?: (msg: string) => void;
 }
-
-interface HardwareItem {
-  id: string;
-  name: string;
-  category: string;
-  spec: string;
-  hotspot: { x: number; y: number };
-  image: string;
-  icon: React.FC<{ className?: string }>;
-}
-
-const hardwareList: HardwareItem[] = [
-  { id: '01', name: 'Gaming Pc', category: 'PC', spec: '', hotspot: { x: 82, y: 32 }, image: pcRigImg, icon: Cpu },
-  { id: '02', name: 'Monitor 1', category: 'Monitor', spec: '', hotspot: { x: 50, y: 42 }, image: monitorImg, icon: Monitor },
-  { id: '03', name: 'Hall Effect Keyboard', category: 'Keyboard', spec: '', hotspot: { x: 52, y: 69 }, image: keyboardImg, icon: Keyboard },
-  { id: '04', name: 'Pro Wireless Mouse', category: 'Mouse', spec: '', hotspot: { x: 62, y: 66 }, image: mouseImg, icon: Mouse },
-  { id: '05', name: 'Broadcast Microphone', category: 'Mic', spec: '', hotspot: { x: 65, y: 49 }, image: micImg, icon: Mic },
-  { id: '06', name: 'Xbox Wireless Controller', category: 'Controller', spec: '', hotspot: { x: 55, y: 60 }, image: controllerImg, icon: Gamepad },
-  { id: '07', name: 'RODE RodeCaster Pro II', category: 'Control', spec: '', hotspot: { x: 71, y: 57 }, image: battlestationImg, icon: LayoutGrid },
-  { id: '08', name: 'Pro Esports Mousepad', category: 'Surface', spec: '', hotspot: { x: 48, y: 76 }, image: mousepadImg, icon: CircleDot },
-  { id: '09', name: 'Streaming PC', category: 'PC', spec: '', hotspot: { x: 68, y: 80 }, image: mousepadImg, icon: Cpu },
-  { id: '10', name: 'Monitor 2', category: 'Monitor', spec: '', hotspot: { x: 33, y: 60 }, image: mousepadImg, icon: Monitor },
-  { id: '11', name: 'Monitor 3', category: 'Monitor', spec: '', hotspot: { x: 69, y: 33 }, image: mousepadImg, icon: Monitor },
-];
 
 const IMAGE_ASPECT = 1449 / 1086;
 const DESIGN_ASPECT = 16 / 9;
@@ -77,6 +47,8 @@ const toContainerSpace = (
 
 export const SetupSection: React.FC<SetupSectionProps> = () => {
   const { isDark } = useTheme();
+  const { setup } = useContent();
+  const activeSetup = setup ?? defaultSetup;
   const [activeId, setActiveId] = useState<string | null>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
   const [mediaSize, setMediaSize] = useState({ width: 0, height: 0 });
@@ -132,7 +104,7 @@ export const SetupSection: React.FC<SetupSectionProps> = () => {
         >
           <div ref={mediaRef} className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/9] w-full">
             <img
-              src={battlestationImg}
+              src={proxiedImageUrl(activeSetup.backgroundImage) || defaultSetup.backgroundImage}
               alt="Snnsei's GM7 battle station"
               className="w-full h-full object-cover"
               loading="lazy"
@@ -140,9 +112,9 @@ export const SetupSection: React.FC<SetupSectionProps> = () => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30 pointer-events-none" />
 
-            {hardwareList.map((item) => {
+            {activeSetup.items.map((item) => {
               const isActive = activeId === item.id;
-              const Icon = item.icon;
+              const Icon = getSetupIcon(item.icon);
               const tooltipAlign =
                 item.hotspot.x > 68
                   ? 'left-auto right-0'
@@ -189,11 +161,15 @@ export const SetupSection: React.FC<SetupSectionProps> = () => {
                     >
                       <div className="flex items-center gap-2.5 p-2.5">
                         <div
-                          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg ${
+                          className={`flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg ${
                             isDark ? 'bg-[#FFBE0D]/15 text-[#FFBE0D]' : 'bg-orange-50 text-orange-700'
                           }`}
                         >
-                          <Icon className="h-6 w-6" />
+                          {item.image ? (
+                            <img src={proxiedImageUrl(item.image)} alt="" className="h-full w-full object-cover" />
+                          ) : (
+                            <Icon className="h-6 w-6" />
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className={`text-xs font-bold truncate ${isDark ? 'text-white' : 'text-neutral-950'}`}>{item.name}</p>

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { CalendarDays, Pencil, Plus, Save, Star, Trash2, Trophy } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { CalendarDays, Pencil, Plus, Save, Star, Trash2, Trophy, Users } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
-import type { AvailableTournament, RegistrationStatus } from '../../data/tournaments';
+import type { AvailableTournament, RegistrationStatus, TournamentWinner } from '../../data/tournaments';
 import { AdminButton, CloseButton, EmptyHint, Field, ImageField, SelectInput, TextArea, TextInput } from './fields';
 
 interface TournamentEditorProps {
@@ -12,6 +12,8 @@ interface TournamentEditorProps {
 }
 
 const STATUSES: RegistrationStatus[] = ['Registration Open', 'Closing Soon', 'Waitlist'];
+
+interface DiscordUserOption extends TournamentWinner {}
 
 function blankTournament(): AvailableTournament {
   return {
@@ -30,6 +32,7 @@ function blankTournament(): AvailableTournament {
     description: '',
     image: '',
     featured: false,
+    squadRegistration: false,
   };
 }
 
@@ -51,6 +54,28 @@ export const TournamentEditor: React.FC<TournamentEditorProps> = ({ items, onCom
   const { isDark } = useTheme();
   const [draft, setDraft] = useState<AvailableTournament | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [discordUsers, setDiscordUsers] = useState<DiscordUserOption[]>([]);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [usersLoadFailed, setUsersLoadFailed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/admin/discord-users', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Could not load Discord users.');
+        return response.json();
+      })
+      .then((data: { users?: DiscordUserOption[] }) => {
+        if (!cancelled) setDiscordUsers(Array.isArray(data.users) ? data.users : []);
+      })
+      .catch(() => {
+        if (!cancelled) setUsersLoadFailed(true);
+      })
+      .finally(() => {
+        if (!cancelled) setUsersLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   const startNew = () => {
     setEditingId(null);
@@ -167,6 +192,24 @@ export const TournamentEditor: React.FC<TournamentEditorProps> = ({ items, onCom
                 ))}
               </SelectInput>
             </Field>
+            <Field label="Winner" hint="Selecting a winner officially finishes the tournament and closes registrations on the site.">
+              <SelectInput
+                value={draft.winner?.id ?? ''}
+                disabled={usersLoading || discordUsers.length === 0}
+                onChange={(event) => {
+                  const winner = discordUsers.find((user) => user.id === event.target.value);
+                  update('winner', winner ? { ...winner } : null);
+                }}
+              >
+                <option value="">{usersLoading ? 'Loading Discord users…' : usersLoadFailed ? 'Could not load Discord users' : discordUsers.length ? 'No winner selected' : 'No Discord users found'}</option>
+                {draft.winner && !discordUsers.some((user) => user.id === draft.winner?.id) && (
+                  <option value={draft.winner.id}>{draft.winner.name} (@{draft.winner.handle})</option>
+                )}
+                {discordUsers.map((user) => (
+                  <option key={user.id} value={user.id}>{user.name} (@{user.handle})</option>
+                ))}
+              </SelectInput>
+            </Field>
             <Field label="Platform">
               <TextInput value={draft.platform} onChange={(event) => update('platform', event.target.value)} placeholder="PC / Console crossplay" />
             </Field>
@@ -180,6 +223,14 @@ export const TournamentEditor: React.FC<TournamentEditorProps> = ({ items, onCom
               <input type="checkbox" checked={Boolean(draft.featured)} onChange={(event) => update('featured', event.target.checked)} className="h-4 w-4 accent-[#FFBE0D]" />
               <Star className={`h-4 w-4 ${draft.featured ? 'text-[#FFBE0D]' : 'text-neutral-500'}`} />
               Feature this tournament in the announcement hero
+            </label>
+            <label className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold sm:col-span-2 ${draft.squadRegistration ? 'border-[#FFBE0D] bg-[#FFBE0D]/10' : isDark ? 'border-neutral-700 bg-neutral-900' : 'border-neutral-300 bg-white'}`}>
+              <input type="checkbox" checked={Boolean(draft.squadRegistration)} onChange={(event) => update('squadRegistration', event.target.checked)} className="h-4 w-4 accent-[#FFBE0D]" />
+              <Users className={`h-4 w-4 ${draft.squadRegistration ? 'text-[#FFBE0D]' : 'text-neutral-500'}`} />
+              Ask for squad name at registration
+              <span className={`ml-1 font-normal ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>
+                {draft.squadRegistration ? 'Members fill in player, Discord and squad details.' : 'Members just sign in with Discord.'}
+              </span>
             </label>
           </div>
 
@@ -222,7 +273,12 @@ export const TournamentEditor: React.FC<TournamentEditorProps> = ({ items, onCom
                         <Star className="h-3 w-3" /> Featured
                       </span>
                     )}
-                    <span className={`text-[10px] font-medium ${statusTone}`}>· {tournament.status}</span>
+                    <span className={`text-[10px] font-medium ${tournament.winner ? 'text-[#8C6500] dark:text-[#FFBE0D]' : statusTone}`}>· {tournament.winner ? 'Finished' : tournament.status}</span>
+                    {tournament.squadRegistration && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#8C6500] dark:text-[#FFBE0D]">
+                        <Users className="h-3 w-3" /> Squad names
+                      </span>
+                    )}
                   </div>
                   <p className={`mt-0.5 flex flex-wrap items-center gap-x-2 truncate text-[11px] ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
                     <span>{tournament.game || 'Game'}</span>
@@ -231,6 +287,11 @@ export const TournamentEditor: React.FC<TournamentEditorProps> = ({ items, onCom
                     <span>·</span>
                     <span>{tournament.filledSlots}/{tournament.maxSlots} registered</span>
                   </p>
+                  {tournament.winner && (
+                    <p className="mt-1 flex items-center gap-1.5 text-[11px] font-semibold text-[#8C6500] dark:text-[#FFBE0D]">
+                      <Trophy className="h-3 w-3" /> Winner: {tournament.winner.name} (@{tournament.winner.handle})
+                    </p>
+                  )}
                   <div className={`mt-2 h-1 max-w-56 overflow-hidden ${isDark ? 'bg-white/10' : 'bg-black/10'}`} aria-label={`${progress}% of tournament places filled`}><div className="h-full bg-[#FFBE0D]" style={{ width: `${Math.min(100, progress)}%` }} /></div>
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5">

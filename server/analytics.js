@@ -34,7 +34,12 @@ let migratedAnalytics = false;
 async function ensureTursoAnalyticsReady() {
   const turso = getTursoClient();
   if (!turso) return null;
-  await initDatabase();
+  try {
+    const ready = await initDatabase();
+    if (!ready) return null;
+  } catch {
+    return null;
+  }
 
   if (!migratedAnalytics) {
     migratedAnalytics = true;

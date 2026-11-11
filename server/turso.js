@@ -63,9 +63,9 @@ export async function initDatabase() {
       console.log('[Turso] Database schema verified and initialized.');
       return true;
     } catch (err) {
-      console.error('[Turso] Failed to initialize database schema:', err);
+      console.warn('[Turso] Failed to initialize database schema, falling back to local storage:', err.message);
       initPromise = null;
-      throw err;
+      return false;
     }
   })();
 

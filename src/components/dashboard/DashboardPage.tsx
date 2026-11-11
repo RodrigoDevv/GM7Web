@@ -14,12 +14,14 @@ import {
   Sparkles,
   User,
 } from 'lucide-react';
-import { AudienceIcon, GamesIcon, OverviewIcon, TournamentIcon, VisitsIcon } from './DashboardIcons';
+import { AudienceIcon, GamesIcon, OverviewIcon, SetupIcon, TournamentIcon, VisitsIcon } from './DashboardIcons';
 import { useTheme } from '../../context/ThemeContext';
 import { useContent } from '../../context/ContentContext';
 import { defaultGames, type GameItem } from '../../data/games';
 import { defaultAvailableTournaments, type AvailableTournament } from '../../data/tournaments';
+import { defaultSetup, type SetupContent } from '../../data/setup';
 import { GameEditor } from './GameEditor';
+import { SetupEditor } from './SetupEditor';
 import { TournamentEditor } from './TournamentEditor';
 import { AdminButton, Field, TextInput } from './fields';
 
@@ -28,8 +30,8 @@ interface DashboardPageProps {
   onToast?: (msg: string) => void;
 }
 
-type TabKey = 'overview' | 'tournaments' | 'games';
-type SectionKey = 'tournaments' | 'games';
+type TabKey = 'overview' | 'tournaments' | 'games' | 'setup';
+type SectionKey = 'tournaments' | 'games' | 'setup';
 
 interface AdminSession {
   loading: boolean;
@@ -42,6 +44,7 @@ const TABS: Array<{ key: TabKey; label: string; icon: React.ComponentType<{ clas
   { key: 'overview', label: 'Overview', icon: OverviewIcon },
   { key: 'tournaments', label: 'Tournaments', icon: TournamentIcon },
   { key: 'games', label: 'What We Play', icon: GamesIcon },
+  { key: 'setup', label: 'Setup', icon: SetupIcon },
 ];
 
 interface AnalyticsStats {
@@ -54,7 +57,7 @@ interface AnalyticsStats {
 
 export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, onToast }) => {
   const { isDark } = useTheme();
-  const { games, tournaments, loading: contentLoading, refresh } = useContent();
+  const { games, tournaments, setup, loading: contentLoading, refresh } = useContent();
 
   const [session, setSession] = useState<AdminSession>({
     loading: true,
@@ -72,6 +75,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [gameDraft, setGameDraft] = useState<GameItem[]>([]);
   const [tournamentDraft, setTournamentDraft] = useState<AvailableTournament[]>([]);
+  const [setupDraft, setSetupDraft] = useState<SetupContent>(defaultSetup);
   const [stats, setStats] = useState<AnalyticsStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
@@ -104,8 +108,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
     if (!session.authenticated || contentLoading || initialized) return;
     setGameDraft(games ?? defaultGames);
     setTournamentDraft(tournaments ?? defaultAvailableTournaments);
+    setSetupDraft(setup ?? defaultSetup);
     setInitialized(true);
-  }, [session.authenticated, contentLoading, initialized, games, tournaments]);
+  }, [session.authenticated, contentLoading, initialized, games, tournaments, setup]);
 
   const loadStats = async () => {
     setStatsLoading(true);
@@ -173,10 +178,11 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
     setPassword('');
     setGameDraft([]);
     setTournamentDraft([]);
+    setSetupDraft(defaultSetup);
     onToast?.('Logged out of the dashboard.');
   };
 
-  const commit = async (section: SectionKey, next: unknown[]): Promise<boolean> => {
+  const commit = async (section: SectionKey, next: unknown): Promise<boolean> => {
     setSavingSection(section);
     try {
       const response = await fetch(`/api/content/${section}`, {
@@ -194,10 +200,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
       const data = (await response.json()) as Record<string, unknown>;
       if (section === 'games' && Array.isArray(data.games)) setGameDraft(data.games as GameItem[]);
       if (section === 'tournaments' && Array.isArray(data.tournaments)) setTournamentDraft(data.tournaments as AvailableTournament[]);
+      if (section === 'setup' && data.setup && typeof data.setup === 'object') setSetupDraft(data.setup as SetupContent);
       await refresh();
       const labels: Record<SectionKey, string> = {
         games: 'Game cards',
         tournaments: 'Tournaments',
+        setup: 'Setup',
       };
       onToast?.(`${labels[section]} saved.`);
       return true;
@@ -366,7 +374,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
             {TABS.map((tab) => {
               const Icon = tab.icon;
               const active = activeTab === tab.key;
-              const count = tab.key === 'games' ? gameDraft.length : tab.key === 'tournaments' ? tournamentDraft.length : null;
+              const count = tab.key === 'games' ? gameDraft.length : tab.key === 'tournaments' ? tournamentDraft.length : tab.key === 'setup' ? setupDraft.items.length : null;
               return (
                 <button key={tab.key} type="button" onClick={() => setActiveTab(tab.key)} aria-current={active ? 'page' : undefined} className={`flex min-h-10 w-full items-center gap-3 border-l-2 px-3 text-left text-sm font-medium transition-colors ${active ? 'border-[#FFBE0D] text-[#FFBE0D]' : `border-transparent ${isDark ? 'text-neutral-400 hover:text-white' : 'text-neutral-600 hover:text-black'}`}`}>
                   <Icon className="h-4 w-4 shrink-0" /><span className="flex-1">{tab.label}</span>
@@ -385,7 +393,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
           <header className={`flex flex-wrap items-center justify-between gap-4 rounded-2xl border px-5 py-5 sm:px-7 ${isDark ? 'border-white/[0.09] bg-[#111]' : 'border-black/[0.08] bg-white'}`}>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#b88a00] dark:text-[#FFBE0D]">GM7 / Admin</p>
-              <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">{activeTab === 'overview' ? 'Website overview' : activeTab === 'games' ? 'What We Play' : 'Tournaments'}</h1>
+              <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">{activeTab === 'overview' ? 'Website overview' : activeTab === 'games' ? 'What We Play' : activeTab === 'setup' ? 'Setup' : 'Tournaments'}</h1>
               <p className={`mt-1 text-sm ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
             </div>
             {activeTab === 'overview' && <AdminButton variant="ghost" onClick={loadStats} disabled={statsLoading}><RefreshCw className={`h-4 w-4 ${statsLoading ? 'animate-spin' : ''}`} />Refresh stats</AdminButton>}
@@ -443,6 +451,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
                 {[
                   { key: 'tournaments' as const, title: 'Manage tournaments', description: `${tournamentDraft.length} tournament entries · ${upcomingTournaments} upcoming`, icon: TournamentIcon },
                   { key: 'games' as const, title: 'Edit What We Play', description: `${gameDraft.length} games in the library`, icon: GamesIcon },
+                  { key: 'setup' as const, title: 'Edit Setup', description: `${setupDraft.items.length} markers on the battle station`, icon: SetupIcon },
                 ].map((item) => {
                   const Icon = item.icon;
                   return (
@@ -459,7 +468,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
             </div>
           ) : (
               <section className={`rounded-2xl border p-4 sm:p-6 ${isDark ? 'border-white/[0.09] bg-[#111]' : 'border-black/[0.08] bg-white'}`}>
-              {activeTab === 'tournaments' ? <TournamentEditor items={tournamentDraft} onCommit={(next) => commit('tournaments', next)} saving={savingSection === 'tournaments'} onToast={onToast} /> : <GameEditor items={gameDraft} onCommit={(next) => commit('games', next)} saving={savingSection === 'games'} onToast={onToast} />}
+              {activeTab === 'tournaments' ? <TournamentEditor items={tournamentDraft} onCommit={(next) => commit('tournaments', next)} saving={savingSection === 'tournaments'} onToast={onToast} /> : activeTab === 'setup' ? <SetupEditor setup={setupDraft} onCommit={(next) => commit('setup', next)} saving={savingSection === 'setup'} onToast={onToast} /> : <GameEditor items={gameDraft} onCommit={(next) => commit('games', next)} saving={savingSection === 'games'} onToast={onToast} />}
             </section>
           )}
         </main>

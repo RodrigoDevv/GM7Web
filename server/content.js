@@ -24,7 +24,7 @@ const INSTAGRAM_POSTS = [
   category: 'Instagram video',
   publishedAt: '',
 }));
-const EMPTY_CONTENT = { games: null, tournaments: null, socials: INSTAGRAM_POSTS };
+const EMPTY_CONTENT = { games: null, tournaments: null, socials: INSTAGRAM_POSTS, setup: null };
 
 const TOURNAMENT_STATUSES = ['Registration Open', 'Closing Soon', 'Waitlist'];
 const SOCIAL_PLATFORMS = ['youtube', 'kick', 'tiktok', 'instagram'];
@@ -83,6 +83,14 @@ export function normalizeGame(raw = {}, index = 0, seen = new Set()) {
 
 export function normalizeTournament(raw = {}, index = 0, seen = new Set()) {
   const status = TOURNAMENT_STATUSES.includes(raw.status) ? raw.status : 'Registration Open';
+  const winner = raw.winner && typeof raw.winner === 'object' && !Array.isArray(raw.winner)
+    ? {
+        id: asString(raw.winner.id),
+        name: asString(raw.winner.name),
+        handle: asString(raw.winner.handle),
+        avatarUrl: asString(raw.winner.avatarUrl),
+      }
+    : null;
   return {
     id: withUniqueId(raw.id, 'tournament', index, seen),
     name: asString(raw.name, 'Untitled tournament'),
@@ -99,6 +107,8 @@ export function normalizeTournament(raw = {}, index = 0, seen = new Set()) {
     description: asString(raw.description),
     image: asString(raw.image),
     featured: asBoolean(raw.featured),
+    squadRegistration: asBoolean(raw.squadRegistration),
+    winner: winner?.id ? winner : null,
   };
 }
 
@@ -115,6 +125,35 @@ export function normalizeVideo(raw = {}, index = 0, seen = new Set()) {
     views: asString(raw.views),
     likes: asString(raw.likes),
     publishedAt: asString(raw.publishedAt),
+  };
+}
+
+export function normalizeSetupItem(raw = {}, index = 0, seen = new Set()) {
+  const hotspot = raw.hotspot && typeof raw.hotspot === 'object' ? raw.hotspot : {};
+  return {
+    id: withUniqueId(raw.id, 'setup', index, seen),
+    name: asString(raw.name, 'New item'),
+    category: asString(raw.category),
+    spec: asString(raw.spec),
+    icon: asString(raw.icon, 'box'),
+    image: asString(raw.image),
+    hotspot: {
+      x: Math.min(100, Math.max(0, asNumber(hotspot.x, 50))),
+      y: Math.min(100, Math.max(0, asNumber(hotspot.y, 50))),
+    },
+  };
+}
+
+export function normalizeSetup(raw = {}) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const seen = new Set();
+  return {
+    backgroundImage: asString(raw.backgroundImage),
+    items: Array.isArray(raw.items)
+      ? raw.items
+          .filter((item) => item && typeof item === 'object')
+          .map((item, index) => normalizeSetupItem(item, index, seen))
+      : [],
   };
 }
 
@@ -140,6 +179,9 @@ async function readContentFile() {
       socials: Array.isArray(parsed.socials)
         ? normalizeList(parsed.socials, normalizeVideo) ?? []
         : [],
+      setup: parsed.setup && typeof parsed.setup === 'object'
+        ? normalizeSetup(parsed.setup)
+        : null,
     };
   } catch (error) {
     if (error && error.code === 'ENOENT') return { ...EMPTY_CONTENT };
@@ -165,7 +207,12 @@ let migratedContent = false;
 async function ensureTursoContentReady() {
   const turso = getTursoClient();
   if (!turso) return null;
-  await initDatabase();
+  try {
+    const ready = await initDatabase();
+    if (!ready) return null;
+  } catch {
+    return null;
+  }
 
   if (!migratedContent) {
     migratedContent = true;
@@ -210,6 +257,7 @@ export async function getContent() {
         games: Array.isArray(map.games) ? normalizeList(map.games, normalizeGame) : null,
         tournaments: Array.isArray(map.tournaments) ? normalizeList(map.tournaments, normalizeTournament) : null,
         socials: Array.isArray(map.socials) ? normalizeList(map.socials, normalizeVideo) ?? [] : (EMPTY_CONTENT.socials || []),
+        setup: map.setup && typeof map.setup === 'object' ? normalizeSetup(map.setup) : null,
       };
     } catch (err) {
       console.error('[Turso] Error reading content from Turso, falling back to local file:', err);
@@ -252,4 +300,27 @@ export function saveTournaments(tournaments) {
 
 export function saveVideos(videos) {
   return saveSection('socials', normalizeVideo, videos);
+}
+
+export function saveSetup(setup) {
+  const normalized = normalizeSetup(setup);
+  if (!normalized) throw new Error('Expected a setup object');
+  return enqueueWrite(async () => {
+    const turso = await ensureTursoContentReady();
+    if (turso) {
+      try {
+        await turso.execute({
+          sql: `INSERT INTO content (key, data, updated_at) VALUES (?, ?, ?)
+                ON CONFLICT(key) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at`,
+          args: ['setup', JSON.stringify(normalized), Date.now()],
+        });
+      } catch (err) {
+        console.error('[Turso] Error saving setup to Turso:', err);
+      }
+    }
+    const content = await readContentFile();
+    content.setup = normalized;
+    await writeContentFile(content);
+    return normalized;
+  });
 }

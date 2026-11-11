@@ -19,6 +19,7 @@ import { LegalPage } from './components/LegalPage';
 import { SitePasswordGate } from './components/SitePasswordGate';
 import { Reveal } from './components/Reveal';
 import { useSeo } from './lib/seo';
+import { initSmoothScroll, smoothScrollTo, smoothScrollToTop } from './lib/smoothScroll';
 import type { Page } from './types/navigation';
 import { CheckCircle2, ArrowUp, ArrowRight } from 'lucide-react';
 
@@ -64,6 +65,9 @@ function AppContent() {
   const [currentPage, setCurrentPage] = useState<Page>(resolvePage);
 
   useSeo(currentPage);
+
+  // Site-wide inertial smooth scrolling (respects prefers-reduced-motion).
+  useEffect(() => initSmoothScroll(), []);
 
   // Store daily aggregate counts only: no IP address, cookie, or visitor ID is recorded.
   useEffect(() => {
@@ -138,7 +142,7 @@ function AppContent() {
         ) {
           window.history.replaceState({}, '', pagePath);
         }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        smoothScrollToTop();
       }
     };
 
@@ -158,7 +162,7 @@ function AppContent() {
       const path = window.location.pathname.startsWith(LEGAL_PATH) ? window.location.pathname : `${LEGAL_PATH}/privacy`;
       if (window.location.pathname !== path) window.history.pushState({ page }, '', path);
       setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      smoothScrollToTop();
     } else if (page === 'about' || page === 'socials' || page === 'tournaments' || page === 'games' || page === 'dashboard') {
       const path =
         page === 'about'
@@ -174,7 +178,7 @@ function AppContent() {
         window.history.pushState({ page }, '', path);
       }
       setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      smoothScrollToTop();
     } else {
       const targetPath =
         targetSection && targetSection !== 'hero' ? `${HOME_PATH}#${targetSection}` : HOME_PATH;
@@ -182,10 +186,10 @@ function AppContent() {
       setCurrentPage('home');
       if (targetSection && targetSection !== 'hero') {
         setTimeout(() => {
-          document.getElementById(targetSection)?.scrollIntoView({ behavior: 'smooth' });
+          smoothScrollTo(`#${targetSection}`, { offset: -64 });
         }, 80);
       } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        smoothScrollToTop();
       }
     }
   }, []);
@@ -243,7 +247,7 @@ function AppContent() {
   }, [isDark, toggleTheme, currentPage, navigateTo]);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    smoothScrollToTop();
   };
 
   return (

@@ -105,7 +105,7 @@ export const GameEditor: React.FC<GameEditorProps> = ({ items, onCommit, saving,
             <Field label="Title" required>
               <TextInput value={draft.title} onChange={(event) => update('title', event.target.value)} placeholder="e.g. Ghost of Tsushima" />
             </Field>
-            <Field label="Genre">
+            <Field label="Type">
               <TextInput value={draft.genre} onChange={(event) => update('genre', event.target.value)} placeholder="e.g. Story Game" />
             </Field>
             <Field label="Category">

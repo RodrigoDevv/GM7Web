@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RotateCw } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useContent } from '../context/ContentContext';
+import { smoothScrollTo } from '../lib/smoothScroll';
 import { SocialMediaHubSection, FEED_CHANNELS, feedSectionId, type PlatformKey } from './SocialMediaHubSection';
 
 interface SocialsPageProps {
@@ -49,10 +50,7 @@ export const SocialsPage: React.FC<SocialsPageProps> = ({ onToast }) => {
 
   const jumpToChannel = (key: PlatformKey) => {
     setActiveChannel(key);
-    document.getElementById(feedSectionId(key))?.scrollIntoView({
-      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-      block: 'start',
-    });
+    smoothScrollTo(`#${feedSectionId(key)}`, { offset: -128 });
   };
 
   const refreshFeed = () => {

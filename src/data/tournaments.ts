@@ -6,6 +6,13 @@ import soulsEldenImg from '../assets/images/ps5_souls_elden_1791730984139.jpg';
 
 export type RegistrationStatus = 'Registration Open' | 'Closing Soon' | 'Waitlist';
 
+export interface TournamentWinner {
+  id: string;
+  name: string;
+  handle: string;
+  avatarUrl: string;
+}
+
 export interface AvailableTournament {
   id: string;
   name: string;
@@ -22,6 +29,8 @@ export interface AvailableTournament {
   description: string;
   image: string;
   featured?: boolean;
+  squadRegistration?: boolean;
+  winner?: TournamentWinner | null;
 }
 
 export interface RecentTournament {
