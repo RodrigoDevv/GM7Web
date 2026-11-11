@@ -3,7 +3,7 @@ import type { Page } from '../types/navigation';
 
 declare const __SITE_URL__: string;
 
-const FALLBACK_SITE_URL = 'https://gm7.gg';
+const FALLBACK_SITE_URL = 'https://gm-7-web.vercel.app';
 
 const SITE_URL = (typeof __SITE_URL__ === 'string' ? __SITE_URL__ : FALLBACK_SITE_URL).replace(
   /\/+$/,

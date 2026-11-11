@@ -4,13 +4,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {defineConfig, loadEnv, type Plugin} from 'vite';
 
-const FALLBACK_SITE_URL = 'https://gm7.gg';
+const FALLBACK_SITE_URL = 'https://gm-7-web.vercel.app';
 
 function normalizeSiteUrl(url: string): string {
   return (url || FALLBACK_SITE_URL).replace(/\/+$/, '');
 }
 
-function seoFilesPlugin(siteUrl: string): Plugin {
+function seoFilesPlugin(siteUrl: string, googleVerification: string): Plugin {
   const lastmod = new Date().toISOString().slice(0, 10);
 
   const robots = `# robots.txt for GM7 — l'Gamers Lmla7
@@ -65,7 +65,16 @@ Sitemap: ${siteUrl}/sitemap.xml
   return {
     name: 'gm7-seo-files',
     transformIndexHtml(html) {
-      return html.replaceAll('__SITE_URL__', siteUrl);
+      let next = html.replaceAll('__SITE_URL__', siteUrl);
+      if (googleVerification) {
+        next = next.replaceAll('__GOOGLE_SITE_VERIFICATION__', googleVerification);
+      } else {
+        next = next.replace(
+          /\s*<meta name="google-site-verification" content="__GOOGLE_SITE_VERIFICATION__"\s*\/>/,
+          '',
+        );
+      }
+      return next;
     },
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
@@ -104,15 +113,20 @@ export default defineConfig(({mode}) => {
       env.APP_URL ||
       '',
   );
+  const googleVerification = (
+    process.env.VITE_GOOGLE_SITE_VERIFICATION ||
+    env.VITE_GOOGLE_SITE_VERIFICATION ||
+    ''
+  ).trim();
 
-  if (siteUrl === FALLBACK_SITE_URL) {
+  if (!process.env.VITE_SITE_URL && !process.env.APP_URL && !env.VITE_SITE_URL && !env.APP_URL) {
     console.warn(
       `[SEO] Set VITE_SITE_URL (or APP_URL) to your production domain so canonical URLs and sitemap.xml are correct. Falling back to ${FALLBACK_SITE_URL}.`,
     );
   }
 
   return {
-    plugins: [react(), tailwindcss(), seoFilesPlugin(siteUrl)],
+    plugins: [react(), tailwindcss(), seoFilesPlugin(siteUrl, googleVerification)],
     define: {
       __SITE_URL__: JSON.stringify(siteUrl),
     },

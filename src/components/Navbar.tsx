@@ -89,7 +89,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'home', onNavigate
   const socialLinks = [
     {
       name: 'Discord',
-      href: 'https://discord.com',
+      href: 'https://discord.gg/GS2BFT7DB7',
       icon: DiscordIcon,
     },
     {

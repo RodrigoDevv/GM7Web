@@ -15,7 +15,7 @@ interface AboutPageProps {
 
 const profileLinks = {
   streamer: {
-    website: 'https://gm7.com',
+    website: 'https://gm7.ma',
     instagram: 'https://www.instagram.com/snnseii/',
   },
   founder: {
