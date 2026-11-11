@@ -1,12 +1,13 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { GameItem } from '../data/games';
-import type { AvailableTournament } from '../data/tournaments';
+import type { AvailableTournament, TournamentSeasonStats } from '../data/tournaments';
 import type { SocialVideo } from '../data/socials';
 import type { SetupContent } from '../data/setup';
 
 export interface SiteContent {
   games: GameItem[] | null;
   tournaments: AvailableTournament[] | null;
+  tournamentStats: TournamentSeasonStats | null;
   socials: SocialVideo[] | null;
   setup: SetupContent | null;
 }
@@ -17,7 +18,7 @@ interface ContentContextValue extends SiteContent {
   refresh: () => Promise<void>;
 }
 
-const EMPTY: SiteContent = { games: null, tournaments: null, socials: null, setup: null };
+const EMPTY: SiteContent = { games: null, tournaments: null, tournamentStats: null, socials: null, setup: null };
 
 const ContentContext = createContext<ContentContextValue>({
   ...EMPTY,
@@ -41,6 +42,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setContent({
         games: Array.isArray(data.games) ? data.games : null,
         tournaments: Array.isArray(data.tournaments) ? data.tournaments : null,
+        tournamentStats: data.tournamentStats && typeof data.tournamentStats === 'object' ? data.tournamentStats : null,
         socials: Array.isArray(data.socials) ? data.socials : null,
         setup: data.setup && typeof data.setup === 'object' ? data.setup : null,
       });

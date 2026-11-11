@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
 import { deleteUserById, getUserById, listDiscordUsers, upsertDiscordUser, toPublicUser } from './db.js';
-import { getContent, saveGames, saveSetup, saveTournaments, saveVideos } from './content.js';
+import { getContent, saveGames, saveSetup, saveTournamentStats, saveTournaments, saveVideos } from './content.js';
 import { getAnalyticsSummary, recordPageView, recordVisit } from './analytics.js';
 import { initDatabase, isTursoConfigured } from './turso.js';
 
@@ -1144,6 +1144,18 @@ app.put(
       return res.status(400).json({ error: 'setup must be an object' });
     }
     res.json({ setup: await saveSetup(setup) });
+  }),
+);
+
+app.put(
+  '/api/content/tournamentStats',
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    const tournamentStats = req.body?.tournamentStats;
+    if (!tournamentStats || typeof tournamentStats !== 'object' || Array.isArray(tournamentStats)) {
+      return res.status(400).json({ error: 'tournamentStats must be an object' });
+    }
+    res.json({ tournamentStats: await saveTournamentStats(tournamentStats) });
   }),
 );
 

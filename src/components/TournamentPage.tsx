@@ -8,7 +8,6 @@ import {
   Crown,
   Flame,
   Gamepad2,
-  Medal,
   Radio,
   ShieldCheck,
   Sparkles,
@@ -24,9 +23,8 @@ import { useAuth } from '../context/AuthContext';
 import { useContent } from '../context/ContentContext';
 import {
   defaultAvailableTournaments,
-  defaultRecentTournaments,
+  defaultTournamentStats,
   type AvailableTournament,
-  type RecentTournament,
   type RegistrationStatus,
 } from '../data/tournaments';
 
@@ -36,13 +34,6 @@ interface TournamentPageProps {
   onNavigateHome: (targetSection?: string) => void;
   onToast?: (msg: string) => void;
 }
-
-const seasonStats = [
-  { label: 'Tournaments hosted', value: '24', hint: 'Across 6 game titles', icon: Trophy },
-  { label: 'Prize pool awarded', value: '$18,400', hint: 'Paid out to the community', icon: Sparkles },
-  { label: 'Players competed', value: '1,286', hint: 'Unique bracket entrants', icon: Users },
-  { label: 'Champions crowned', value: '24', hint: 'Season 2026 so far', icon: Crown },
-];
 
 function useCountdown(targetIso: string) {
   const [remainingMs, setRemainingMs] = useState(() =>
@@ -82,15 +73,127 @@ const statusStyles: Record<RegistrationStatus, { dark: string; light: string }> 
   },
 };
 
+interface TournamentCardProps {
+  tournament: AvailableTournament;
+  onRegister: (tournament: AvailableTournament) => void;
+}
+
+const TournamentCard: React.FC<TournamentCardProps> = ({ tournament, onRegister }) => {
+  const { isDark } = useTheme();
+  const progress = Math.round((tournament.filledSlots / Math.max(1, tournament.maxSlots)) * 100);
+  return (
+    <article
+      className={`group flex flex-col overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-1 ${
+        isDark
+          ? 'border-neutral-800 bg-neutral-900/70 hover:border-[#FFBE0D]/50 hover:shadow-[0_18px_40px_rgba(0,0,0,0.55)]'
+          : 'border-neutral-200 bg-white hover:border-orange-300 hover:shadow-xl'
+      }`}
+    >
+      <div className="relative aspect-[16:9] overflow-hidden">
+        <img
+          src={tournament.image}
+          alt={`${tournament.game} tournament artwork`}
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        <span
+          className={`absolute left-3 top-3 rounded-full border px-2.5 py-1 text-[9px] font-mono font-black uppercase tracking-wider ${
+            tournament.winner
+              ? isDark
+                ? 'border-[#FFBE0D]/30 bg-[#FFBE0D]/15 text-[#FFBE0D]'
+                : 'border-amber-300 bg-amber-50 text-amber-700'
+              : isDark
+                ? statusStyles[tournament.status].dark
+                : statusStyles[tournament.status].light
+          }`}
+        >
+          {tournament.winner ? 'Finished' : tournament.status}
+        </span>
+        <div className="absolute bottom-3 left-3 right-3">
+          <p className="text-[10px] font-mono uppercase tracking-wider text-[#FFBE0D]">{tournament.game}</p>
+          <h3 className="text-base font-black leading-tight text-white">{tournament.name}</h3>
+        </div>
+      </div>
+
+      <div className="flex flex-1 flex-col p-4">
+        <p className={`text-xs leading-relaxed ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
+          {tournament.description}
+        </p>
+
+        {tournament.winner && (
+          <div className={`mt-3 flex items-center gap-2 rounded-xl border px-3 py-2 ${isDark ? 'border-[#FFBE0D]/20 bg-[#FFBE0D]/5' : 'border-amber-200 bg-amber-50'}`}>
+            {tournament.winner.avatarUrl && <img src={tournament.winner.avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />}
+            <div className="min-w-0">
+              <p className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#8C6500] dark:text-[#FFBE0D]">Tournament winner</p>
+              <p className="truncate text-xs font-bold">{tournament.winner.name} <span className={`font-normal ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>@{tournament.winner.handle}</span></p>
+            </div>
+            <Trophy className="ml-auto h-4 w-4 shrink-0 text-[#D49A00] dark:text-[#FFBE0D]" />
+          </div>
+        )}
+
+        <div className="mt-4 grid grid-cols-2 gap-2 text-[11px]">
+          <div className={`rounded-lg border p-2 ${isDark ? 'border-neutral-800 bg-black/30' : 'border-neutral-200 bg-neutral-50'}`}>
+            <span className={`block font-mono uppercase tracking-wider ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>Date</span>
+            <span className="font-semibold">{tournament.dateLabel}</span>
+          </div>
+          <div className={`rounded-lg border p-2 ${isDark ? 'border-neutral-800 bg-black/30' : 'border-neutral-200 bg-neutral-50'}`}>
+            <span className={`block font-mono uppercase tracking-wider ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>Prize</span>
+            <span className="font-bold text-[#8C6500] dark:text-[#FFBE0D]">{tournament.prizePool}</span>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <div className="mb-1.5 flex items-center justify-between text-[10px] font-mono">
+            <span className={isDark ? 'text-neutral-500' : 'text-neutral-500'}>
+              {tournament.filledSlots}/{tournament.maxSlots} slots
+            </span>
+            <span className={isDark ? 'text-neutral-400' : 'text-neutral-600'}>{progress}%</span>
+          </div>
+          <div className={`h-1.5 overflow-hidden rounded-full ${isDark ? 'bg-neutral-800' : 'bg-neutral-200'}`}>
+            <div className="h-full rounded-full bg-[#FFBE0D]" style={{ width: `${progress}%` }} />
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-center gap-2 pt-3">
+          <button
+            type="button"
+            disabled={Boolean(tournament.winner)}
+            onClick={() => onRegister(tournament)}
+            className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-[11px] font-black uppercase tracking-wider transition-all active:scale-95 ${
+              tournament.winner
+                ? 'cursor-not-allowed bg-[#FFBE0D]/30 text-[#8C6500]/70 dark:text-[#FFBE0D]/70'
+                : 'bg-[#FFBE0D] text-black hover:bg-[#E5A800]'
+            }`}
+          >
+            {tournament.winner ? <Trophy className="h-3.5 w-3.5" /> : <Swords className="h-3.5 w-3.5" />}
+            {tournament.winner ? 'Finished' : tournament.status === 'Waitlist' ? 'Join waitlist' : 'Register'}
+          </button>
+          <span className={`inline-flex h-9 w-9 items-center justify-center rounded-xl border ${isDark ? 'border-neutral-800 bg-neutral-900 text-neutral-400' : 'border-neutral-200 bg-neutral-50 text-neutral-500'}`}>
+            <Users className="h-4 w-4" />
+          </span>
+        </div>
+      </div>
+    </article>
+  );
+};
+
 export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, onToast }) => {
   const { isDark } = useTheme();
   const { user, loading: authLoading } = useAuth();
-  const { tournaments: contentTournaments } = useContent();
+  const { tournaments: contentTournaments, tournamentStats: contentTournamentStats } = useContent();
   const availableTournaments = contentTournaments ?? defaultAvailableTournaments;
-  const recentTournaments = defaultRecentTournaments;
+  const seasonStatsData = contentTournamentStats ?? defaultTournamentStats;
+  const seasonStats = [
+    { label: 'Tournaments hosted', value: seasonStatsData.hosted, hint: 'Across 6 game titles', icon: Trophy },
+    { label: 'Prize pool awarded', value: seasonStatsData.prizePool, hint: 'Paid out to the community', icon: Sparkles },
+    { label: 'Players competed', value: seasonStatsData.players, hint: 'Unique bracket entrants', icon: Users },
+    { label: 'Champions crowned', value: seasonStatsData.champions, hint: 'Season 2026 so far', icon: Crown },
+  ];
   const [registrationTournament, setRegistrationTournament] = useState<AvailableTournament | null>(null);
   const [registrationDetails, setRegistrationDetails] = useState<{ playerName: string; discordHandle: string; squadName: string } | null>(null);
   const openTournaments = availableTournaments.filter((tournament) => !tournament.winner);
+  const finishedTournaments = availableTournaments.filter((tournament) => tournament.winner);
   const featured =
     availableTournaments.find((tournament) => tournament.featured && !tournament.winner) ??
     openTournaments[0] ??
@@ -149,10 +252,6 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
       discordHandle: String(formData.get('discordHandle') ?? ''),
       squadName: String(formData.get('squadName') ?? ''),
     });
-  };
-  const handleShare = (tournament: RecentTournament) => {
-    navigator.clipboard?.writeText(`${tournament.name} — winner: ${tournament.winner.name}`);
-    onToast?.(`Copied ${tournament.name} results to clipboard.`);
   };
 
   return (
@@ -459,106 +558,15 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
           </div>
 
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {availableTournaments.map((tournament) => {
-              const progress = Math.round((tournament.filledSlots / tournament.maxSlots) * 100);
-              return (
-                <article
-                  key={tournament.id}
-                  className={`group flex flex-col overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-1 ${
-                    isDark
-                      ? 'border-neutral-800 bg-neutral-900/70 hover:border-[#FFBE0D]/50 hover:shadow-[0_18px_40px_rgba(0,0,0,0.55)]'
-                      : 'border-neutral-200 bg-white hover:border-orange-300 hover:shadow-xl'
-                  }`}
-                >
-                  <div className="relative aspect-[16/9] overflow-hidden">
-                    <img
-                      src={tournament.image}
-                      alt={`${tournament.game} tournament artwork`}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    <span
-                      className={`absolute left-3 top-3 rounded-full border px-2.5 py-1 text-[9px] font-mono font-black uppercase tracking-wider ${
-                        tournament.winner
-                          ? isDark
-                            ? 'border-[#FFBE0D]/30 bg-[#FFBE0D]/15 text-[#FFBE0D]'
-                            : 'border-amber-300 bg-amber-50 text-amber-700'
-                          : isDark
-                            ? statusStyles[tournament.status].dark
-                            : statusStyles[tournament.status].light
-                      }`}
-                    >
-                      {tournament.winner ? 'Finished' : tournament.status}
-                    </span>
-                    <div className="absolute bottom-3 left-3 right-3">
-                      <p className="text-[10px] font-mono uppercase tracking-wider text-[#FFBE0D]">{tournament.game}</p>
-                      <h3 className="text-base font-black leading-tight text-white">{tournament.name}</h3>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-1 flex-col p-4">
-                    <p className={`text-xs leading-relaxed ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
-                      {tournament.description}
-                    </p>
-
-                    {tournament.winner && (
-                      <div className={`mt-3 flex items-center gap-2 rounded-xl border px-3 py-2 ${isDark ? 'border-[#FFBE0D]/20 bg-[#FFBE0D]/5' : 'border-amber-200 bg-amber-50'}`}>
-                        {tournament.winner.avatarUrl && <img src={tournament.winner.avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />}
-                        <div className="min-w-0">
-                          <p className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#8C6500] dark:text-[#FFBE0D]">Tournament winner</p>
-                          <p className="truncate text-xs font-bold">{tournament.winner.name} <span className={`font-normal ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>@{tournament.winner.handle}</span></p>
-                        </div>
-                        <Trophy className="ml-auto h-4 w-4 shrink-0 text-[#D49A00] dark:text-[#FFBE0D]" />
-                      </div>
-                    )}
-
-                    <div className="mt-4 grid grid-cols-2 gap-2 text-[11px]">
-                      <div className={`rounded-lg border p-2 ${isDark ? 'border-neutral-800 bg-black/30' : 'border-neutral-200 bg-neutral-50'}`}>
-                        <span className={`block font-mono uppercase tracking-wider ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>Date</span>
-                        <span className="font-semibold">{tournament.dateLabel}</span>
-                      </div>
-                      <div className={`rounded-lg border p-2 ${isDark ? 'border-neutral-800 bg-black/30' : 'border-neutral-200 bg-neutral-50'}`}>
-                        <span className={`block font-mono uppercase tracking-wider ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>Prize</span>
-                        <span className="font-bold text-[#8C6500] dark:text-[#FFBE0D]">{tournament.prizePool}</span>
-                      </div>
-                    </div>
-
-                    <div className="mt-4">
-                      <div className="mb-1.5 flex items-center justify-between text-[10px] font-mono">
-                        <span className={isDark ? 'text-neutral-500' : 'text-neutral-500'}>
-                          {tournament.filledSlots}/{tournament.maxSlots} slots
-                        </span>
-                        <span className={isDark ? 'text-neutral-400' : 'text-neutral-600'}>{progress}%</span>
-                      </div>
-                      <div className={`h-1.5 overflow-hidden rounded-full ${isDark ? 'bg-neutral-800' : 'bg-neutral-200'}`}>
-                        <div className="h-full rounded-full bg-[#FFBE0D]" style={{ width: `${progress}%` }} />
-                      </div>
-                    </div>
-
-                    <div className="mt-4 flex items-center gap-2 pt-3">
-                      <button
-                        type="button"
-                        disabled={Boolean(tournament.winner)}
-                        onClick={() => handleRegister(tournament)}
-                        className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-[11px] font-black uppercase tracking-wider transition-all active:scale-95 ${
-                          tournament.winner
-                            ? 'cursor-not-allowed bg-[#FFBE0D]/30 text-[#8C6500]/70 dark:text-[#FFBE0D]/70'
-                            : 'bg-[#FFBE0D] text-black hover:bg-[#E5A800]'
-                        }`}
-                      >
-                        {tournament.winner ? <Trophy className="h-3.5 w-3.5" /> : <Swords className="h-3.5 w-3.5" />}
-                        {tournament.winner ? 'Finished' : tournament.status === 'Waitlist' ? 'Join waitlist' : 'Register'}
-                      </button>
-                      <span className={`inline-flex h-9 w-9 items-center justify-center rounded-xl border ${isDark ? 'border-neutral-800 bg-neutral-900 text-neutral-400' : 'border-neutral-200 bg-neutral-50 text-neutral-500'}`}>
-                        <Users className="h-4 w-4" />
-                      </span>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
+            {openTournaments.map((tournament) => (
+              <TournamentCard key={tournament.id} tournament={tournament} onRegister={handleRegister} />
+            ))}
           </div>
+          {openTournaments.length === 0 && (
+            <p className={`rounded-2xl border p-6 text-center text-sm ${isDark ? 'border-neutral-800 bg-neutral-900/70 text-neutral-400' : 'border-neutral-200 bg-white text-neutral-600'}`}>
+              All tournaments have finished. New cups are added from the dashboard — check back soon.
+            </p>
+          )}
         </section>
 
         {/* Season stats */}
@@ -596,141 +604,33 @@ export const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigateHome, 
         </section>
 
         {/* Recent tournaments */}
-        <section aria-labelledby="recent-tournaments-heading" className="mt-14 sm:mt-20">
-          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <span className={`text-[10px] font-mono font-bold uppercase tracking-[0.25em] ${isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'}`}>
-                Results archive
+        {finishedTournaments.length > 0 && (
+          <section aria-labelledby="finished-tournaments-heading" className="mt-14 sm:mt-20">
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <span className={`text-[10px] font-mono font-bold uppercase tracking-[0.25em] ${isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'}`}>
+                  Results archive
+                </span>
+                <h2 id="finished-tournaments-heading" className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">
+                  Recent Tournaments
+                </h2>
+                <p className={`mt-1 text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
+                  Cups that wrapped up, with the champions who took them.
+                </p>
+              </div>
+              <span className={`inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-mono font-bold uppercase tracking-wider ${isDark ? 'border-neutral-800 bg-neutral-900/70 text-neutral-300' : 'border-neutral-200 bg-white text-neutral-600'}`}>
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                {finishedTournaments.length} finished event{finishedTournaments.length === 1 ? '' : 's'}
               </span>
-              <h2 id="recent-tournaments-heading" className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">
-                Recent Tournaments
-              </h2>
-              <p className={`mt-1 text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
-                Final brackets, player counts, prize payouts, and the champions who took it all.
-              </p>
             </div>
-            <span className={`inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-mono font-bold uppercase tracking-wider ${isDark ? 'border-neutral-800 bg-neutral-900/70 text-neutral-300' : 'border-neutral-200 bg-white text-neutral-600'}`}>
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-              {recentTournaments.length} completed events
-            </span>
-          </div>
 
-          <div className="space-y-4">
-            {recentTournaments.map((tournament) => (
-              <article
-                key={tournament.id}
-                className={`overflow-hidden rounded-2xl border transition-all duration-300 ${
-                  isDark
-                    ? 'border-neutral-800 bg-neutral-900/70 hover:border-[#FFBE0D]/40'
-                    : 'border-neutral-200 bg-white shadow-sm hover:border-orange-300 hover:shadow-md'
-                }`}
-              >
-                <div className="grid gap-0 lg:grid-cols-[220px_1fr_300px]">
-                  {/* Thumbnail */}
-                  <div className="relative h-36 overflow-hidden lg:h-full lg:min-h-[180px]">
-                    <img
-                      src={tournament.image}
-                      alt={`${tournament.game} recent tournament artwork`}
-                      loading="lazy"
-                      className="h-full w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-black/10 lg:to-black/60" />
-                    <div className="absolute bottom-3 left-3 lg:hidden">
-                      <p className="text-[10px] font-mono uppercase tracking-wider text-[#FFBE0D]">{tournament.game}</p>
-                      <h3 className="text-base font-black text-white">{tournament.name}</h3>
-                    </div>
-                  </div>
-
-                  {/* Stats */}
-                  <div className="flex flex-col justify-between p-5">
-                    <div>
-                      <div className="hidden items-center gap-2 lg:flex">
-                        <span className="rounded-full bg-[#FFBE0D]/15 px-2.5 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C6500] dark:text-[#FFBE0D]">
-                          {tournament.game}
-                        </span>
-                        <span className={`inline-flex items-center gap-1.5 text-[11px] font-mono ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>
-                          <CalendarDays className="h-3.5 w-3.5" />
-                          {tournament.dateLabel}
-                        </span>
-                      </div>
-                      <h3 className="mt-2 hidden text-xl font-black tracking-tight lg:block">{tournament.name}</h3>
-                    </div>
-
-                    <div className="mt-4 grid grid-cols-3 gap-2">
-                      <div className={`rounded-xl border p-2.5 ${isDark ? 'border-neutral-800 bg-black/30' : 'border-neutral-200 bg-neutral-50'}`}>
-                        <div className="flex items-center gap-1 text-[9px] font-mono uppercase tracking-wider text-neutral-500">
-                          <Users className="h-3 w-3" />
-                          Players
-                        </div>
-                        <div className="mt-0.5 text-sm font-black">{tournament.participants}</div>
-                      </div>
-                      <div className={`rounded-xl border p-2.5 ${isDark ? 'border-neutral-800 bg-black/30' : 'border-neutral-200 bg-neutral-50'}`}>
-                        <div className="flex items-center gap-1 text-[9px] font-mono uppercase tracking-wider text-neutral-500">
-                          <Swords className="h-3 w-3" />
-                          Matches
-                        </div>
-                        <div className="mt-0.5 text-sm font-black">{tournament.matches}</div>
-                      </div>
-                      <div className={`rounded-xl border p-2.5 ${isDark ? 'border-neutral-800 bg-black/30' : 'border-neutral-200 bg-neutral-50'}`}>
-                        <div className="flex items-center gap-1 text-[9px] font-mono uppercase tracking-wider text-neutral-500">
-                          <Trophy className="h-3 w-3" />
-                          Prize
-                        </div>
-                        <div className="mt-0.5 text-sm font-black text-[#8C6500] dark:text-[#FFBE0D]">{tournament.prizePool}</div>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-                      <span className={`inline-flex items-center gap-1.5 text-[11px] ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
-                        <Sparkles className="h-3.5 w-3.5 text-[#FFBE0D]" />
-                        MVP: {tournament.mvp}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleShare(tournament)}
-                        className={`inline-flex items-center gap-1 text-[11px] font-bold transition-colors ${isDark ? 'text-neutral-400 hover:text-[#FFBE0D]' : 'text-neutral-500 hover:text-[#8C6500]'}`}
-                      >
-                        Share results
-                        <ArrowUpRight className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Winner panel */}
-                  <div
-                    className={`border-t p-5 lg:border-l lg:border-t-0 ${
-                      isDark ? 'border-neutral-800 bg-[#0d1016]' : 'border-neutral-200 bg-neutral-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#8C6500] dark:text-[#FFBE0D]">
-                        <Crown className="h-4 w-4" />
-                        Champion
-                      </span>
-                      <Medal className="h-4 w-4 text-neutral-400" />
-                    </div>
-                    <h4 className="mt-2 text-lg font-black leading-tight">{tournament.winner.name}</h4>
-                    <p className={`mt-0.5 truncate text-[11px] font-mono ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-                      {tournament.winner.handle}
-                    </p>
-                    <div className="mt-3 flex items-center justify-between rounded-xl border border-[#FFBE0D]/30 bg-[#FFBE0D]/10 px-3 py-2">
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-[#8C6500] dark:text-[#FFBE0D]">
-                        Winner payout
-                      </span>
-                      <span className="text-sm font-black text-[#8C6500] dark:text-[#FFBE0D]">
-                        {tournament.winner.prize}
-                      </span>
-                    </div>
-                    <div className={`mt-3 flex items-center gap-1.5 text-[11px] ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
-                      <span className="font-mono text-[9px] uppercase tracking-wider text-neutral-500">Runner-up</span>
-                      <span className="truncate font-semibold">{tournament.runnerUp.name}</span>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+              {finishedTournaments.map((tournament) => (
+                <TournamentCard key={tournament.id} tournament={tournament} onRegister={handleRegister} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Closing CTA */}
         <section

@@ -18,11 +18,12 @@ import { AudienceIcon, GamesIcon, OverviewIcon, SetupIcon, TournamentIcon, Visit
 import { useTheme } from '../../context/ThemeContext';
 import { useContent } from '../../context/ContentContext';
 import { defaultGames, type GameItem } from '../../data/games';
-import { defaultAvailableTournaments, type AvailableTournament } from '../../data/tournaments';
+import { defaultAvailableTournaments, defaultTournamentStats, type AvailableTournament, type TournamentSeasonStats } from '../../data/tournaments';
 import { defaultSetup, type SetupContent } from '../../data/setup';
 import { GameEditor } from './GameEditor';
 import { SetupEditor } from './SetupEditor';
 import { TournamentEditor } from './TournamentEditor';
+import { TournamentStatsEditor } from './TournamentStatsEditor';
 import { AdminButton, Field, TextInput } from './fields';
 
 interface DashboardPageProps {
@@ -31,7 +32,7 @@ interface DashboardPageProps {
 }
 
 type TabKey = 'overview' | 'tournaments' | 'games' | 'setup';
-type SectionKey = 'tournaments' | 'games' | 'setup';
+type SectionKey = 'tournaments' | 'games' | 'setup' | 'tournamentStats';
 
 interface AdminSession {
   loading: boolean;
@@ -57,7 +58,7 @@ interface AnalyticsStats {
 
 export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, onToast }) => {
   const { isDark } = useTheme();
-  const { games, tournaments, setup, loading: contentLoading, refresh } = useContent();
+  const { games, tournaments, tournamentStats, setup, loading: contentLoading, refresh } = useContent();
 
   const [session, setSession] = useState<AdminSession>({
     loading: true,
@@ -75,6 +76,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [gameDraft, setGameDraft] = useState<GameItem[]>([]);
   const [tournamentDraft, setTournamentDraft] = useState<AvailableTournament[]>([]);
+  const [tournamentStatsDraft, setTournamentStatsDraft] = useState<TournamentSeasonStats>(defaultTournamentStats);
   const [setupDraft, setSetupDraft] = useState<SetupContent>(defaultSetup);
   const [stats, setStats] = useState<AnalyticsStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
@@ -108,9 +110,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
     if (!session.authenticated || contentLoading || initialized) return;
     setGameDraft(games ?? defaultGames);
     setTournamentDraft(tournaments ?? defaultAvailableTournaments);
+    setTournamentStatsDraft(tournamentStats ?? defaultTournamentStats);
     setSetupDraft(setup ?? defaultSetup);
     setInitialized(true);
-  }, [session.authenticated, contentLoading, initialized, games, tournaments, setup]);
+  }, [session.authenticated, contentLoading, initialized, games, tournaments, tournamentStats, setup]);
 
   const loadStats = async () => {
     setStatsLoading(true);
@@ -178,6 +181,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
     setPassword('');
     setGameDraft([]);
     setTournamentDraft([]);
+    setTournamentStatsDraft(defaultTournamentStats);
     setSetupDraft(defaultSetup);
     onToast?.('Logged out of the dashboard.');
   };
@@ -200,11 +204,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
       const data = (await response.json()) as Record<string, unknown>;
       if (section === 'games' && Array.isArray(data.games)) setGameDraft(data.games as GameItem[]);
       if (section === 'tournaments' && Array.isArray(data.tournaments)) setTournamentDraft(data.tournaments as AvailableTournament[]);
+      if (section === 'tournamentStats' && data.tournamentStats && typeof data.tournamentStats === 'object') setTournamentStatsDraft(data.tournamentStats as TournamentSeasonStats);
       if (section === 'setup' && data.setup && typeof data.setup === 'object') setSetupDraft(data.setup as SetupContent);
       await refresh();
       const labels: Record<SectionKey, string> = {
         games: 'Game cards',
         tournaments: 'Tournaments',
+        tournamentStats: 'Tournament stats',
         setup: 'Setup',
       };
       onToast?.(`${labels[section]} saved.`);
@@ -466,9 +472,21 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
                 })}
               </section>
             </div>
-          ) : (
+          ) : activeTab === 'tournaments' ? (
+            <div className="space-y-5">
+              <TournamentStatsEditor
+                stats={tournamentStatsDraft}
+                onCommit={(next) => commit('tournamentStats', next)}
+                saving={savingSection === 'tournamentStats'}
+                onToast={onToast}
+              />
               <section className={`rounded-2xl border p-4 sm:p-6 ${isDark ? 'border-white/[0.09] bg-[#111]' : 'border-black/[0.08] bg-white'}`}>
-              {activeTab === 'tournaments' ? <TournamentEditor items={tournamentDraft} onCommit={(next) => commit('tournaments', next)} saving={savingSection === 'tournaments'} onToast={onToast} /> : activeTab === 'setup' ? <SetupEditor setup={setupDraft} onCommit={(next) => commit('setup', next)} saving={savingSection === 'setup'} onToast={onToast} /> : <GameEditor items={gameDraft} onCommit={(next) => commit('games', next)} saving={savingSection === 'games'} onToast={onToast} />}
+                <TournamentEditor items={tournamentDraft} onCommit={(next) => commit('tournaments', next)} saving={savingSection === 'tournaments'} onToast={onToast} />
+              </section>
+            </div>
+          ) : (
+            <section className={`rounded-2xl border p-4 sm:p-6 ${isDark ? 'border-white/[0.09] bg-[#111]' : 'border-black/[0.08] bg-white'}`}>
+              {activeTab === 'setup' ? <SetupEditor setup={setupDraft} onCommit={(next) => commit('setup', next)} saving={savingSection === 'setup'} onToast={onToast} /> : <GameEditor items={gameDraft} onCommit={(next) => commit('games', next)} saving={savingSection === 'games'} onToast={onToast} />}
             </section>
           )}
         </main>

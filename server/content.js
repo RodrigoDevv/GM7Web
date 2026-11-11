@@ -157,6 +157,19 @@ export function normalizeSetup(raw = {}) {
   };
 }
 
+export function normalizeTournamentStats(raw = {}) {
+  const str = (value, fallback) => {
+    const s = asString(value).trim();
+    return s || fallback;
+  };
+  return {
+    hosted: str(raw.hosted, '24'),
+    prizePool: str(raw.prizePool, '$18,400'),
+    players: str(raw.players, '1,286'),
+    champions: str(raw.champions, '24'),
+  };
+}
+
 function normalizeList(list, normalizer) {
   if (!Array.isArray(list)) return null;
   const seen = new Set();
@@ -175,6 +188,9 @@ async function readContentFile() {
         : null,
       tournaments: Array.isArray(parsed.tournaments)
         ? normalizeList(parsed.tournaments, normalizeTournament)
+        : null,
+      tournamentStats: parsed.tournamentStats && typeof parsed.tournamentStats === 'object'
+        ? normalizeTournamentStats(parsed.tournamentStats)
         : null,
       socials: Array.isArray(parsed.socials)
         ? normalizeList(parsed.socials, normalizeVideo) ?? []
@@ -256,6 +272,9 @@ export async function getContent() {
       return {
         games: Array.isArray(map.games) ? normalizeList(map.games, normalizeGame) : null,
         tournaments: Array.isArray(map.tournaments) ? normalizeList(map.tournaments, normalizeTournament) : null,
+        tournamentStats: map.tournamentStats && typeof map.tournamentStats === 'object'
+          ? normalizeTournamentStats(map.tournamentStats)
+          : null,
         socials: Array.isArray(map.socials) ? normalizeList(map.socials, normalizeVideo) ?? [] : (EMPTY_CONTENT.socials || []),
         setup: map.setup && typeof map.setup === 'object' ? normalizeSetup(map.setup) : null,
       };
@@ -320,6 +339,28 @@ export function saveSetup(setup) {
     }
     const content = await readContentFile();
     content.setup = normalized;
+    await writeContentFile(content);
+    return normalized;
+  });
+}
+
+export function saveTournamentStats(stats) {
+  const normalized = normalizeTournamentStats(stats ?? {});
+  return enqueueWrite(async () => {
+    const turso = await ensureTursoContentReady();
+    if (turso) {
+      try {
+        await turso.execute({
+          sql: `INSERT INTO content (key, data, updated_at) VALUES (?, ?, ?)
+                ON CONFLICT(key) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at`,
+          args: ['tournamentStats', JSON.stringify(normalized), Date.now()],
+        });
+      } catch (err) {
+        console.error('[Turso] Error saving tournament stats to Turso:', err);
+      }
+    }
+    const content = await readContentFile();
+    content.tournamentStats = normalized;
     await writeContentFile(content);
     return normalized;
   });
