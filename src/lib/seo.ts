@@ -3,7 +3,7 @@ import type { Page } from '../types/navigation';
 
 declare const __SITE_URL__: string;
 
-const FALLBACK_SITE_URL = 'https://gm-7-web.vercel.app';
+const FALLBACK_SITE_URL = 'https://gm7.ma';
 
 const SITE_URL = (typeof __SITE_URL__ === 'string' ? __SITE_URL__ : FALLBACK_SITE_URL).replace(
   /\/+$/,
@@ -74,9 +74,9 @@ const PAGE_META: Record<SeoPage, PageMeta> = {
     imageAlt: 'GM7 content dashboard',
   },
   legal: {
-    title: 'GM7 Legal Drafts — Privacy, Terms & Cookies',
+    title: 'GM7 Legal Drafts — DMCA, Privacy, Terms & Cookies',
     description: 'Draft legal documents for GM7. These documents are not final and require lawyer review.',
-    keywords: 'GM7 privacy draft, terms draft, cookie notice draft',
+    keywords: 'GM7 dmca draft, copyright policy draft, privacy draft, terms draft, cookie notice draft',
     path: '/legal/privacy',
     imageAlt: 'GM7 legal documents draft',
   },

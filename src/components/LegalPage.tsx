@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTheme } from '../context/ThemeContext';
 
-type LegalDocument = 'privacy' | 'terms' | 'cookies';
+type LegalDocument = 'privacy' | 'terms' | 'dmca' | 'cookies';
 
 const DOCUMENTS: Record<LegalDocument, { title: string; sections: Array<{ title: string; body: string[] }> }> = {
   privacy: {
@@ -24,6 +24,18 @@ const DOCUMENTS: Record<LegalDocument, { title: string; sections: Array<{ title:
       { title: 'Tournaments and prizes', body: ['Tournament names, dates, formats, entry details, slot counts, statuses, and prize descriptions are posted as site content. Current registration is completed in Discord, not through an on-site entry system. The official rules, eligibility, prize conditions, cancellations, and dispute contact for each event are [TOURNAMENT RULES URL / PROCESS].'] },
       { title: 'Payments and third-party services', body: ['The GM7 site does not process payments or sell subscriptions. A supporter flow selects a quantity of Kick gifted subscriptions and opens Kick to continue. Any purchase is made on Kick under the terms and checkout information shown by Kick.', 'The site links to or loads content from Discord, Kick, Google Fonts, YouTube, TikTok, and Instagram. Those services are governed by their own terms.'] },
       { title: 'Contact and governing terms', body: ['Governing law and venue: [COUNTRY / REGION — LAWYER TO COMPLETE]. Effective date: [EFFECTIVE DATE].'] },
+    ],
+  },
+  dmca: {
+    title: 'DMCA / Copyright policy',
+    sections: [
+      { title: 'Draft status and operator', body: ['DRAFT — NOT EFFECTIVE. Operator: GM7 Community. This policy must be reviewed and completed by a lawyer before launch.'] },
+      { title: 'Copyright ownership', body: ['The GM7 name, logo, original site design, and original written content are owned by GM7 Community or used with permission. Game titles, artwork, screenshots, videos, and other third-party assets remain the property of their respective owners and are displayed for identification, commentary, or promotional purposes.', 'If you believe any material on this site infringes your copyright, follow the reporting process below.'] },
+      { title: 'User-submitted content', body: ['By submitting content to GM7 (for example, clips, images, or tournament material), you confirm that you own the content or have the rights and permissions needed to share it. You grant GM7 a non-exclusive license to display, reproduce, and promote that content on its site and channels. [LICENSE SCOPE AND DURATION — LAWYER TO COMPLETE].'] },
+      { title: 'Reporting copyright infringement', body: ['Send a written notice to [DMCA AGENT NAME], [DMCA AGENT EMAIL], [POSTAL ADDRESS]. To be effective, your notice must include: (1) a physical or electronic signature of the copyright owner or a person authorized to act on their behalf; (2) identification of the copyrighted work claimed to be infringed; (3) identification of the material claimed to be infringing, with enough information to locate it on the site; (4) your name, address, telephone number, and email address; (5) a statement that you have a good-faith belief the use is not authorized by the copyright owner, its agent, or the law; and (6) a statement, under penalty of perjury, that the information in your notice is accurate and that you are the copyright owner or authorized to act on their behalf.', 'We may remove or disable access to material that is the subject of a valid notice and may notify the affected user.'] },
+      { title: 'Counter-notification', body: ['If your content was removed and you believe it was removed by mistake or misidentification, you may send a counter-notification to [DMCA AGENT EMAIL]. It must include your contact information, identification of the removed material and its former location, a statement under penalty of perjury that you have a good-faith belief the material was removed as a result of mistake or misidentification, and your consent to the jurisdiction of [COURT / JURISDICTION — LAWYER TO COMPLETE].'] },
+      { title: 'Repeat infringers', body: ['GM7 may, in appropriate circumstances, suspend or terminate access for users who repeatedly infringe copyright. [REPEAT-INFRINGER PROCEDURE — LAWYER TO COMPLETE].'] },
+      { title: 'Contact and effective date', body: ['Copyright questions: [DMCA AGENT EMAIL]. Effective date: [EFFECTIVE DATE].'] },
     ],
   },
   cookies: {

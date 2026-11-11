@@ -55,3 +55,31 @@ export function smoothScrollTo(
 export function smoothScrollToTop(immediate = false) {
   smoothScrollTo(0, { immediate });
 }
+
+let fallbackPreviousOverflow: string | null = null;
+
+/**
+ * Locks page scrolling while a modal/panel is open.
+ * Uses Lenis' own stop/start so the lock is always released cleanly.
+ */
+export function stopSmoothScroll() {
+  if (lenis) {
+    lenis.stop();
+    return;
+  }
+  if (typeof document === 'undefined') return;
+  if (fallbackPreviousOverflow === null) {
+    fallbackPreviousOverflow = document.body.style.overflow;
+  }
+  document.body.style.overflow = 'hidden';
+}
+
+export function startSmoothScroll() {
+  if (lenis) {
+    lenis.start();
+    return;
+  }
+  if (typeof document === 'undefined') return;
+  document.body.style.overflow = fallbackPreviousOverflow ?? '';
+  fallbackPreviousOverflow = null;
+}

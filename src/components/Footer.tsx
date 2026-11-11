@@ -167,8 +167,29 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Notification Signup */}
-          
+          {/* Legal Links */}
+          <div className="md:col-span-4 space-y-3">
+            <h4 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
+              Legal
+            </h4>
+            <ul className={`space-y-2 text-xs font-medium ${isDark ? 'text-neutral-300' : 'text-neutral-600'}`}>
+              <li>
+                <a href="/legal/dmca" className={`transition-colors ${isDark ? 'hover:text-[#FFBE0D]' : 'hover:text-[#8C6500]'}`}>
+                  DMCA / Copyright Policy
+                </a>
+              </li>
+              <li>
+                <a href="/legal/terms" className={`transition-colors ${isDark ? 'hover:text-[#FFBE0D]' : 'hover:text-[#8C6500]'}`}>
+                  Terms of Service
+                </a>
+              </li>
+              <li>
+                <a href="/legal/privacy" className={`transition-colors ${isDark ? 'hover:text-[#FFBE0D]' : 'hover:text-[#8C6500]'}`}>
+                  Privacy Policy
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
 
         {/* Bottom bar with Senior UX Touches */}
@@ -191,9 +212,7 @@ export const Footer: React.FC = () => {
             </a>
           </div>
 
-          <address className="not-italic text-center text-xs">
-            Operated by GM7 Community
-          </address>
+          <p className="text-center">© 2026 GM7. All rights reserved.</p>
 
           <div className="flex items-center gap-4 flex-wrap justify-center">
             <span className={`font-mono text-[11px] ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>

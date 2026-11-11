@@ -4,10 +4,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {defineConfig, loadEnv, type Plugin} from 'vite';
 
-const FALLBACK_SITE_URL = 'https://gm-7-web.vercel.app';
+const FALLBACK_SITE_URL = 'https://gm7.ma';
 
 function normalizeSiteUrl(url: string): string {
-  return (url || FALLBACK_SITE_URL).replace(/\/+$/, '');
+  const trimmed = (url || '').trim().replace(/\/+$/, '');
+  // Ignore local development URLs so production builds use the public domain.
+  if (!trimmed || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(trimmed)) {
+    return FALLBACK_SITE_URL;
+  }
+  return trimmed;
 }
 
 function seoFilesPlugin(siteUrl: string, googleVerification: string): Plugin {
@@ -108,8 +113,8 @@ export default defineConfig(({mode}) => {
   const env = loadEnv(mode, process.cwd(), '');
   const siteUrl = normalizeSiteUrl(
     process.env.VITE_SITE_URL ||
-      process.env.APP_URL ||
       env.VITE_SITE_URL ||
+      process.env.APP_URL ||
       env.APP_URL ||
       '',
   );

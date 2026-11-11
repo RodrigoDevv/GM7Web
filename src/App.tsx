@@ -16,7 +16,6 @@ import { DashboardPage } from './components/dashboard/DashboardPage';
 import { SocialsSection } from './components/SocialsSection';
 import { Footer } from './components/Footer';
 import { LegalPage } from './components/LegalPage';
-import { SitePasswordGate } from './components/SitePasswordGate';
 import { Reveal } from './components/Reveal';
 import { useSeo } from './lib/seo';
 import { initSmoothScroll, smoothScrollTo, smoothScrollToTop } from './lib/smoothScroll';
@@ -357,7 +356,7 @@ function AppContent() {
             onToast={showToast}
           />
         ) : currentPage === 'legal' ? (
-          <LegalPage document={(window.location.pathname.split('/').filter(Boolean).at(-1) || 'privacy') as 'privacy' | 'terms' | 'cookies'} />
+          <LegalPage document={(window.location.pathname.split('/').filter(Boolean).at(-1) || 'privacy') as 'privacy' | 'terms' | 'dmca' | 'cookies'} />
         ) : (
           /* ============================================================== */
           /* HOME STREAM HUB EXPERIENCE                                     */
@@ -406,13 +405,11 @@ export default function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <SitePasswordGate>
-          <PrivacyConsentProvider>
-            <ContentProvider>
-              <AppContent />
-            </ContentProvider>
-          </PrivacyConsentProvider>
-        </SitePasswordGate>
+        <PrivacyConsentProvider>
+          <ContentProvider>
+            <AppContent />
+          </ContentProvider>
+        </PrivacyConsentProvider>
       </ThemeProvider>
     </AuthProvider>
   );

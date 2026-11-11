@@ -3,6 +3,7 @@ import { Globe, Redo2, Undo2, X } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { AboutHeroSection, AboutSections } from './AboutSections';
 import { DiscordIcon, InstagramIcon } from './BrandIcons';
+import { startSmoothScroll, stopSmoothScroll } from '../lib/smoothScroll';
 
 import snnseiImg from '../assets/images/snnsei.png';
 import hatimImg from '../assets/images/hatim.png';
@@ -43,15 +44,14 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigateHome, onToast })
   useEffect(() => {
     if (!selectedProfile) return;
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    stopSmoothScroll();
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') closeProfileRef.current();
     };
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      startSmoothScroll();
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [selectedProfile]);
