@@ -112,8 +112,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigateHome, onToast })
           </div>
         </section>
 
-        <div id="gm7-team" className="flex-1 grid grid-cols-1 lg:min-h-[620px] lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1.9fr)_minmax(0,1.5fr)] gap-0 items-stretch">
-          <div className="group relative overflow-hidden min-h-[420px] sm:min-h-[520px] lg:min-h-0">
+        <div id="gm7-team" className="mx-auto w-full max-w-7xl 2xl:max-w-[90rem] flex-1 grid grid-cols-1 lg:min-h-[620px] lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1.9fr)_minmax(0,1.5fr)] gap-0 items-stretch">
+          <div className="group relative overflow-hidden min-h-[420px] sm:min-h-[520px] lg:min-h-[620px]">
             <img
               src={snnseiImg}
               alt="Snnsei (Hatim NAJI) — GM7 streamer portrait"
@@ -179,7 +179,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigateHome, onToast })
             </div>
           </div>
 
-          <div className="group relative overflow-hidden min-h-[420px] sm:min-h-[520px] lg:min-h-0">
+          <div className="group relative overflow-hidden min-h-[420px] sm:min-h-[520px] lg:min-h-[620px]">
             <img
               src={hatimImg}
               alt="Hatim NAJI — founder of GM7 and creative director"
