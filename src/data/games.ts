@@ -26,6 +26,7 @@ export interface GameItem {
   squadStatus: string;
   description: string;
   youtubeUrl?: string;
+  showOnHome?: boolean;
 }
 
 export interface UpcomingGame {

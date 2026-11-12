@@ -16,6 +16,7 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
   const { isDark } = useTheme();
   const { games: contentGames } = useContent();
   const games = contentGames ?? defaultGames;
+  const homeGames = games.filter((game) => game.showOnHome !== false).slice(0, 5);
   const [activeIntelGame, setActiveIntelGame] = useState<GameItem | null>(null);
 
   useEffect(() => {
@@ -80,7 +81,7 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
           {/* Left: Cards, Two Per Line */}
           <div className="grid grid-cols-3 gap-1.5 sm:gap-2 content-start">
-            {games.slice(0, 5).map((game) => {
+            {homeGames.map((game) => {
               return (
                 <div
                   key={game.id}

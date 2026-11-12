@@ -78,6 +78,7 @@ export function normalizeGame(raw = {}, index = 0, seen = new Set()) {
     squadStatus: asString(raw.squadStatus),
     description: asString(raw.description),
     youtubeUrl: asString(raw.youtubeUrl),
+    showOnHome: raw.showOnHome === undefined ? true : asBoolean(raw.showOnHome),
   };
 }
 
