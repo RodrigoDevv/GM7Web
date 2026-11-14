@@ -98,7 +98,7 @@ Sitemap: ${siteUrl}/sitemap.xml
       });
     },
     writeBundle(options) {
-      const outDir = options.dir || path.resolve(__dirname, 'dist');
+      const outDir = options.dir || path.resolve(import.meta.dirname, 'dist');
       try {
         fs.writeFileSync(path.join(outDir, 'robots.txt'), robots);
         fs.writeFileSync(path.join(outDir, 'sitemap.xml'), sitemap);
@@ -137,7 +137,7 @@ export default defineConfig(({mode}) => {
     },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(import.meta.dirname, '.'),
       },
     },
     server: {

@@ -1,5 +1,5 @@
 import apexImage from '../assets/images/apex-hero.jpg';
-import fpsImage from '../assets/images/cod.jpg';
+import fpsImage from '../assets/images/COD.jpg';
 import soulsImage from '../assets/images/souls-elden.jpg';
 import heistImage from '../assets/images/city-heist.jpg';
 import soccerImage from '../assets/images/phantom-blade.jpg';
