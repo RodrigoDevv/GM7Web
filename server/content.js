@@ -24,7 +24,7 @@ const INSTAGRAM_POSTS = [
   category: 'Instagram video',
   publishedAt: '',
 }));
-const EMPTY_CONTENT = { games: null, tournaments: null, socials: INSTAGRAM_POSTS, setup: null };
+const EMPTY_CONTENT = { games: null, tournaments: null, socials: INSTAGRAM_POSTS, setup: null, hero: null };
 
 const TOURNAMENT_STATUSES = ['Registration Open', 'Closing Soon', 'Waitlist'];
 const SOCIAL_PLATFORMS = ['youtube', 'kick', 'tiktok', 'instagram'];
@@ -129,6 +129,14 @@ export function normalizeVideo(raw = {}, index = 0, seen = new Set()) {
   };
 }
 
+export function normalizeHeroSlide(raw = {}, index = 0, seen = new Set()) {
+  return {
+    id: withUniqueId(raw.id, 'hero', index, seen),
+    src: asString(raw.src),
+    alt: asString(raw.alt, `Hero image ${index + 1}`),
+  };
+}
+
 export function normalizeSetupItem(raw = {}, index = 0, seen = new Set()) {
   const hotspot = raw.hotspot && typeof raw.hotspot === 'object' ? raw.hotspot : {};
   return {
@@ -198,6 +206,9 @@ async function readContentFile() {
         : [],
       setup: parsed.setup && typeof parsed.setup === 'object'
         ? normalizeSetup(parsed.setup)
+        : null,
+      hero: Array.isArray(parsed.hero)
+        ? normalizeList(parsed.hero, normalizeHeroSlide)
         : null,
     };
   } catch (error) {
@@ -278,6 +289,7 @@ export async function getContent() {
           : null,
         socials: Array.isArray(map.socials) ? normalizeList(map.socials, normalizeVideo) ?? [] : (EMPTY_CONTENT.socials || []),
         setup: map.setup && typeof map.setup === 'object' ? normalizeSetup(map.setup) : null,
+        hero: Array.isArray(map.hero) ? normalizeList(map.hero, normalizeHeroSlide) : null,
       };
     } catch (err) {
       console.error('[Turso] Error reading content from Turso, falling back to local file:', err);
@@ -312,6 +324,10 @@ async function saveSection(section, normalizer, items) {
 
 export function saveGames(games) {
   return saveSection('games', normalizeGame, games);
+}
+
+export function saveHero(hero) {
+  return saveSection('hero', normalizeHeroSlide, hero);
 }
 
 export function saveTournaments(tournaments) {

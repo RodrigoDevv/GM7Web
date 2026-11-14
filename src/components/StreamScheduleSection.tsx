@@ -4,19 +4,14 @@ import { useTheme } from '../context/ThemeContext';
 import { OptionalThirdPartyFrame } from '../context/PrivacyConsentContext';
 
 // Background and schedule game thumbnails
-import kickStreamBg from '../assets/images/kick_stream_battlestation_backdrop.jpg';
-import apexImage from '../assets/images/ps5_apex_hero_1791730950598.jpg';
-import fpsImage from '../assets/images/ps5_tactical_fps_1791731000845.jpg';
-import soulsImage from '../assets/images/ps5_souls_elden_1791730984139.jpg';
-import arenaImage from '../assets/images/hero_community_collaboration_1791557378863.jpg';
-import heistImage from '../assets/images/ps5_city_heist_1791730967151.jpg';
-import soccerImage from '../assets/images/ps5_esports_soccer_1791731018539.jpg';
+import kickStreamBg from '../assets/images/kick-backdrop.jpg';
+import apexImage from '../assets/images/apex-hero.jpg';
+import fpsImage from '../assets/images/tactical-fps.jpg';
+import soulsImage from '../assets/images/souls-elden.jpg';
+import arenaImage from '../assets/images/community-collaboration.jpg';
+import heistImage from '../assets/images/city-heist.jpg';
+import soccerImage from '../assets/images/esports-soccer.jpg';
 
-// ════════════════════════════════════════════════════════════════════════════
-// 📸 USER CUSTOM IMAGE: Replace this image import with your own image file!
-// When you have your image, drop it into `src/assets/images/` and update the
-// import below to point to your image file.
-// ════════════════════════════════════════════════════════════════════════════
 import customStreamPoster from '../assets/images/welcoming.png';
 import { KickIcon } from './BrandIcons';
 
@@ -173,13 +168,13 @@ export const StreamScheduleSection: React.FC<StreamScheduleSectionProps> = ({ on
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
           
           {/* ═════════════════════════════════════════════════════════════════ */}
-          {/* LEFT SIDE: WELCOME TO OUR STREAM (SIMPLE KINETIC STYLE)         */}
+          {/* LEFT SIDE: WELCOME TO OUR STREAM         */}
           {/* ═════════════════════════════════════════════════════════════════ */}
           <div className="relative overflow-hidden rounded-2xl h-full min-h-[440px] sm:min-h-[500px]">
             {/* Ambient glow behind the character */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 w-[78%] h-[58%] bg-[#FFBE0D]/25 rounded-full blur-[90px] pointer-events-none" />
 
-            {/* Kinetic title sits BEHIND the character */}
+            {/* Big title sits BEHIND the character */}
             <div className="absolute inset-x-0 top-0 z-0 flex flex-col items-center pt-4 sm:pt-6 pointer-events-none px-3">
               <span className="font-anton uppercase italic leading-[0.85] text-center text-[clamp(2.5rem,7.5vw,5.2rem)] tracking-[0.02em] text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
                 Welcome To

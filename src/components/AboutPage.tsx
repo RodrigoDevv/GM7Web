@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Globe, Redo2, Undo2, X } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
+import { ThemeContext, useTheme } from '../context/ThemeContext';
 import { AboutHeroSection, AboutSections } from './AboutSections';
 import { DiscordIcon, InstagramIcon } from './BrandIcons';
 import { startSmoothScroll, stopSmoothScroll } from '../lib/smoothScroll';
@@ -25,7 +25,7 @@ const profileLinks = {
   },
 } as const;
 
-export const AboutPage: React.FC<AboutPageProps> = ({ onNavigateHome, onToast }) => {
+const AboutPageContent: React.FC<AboutPageProps> = ({ onNavigateHome, onToast }) => {
   const { isDark } = useTheme();
   const [selectedProfile, setSelectedProfile] = useState<'streamer' | 'founder' | null>(null);
   const [isClosingProfile, setIsClosingProfile] = useState(false);
@@ -59,7 +59,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigateHome, onToast })
   return (
     <div
       className={`min-h-[80vh] flex flex-col transition-colors duration-300 relative ${
-        isDark ? 'bg-[#07080a] text-white' : 'bg-white text-neutral-900'
+        isDark ? 'bg-black text-white' : 'bg-white text-neutral-900'
       }`}
     >
       <div
@@ -326,5 +326,14 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigateHome, onToast })
         <AboutSections onToast={onToast} onNavigateHome={onNavigateHome} />
       </div>
     </div>
+  );
+};
+
+export const AboutPage: React.FC<AboutPageProps> = (props) => {
+  const themeValue = useTheme();
+  return (
+    <ThemeContext.Provider value={{ ...themeValue, theme: 'dark', isDark: true }}>
+      <AboutPageContent {...props} />
+    </ThemeContext.Provider>
   );
 };

@@ -12,8 +12,8 @@ import { useTheme } from '../context/ThemeContext';
 import { Reveal } from './Reveal';
 
 import streamerShot from '../assets/images/read.png';
-import founderShot from '../assets/images/hero_protagonist_portrait_1792266030682.jpg';
-import trophyShot from '../assets/images/sensei_tournament_trophy_1792363736711.jpg';
+import founderShot from '../assets/images/hero-portrait.jpg';
+import trophyShot from '../assets/images/sensei-trophy.jpg';
 import communityShot from '../assets/images/discord.jpg';
 import stageShot from '../assets/images/discord.jpg';
 import aboutPortrait from '../assets/images/snnsei.png';
@@ -24,9 +24,7 @@ interface AboutSectionsProps {
   onNavigateHome?: (targetSection?: string) => void;
 }
 
-/* ------------------------------------------------------------------ */
 /* Shared building blocks                                             */
-/* ------------------------------------------------------------------ */
 
 const SectionShell: React.FC<{
   children: React.ReactNode;
@@ -159,9 +157,7 @@ const Typewriter: React.FC<{
   );
 };
 
-/* ------------------------------------------------------------------ */
 /* 01 - Who we are                                                    */
-/* ------------------------------------------------------------------ */
 
 export const AboutHeroSection: React.FC = () => {
   const { isDark } = useTheme();
@@ -239,9 +235,7 @@ export const AboutIntroSection: React.FC = () => {
   );
 };
 
-/* ------------------------------------------------------------------ */
 /* 02 - The streamer                                                  */
-/* ------------------------------------------------------------------ */
 
 export const AboutStreamerSection: React.FC = () => {
   const { isDark } = useTheme();
@@ -315,9 +309,7 @@ export const AboutStreamerSection: React.FC = () => {
   );
 };
 
-/* ------------------------------------------------------------------ */
 /* 03 - The founder                                                   */
-/* ------------------------------------------------------------------ */
 
 export const AboutFounderSection: React.FC = () => {
   const { isDark } = useTheme();
@@ -393,9 +385,7 @@ export const AboutFounderSection: React.FC = () => {
   );
 };
 
-/* ------------------------------------------------------------------ */
 /* 04 - Pillars                                                        */
-/* ------------------------------------------------------------------ */
 
 export const AboutPillarsSection: React.FC = () => {
   const { isDark } = useTheme();
@@ -468,9 +458,7 @@ export const AboutPillarsSection: React.FC = () => {
   );
 };
 
-/* ------------------------------------------------------------------ */
 /* 05 - Timeline                                                       */
-/* ------------------------------------------------------------------ */
 
 export const AboutTimelineSection: React.FC = () => {
   const { isDark } = useTheme();
@@ -554,9 +542,7 @@ export const AboutTimelineSection: React.FC = () => {
   );
 };
 
-/* ------------------------------------------------------------------ */
 /* 06 - Community                                                      */
-/* ------------------------------------------------------------------ */
 
 export const AboutCommunitySection: React.FC = () => {
   const { isDark } = useTheme();
@@ -623,9 +609,7 @@ export const AboutCommunitySection: React.FC = () => {
   );
 };
 
-/* ------------------------------------------------------------------ */
 /* 07 - CTA                                                            */
-/* ------------------------------------------------------------------ */
 
 export const AboutCtaSection: React.FC<AboutSectionsProps> = ({ onToast, onNavigateHome }) => {
   const { isDark } = useTheme();
@@ -690,7 +674,6 @@ export const AboutCtaSection: React.FC<AboutSectionsProps> = ({ onToast, onNavig
   );
 };
 
-/* ------------------------------------------------------------------ */
 
 export const AboutSections: React.FC<AboutSectionsProps> = ({ onToast, onNavigateHome }) => {
   return (

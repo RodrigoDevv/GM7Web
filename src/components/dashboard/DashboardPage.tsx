@@ -4,6 +4,7 @@ import {
   ChevronLeft,
   Eye,
   EyeOff,
+  ImagePlus,
   KeyRound,
   Loader2,
   Lock,
@@ -20,7 +21,9 @@ import { useContent } from '../../context/ContentContext';
 import { defaultGames, type GameItem } from '../../data/games';
 import { defaultAvailableTournaments, defaultTournamentStats, type AvailableTournament, type TournamentSeasonStats } from '../../data/tournaments';
 import { defaultSetup, type SetupContent } from '../../data/setup';
+import { defaultHeroSlides, type HeroSlide } from '../../data/hero';
 import { GameEditor } from './GameEditor';
+import { HeroEditor } from './HeroEditor';
 import { SetupEditor } from './SetupEditor';
 import { TournamentEditor } from './TournamentEditor';
 import { TournamentStatsEditor } from './TournamentStatsEditor';
@@ -31,8 +34,8 @@ interface DashboardPageProps {
   onToast?: (msg: string) => void;
 }
 
-type TabKey = 'overview' | 'tournaments' | 'games' | 'setup';
-type SectionKey = 'tournaments' | 'games' | 'setup' | 'tournamentStats';
+type TabKey = 'overview' | 'tournaments' | 'games' | 'hero' | 'setup';
+type SectionKey = 'tournaments' | 'games' | 'hero' | 'setup' | 'tournamentStats';
 
 interface AdminSession {
   loading: boolean;
@@ -45,6 +48,7 @@ const TABS: Array<{ key: TabKey; label: string; icon: React.ComponentType<{ clas
   { key: 'overview', label: 'Overview', icon: OverviewIcon },
   { key: 'tournaments', label: 'Tournaments', icon: TournamentIcon },
   { key: 'games', label: 'What We Play', icon: GamesIcon },
+  { key: 'hero', label: 'Hero images', icon: ImagePlus },
   { key: 'setup', label: 'Setup', icon: SetupIcon },
 ];
 
@@ -58,7 +62,7 @@ interface AnalyticsStats {
 
 export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, onToast }) => {
   const { isDark } = useTheme();
-  const { games, tournaments, tournamentStats, setup, loading: contentLoading, refresh } = useContent();
+  const { games, tournaments, tournamentStats, setup, hero, loading: contentLoading, refresh } = useContent();
 
   const [session, setSession] = useState<AdminSession>({
     loading: true,
@@ -77,6 +81,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
   const [gameDraft, setGameDraft] = useState<GameItem[]>([]);
   const [tournamentDraft, setTournamentDraft] = useState<AvailableTournament[]>([]);
   const [tournamentStatsDraft, setTournamentStatsDraft] = useState<TournamentSeasonStats>(defaultTournamentStats);
+  const [heroDraft, setHeroDraft] = useState<HeroSlide[]>(defaultHeroSlides);
   const [setupDraft, setSetupDraft] = useState<SetupContent>(defaultSetup);
   const [stats, setStats] = useState<AnalyticsStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
@@ -112,8 +117,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
     setTournamentDraft(tournaments ?? defaultAvailableTournaments);
     setTournamentStatsDraft(tournamentStats ?? defaultTournamentStats);
     setSetupDraft(setup ?? defaultSetup);
+    setHeroDraft(hero && hero.length ? hero : defaultHeroSlides);
     setInitialized(true);
-  }, [session.authenticated, contentLoading, initialized, games, tournaments, tournamentStats, setup]);
+  }, [session.authenticated, contentLoading, initialized, games, tournaments, tournamentStats, setup, hero]);
 
   const loadStats = async () => {
     setStatsLoading(true);
@@ -183,6 +189,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
     setTournamentDraft([]);
     setTournamentStatsDraft(defaultTournamentStats);
     setSetupDraft(defaultSetup);
+    setHeroDraft(defaultHeroSlides);
     onToast?.('Logged out of the dashboard.');
   };
 
@@ -206,12 +213,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
       if (section === 'tournaments' && Array.isArray(data.tournaments)) setTournamentDraft(data.tournaments as AvailableTournament[]);
       if (section === 'tournamentStats' && data.tournamentStats && typeof data.tournamentStats === 'object') setTournamentStatsDraft(data.tournamentStats as TournamentSeasonStats);
       if (section === 'setup' && data.setup && typeof data.setup === 'object') setSetupDraft(data.setup as SetupContent);
+      if (section === 'hero' && Array.isArray(data.hero)) setHeroDraft(data.hero as HeroSlide[]);
       await refresh();
       const labels: Record<SectionKey, string> = {
         games: 'Game cards',
         tournaments: 'Tournaments',
         tournamentStats: 'Tournament stats',
         setup: 'Setup',
+        hero: 'Hero images',
       };
       onToast?.(`${labels[section]} saved.`);
       return true;
@@ -380,7 +389,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
             {TABS.map((tab) => {
               const Icon = tab.icon;
               const active = activeTab === tab.key;
-              const count = tab.key === 'games' ? gameDraft.length : tab.key === 'tournaments' ? tournamentDraft.length : tab.key === 'setup' ? setupDraft.items.length : null;
+              const count = tab.key === 'games' ? gameDraft.length : tab.key === 'tournaments' ? tournamentDraft.length : tab.key === 'setup' ? setupDraft.items.length : tab.key === 'hero' ? heroDraft.length : null;
               return (
                 <button key={tab.key} type="button" onClick={() => setActiveTab(tab.key)} aria-current={active ? 'page' : undefined} className={`flex min-h-10 w-full items-center gap-3 border-l-2 px-3 text-left text-sm font-medium transition-colors ${active ? 'border-[#FFBE0D] text-[#FFBE0D]' : `border-transparent ${isDark ? 'text-neutral-400 hover:text-white' : 'text-neutral-600 hover:text-black'}`}`}>
                   <Icon className="h-4 w-4 shrink-0" /><span className="flex-1">{tab.label}</span>
@@ -399,7 +408,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
           <header className={`flex flex-wrap items-center justify-between gap-4 rounded-2xl border px-5 py-5 sm:px-7 ${isDark ? 'border-white/[0.09] bg-[#111]' : 'border-black/[0.08] bg-white'}`}>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#b88a00] dark:text-[#FFBE0D]">GM7 / Admin</p>
-              <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">{activeTab === 'overview' ? 'Website overview' : activeTab === 'games' ? 'What We Play' : activeTab === 'setup' ? 'Setup' : 'Tournaments'}</h1>
+              <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">{activeTab === 'overview' ? 'Website overview' : activeTab === 'games' ? 'What We Play' : activeTab === 'setup' ? 'Setup' : activeTab === 'hero' ? 'Hero images' : 'Tournaments'}</h1>
               <p className={`mt-1 text-sm ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
             </div>
             {activeTab === 'overview' && <AdminButton variant="ghost" onClick={loadStats} disabled={statsLoading}><RefreshCw className={`h-4 w-4 ${statsLoading ? 'animate-spin' : ''}`} />Refresh stats</AdminButton>}
@@ -457,6 +466,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
                 {[
                   { key: 'tournaments' as const, title: 'Manage tournaments', description: `${tournamentDraft.length} tournament entries · ${upcomingTournaments} upcoming`, icon: TournamentIcon },
                   { key: 'games' as const, title: 'Edit What We Play', description: `${gameDraft.length} games in the library`, icon: GamesIcon },
+                  { key: 'hero' as const, title: 'Edit Hero images', description: `${heroDraft.length} images in the hero slideshow`, icon: ImagePlus },
                   { key: 'setup' as const, title: 'Edit Setup', description: `${setupDraft.items.length} markers on the battle station`, icon: SetupIcon },
                 ].map((item) => {
                   const Icon = item.icon;
@@ -486,7 +496,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateHome, on
             </div>
           ) : (
             <section className={`rounded-2xl border p-4 sm:p-6 ${isDark ? 'border-white/[0.09] bg-[#111]' : 'border-black/[0.08] bg-white'}`}>
-              {activeTab === 'setup' ? <SetupEditor setup={setupDraft} onCommit={(next) => commit('setup', next)} saving={savingSection === 'setup'} onToast={onToast} /> : <GameEditor items={gameDraft} onCommit={(next) => commit('games', next)} saving={savingSection === 'games'} onToast={onToast} />}
+              {activeTab === 'setup' ? (
+                <SetupEditor setup={setupDraft} onCommit={(next) => commit('setup', next)} saving={savingSection === 'setup'} onToast={onToast} />
+              ) : activeTab === 'hero' ? (
+                <HeroEditor items={heroDraft} onCommit={(next) => commit('hero', next)} saving={savingSection === 'hero'} onToast={onToast} />
+              ) : (
+                <GameEditor items={gameDraft} onCommit={(next) => commit('games', next)} saving={savingSection === 'games'} onToast={onToast} />
+              )}
             </section>
           )}
         </main>

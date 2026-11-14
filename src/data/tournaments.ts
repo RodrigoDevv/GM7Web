@@ -1,7 +1,7 @@
-import apexHeroImg from '../assets/images/ps5_apex_hero_1791730950598.jpg';
-import tacticalFpsImg from '../assets/images/ps5_tactical_fps_1791731000845.jpg';
-import heistCityImg from '../assets/images/ps5_city_heist_1791730967151.jpg';
-import soccerEsportsImg from '../assets/images/ps5_esports_soccer_1791731018539.jpg';
+import apexHeroImg from '../assets/images/apex-hero.jpg';
+import tacticalFpsImg from '../assets/images/tactical-fps.jpg';
+import heistCityImg from '../assets/images/city-heist.jpg';
+import soccerEsportsImg from '../assets/images/esports-soccer.jpg';
 
 export type RegistrationStatus = 'Registration Open' | 'Closing Soon' | 'Waitlist';
 

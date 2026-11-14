@@ -3,6 +3,7 @@ import type { GameItem } from '../data/games';
 import type { AvailableTournament, TournamentSeasonStats } from '../data/tournaments';
 import type { SocialVideo } from '../data/socials';
 import type { SetupContent } from '../data/setup';
+import type { HeroSlide } from '../data/hero';
 
 export interface SiteContent {
   games: GameItem[] | null;
@@ -10,6 +11,7 @@ export interface SiteContent {
   tournamentStats: TournamentSeasonStats | null;
   socials: SocialVideo[] | null;
   setup: SetupContent | null;
+  hero: HeroSlide[] | null;
 }
 
 interface ContentContextValue extends SiteContent {
@@ -18,7 +20,7 @@ interface ContentContextValue extends SiteContent {
   refresh: () => Promise<void>;
 }
 
-const EMPTY: SiteContent = { games: null, tournaments: null, tournamentStats: null, socials: null, setup: null };
+const EMPTY: SiteContent = { games: null, tournaments: null, tournamentStats: null, socials: null, setup: null, hero: null };
 
 const ContentContext = createContext<ContentContextValue>({
   ...EMPTY,
@@ -45,6 +47,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         tournamentStats: data.tournamentStats && typeof data.tournamentStats === 'object' ? data.tournamentStats : null,
         socials: Array.isArray(data.socials) ? data.socials : null,
         setup: data.setup && typeof data.setup === 'object' ? data.setup : null,
+        hero: Array.isArray(data.hero) ? data.hero : null,
       });
       setError(null);
     } catch {

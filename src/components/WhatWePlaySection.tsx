@@ -67,7 +67,7 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">
-            What We Play
+            Youtube Series
           </h2>
 
           <p className={`mt-2.5 text-sm sm:text-base leading-relaxed ${
@@ -154,7 +154,7 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
             </button>
           </div>
 
-          {/* Right: Sensei cutout with kinetic title BEHIND it (transparent PNG) */}
+          {/* Right: Sensei cutout with the big title BEHIND it (transparent PNG) */}
           <div
             role="button"
             tabIndex={0}
@@ -171,7 +171,7 @@ export const WhatWePlaySection: React.FC<WhatWePlaySectionProps> = ({ onSeeMore 
             {/* Ambient glow behind the character */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 w-[78%] h-[58%] bg-[#FFBE0D]/25 rounded-full blur-[90px] pointer-events-none" />
 
-            {/* Kinetic title sits BEHIND the character */}
+            {/* Big title sits BEHIND the character */}
             <div className="absolute inset-x-0 top-0 z-0 flex flex-col items-center pt-4 sm:pt-6 pointer-events-none px-3">
               <span className="font-anton uppercase italic leading-[0.85] text-center text-[clamp(3rem,11vw,6.5rem)] tracking-[0.02em] text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
                 What We

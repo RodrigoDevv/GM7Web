@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight } from 'lucide-react';
-import chibiSensei from '../assets/images/Chibi Sensei in a Red Jacket.png';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { defaultHeroSlides } from '../data/hero';
+import { useContent } from '../context/ContentContext';
 import { useTheme } from '../context/ThemeContext';
 import { OptionalThirdPartyFrame } from '../context/PrivacyConsentContext';
 import { KickIcon } from './BrandIcons';
@@ -29,17 +30,11 @@ const formatCompact = (n: number) =>
 interface HeroProps {
   onGetStarted?: () => void;
   onLearnMore?: () => void;
+  onSeeAllGames?: () => void;
   onToast?: (msg: string) => void;
 }
 
-const quotes = [
-  'Grind never stops — welcome to the Dojo.',
-  'Tonight at 5:00 PM UTC: Ranked Apex & community matches on Kick.',
-  'Precision aim, clean comms, zero excuses.',
-  'Grab your Discord role before tonight’s squad queue opens.',
-];
 
-// Custom duotone stat icons
 const FollowersIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none">
     <path
@@ -103,9 +98,11 @@ const TitlesIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' })
   </svg>
 );
 
-export const Hero: React.FC<HeroProps> = ({ onToast }) => {
+export const Hero: React.FC<HeroProps> = ({ onSeeAllGames }) => {
   const { isDark } = useTheme();
-  const [quoteIdx, setQuoteIdx] = useState(0);
+  const { hero } = useContent();
+  const heroSlides = hero && hero.length > 0 ? hero : defaultHeroSlides;
+  const [slide, setSlide] = useState(0);
   const [kick, setKick] = useState<KickLive | null>(null);
 
   // Live Kick data from the server proxy (/api/kick/live), refreshed every minute
@@ -134,102 +131,93 @@ export const Hero: React.FC<HeroProps> = ({ onToast }) => {
     };
   }, []);
 
-  const handleNextQuote = () => {
-    const next = (quoteIdx + 1) % quotes.length;
-    setQuoteIdx(next);
-    onToast?.(`Sensei: "${quotes[next]}"`);
+  const goToSlide = (index: number) => {
+    const total = heroSlides.length;
+    setSlide(((index % total) + total) % total);
   };
+
+  const nextSlide = () => goToSlide(slide + 1);
+  const prevSlide = () => goToSlide(slide - 1);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setSlide((current) => (current + 1) % heroSlides.length);
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, [slide, heroSlides.length]);
+
+  useEffect(() => {
+    if (slide >= heroSlides.length) setSlide(0);
+  }, [slide, heroSlides.length]);
 
   // Show the Kick player unless we positively know the channel is offline.
   // Keeps the stream visible even when the live-status API is unreachable.
   const showPlayer = !kick || kick.isLive;
 
+  const handleBackgroundClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (!onSeeAllGames) return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('a,button,input,textarea,select,iframe,[data-hero-interactive]')) return;
+    onSeeAllGames();
+  };
+
   return (
     <section
       id="hero"
-      className={`relative pt-12 sm:pt-16 lg:pt-20 pb-12 sm:pb-16 lg:pb-0 transition-colors duration-200 border-b overflow-hidden ${
-        isDark
-          ? 'bg-[#080a0d] text-neutral-100 border-neutral-800/80'
-          : 'bg-white text-neutral-900 border-neutral-200'
-      }`}
+      onClick={handleBackgroundClick}
+      className="relative isolate cursor-pointer overflow-hidden border-b border-neutral-800/70 bg-[#0a0a0c] text-white"
     >
-      {/* Dynamic Ambient Color Backdrops & Shadows */}
-      <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
-        {/* Vibrant Gold Ambient Lighting */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-b from-[#FFBE0D]/18 via-orange-500/12 to-transparent rounded-full blur-[130px]" />
-        <div className="absolute top-1/3 right-1/4 w-[450px] h-[300px] bg-amber-500/10 rounded-full blur-[140px]" />
-        <div className="absolute -bottom-10 left-1/4 w-[500px] h-[250px] bg-[#FFBE0D]/10 rounded-full blur-[120px]" />
-
-        {/* Full-Width "SNNCEI" Backdrop Text */}
-        <span
-          aria-hidden="true"
-          className={`absolute inset-x-0 top-[45%] -translate-y-1/2 text-center select-none pointer-events-none whitespace-nowrap font-poster leading-none tracking-[0.02em] text-[34vw] bg-gradient-to-b bg-clip-text text-transparent ${
-            isDark
-              ? 'from-[#FFBE0D]/40 via-[#FFBE0D]/16 to-[#FFBE0D]/0 drop-shadow-[0_0_60px_rgba(255,190,13,0.25)]'
-              : 'from-[#8C6500]/28 via-[#8C6500]/13 to-[#8C6500]/0'
-          }`}
-        >
-          SNNSEI
-        </span>
+      {/* FULL-BLEED IMAGE SLIDER BACKDROP */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 select-none overflow-hidden">
+        {heroSlides.map((item, i) => (
+          <img
+            key={item.id}
+            src={item.src}
+            alt=""
+            loading={i === 0 ? 'eager' : 'lazy'}
+            decoding="async"
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-out ${
+              slide === i ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        ))}
       </div>
 
-      <div className="relative z-10 max-w-7xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-8 lg:gap-12 items-stretch">
-          
-          {/* LEFT: Creator Profile & Story */}
-          <div className="flex flex-col justify-center order-2 lg:order-1 relative z-10">
-            
-            <div className="mb-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight bg-gradient-to-br bg-clip-text text-transparent drop-shadow-sm ${
-                  isDark ? 'from-white via-neutral-100 to-neutral-400' : 'from-neutral-950 via-neutral-800 to-neutral-500'
-                }`}>
-                  Hatim Naji
-                </h1>
-                <span className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold border transition-all ${
-                  isDark
-                    ? 'bg-[#FFBE0D]/15 text-[#FFBE0D] border-[#FFBE0D]/40 shadow-[0_0_15px_rgba(255,190,13,0.25)]'
-                    : 'bg-orange-100/90 text-orange-900 border-orange-300 shadow-sm'
-                }`}>
-                  @Snnsei
-                </span>
-              </div>
-              <p className={`text-sm sm:text-base leading-relaxed mt-3.5 ${
-                isDark ? 'text-neutral-300' : 'text-neutral-700'
-              }`}>
-                Founder of GM7, known as <span className={`font-bold drop-shadow-[0_0_12px_rgba(255,190,13,0.3)] ${isDark ? 'text-[#FFBE0D]' : 'text-[#8C6500]'}`}>Snnsei</span>. Competitive FPS streaming, community lobbies, and tactical showdowns.
-              </p>
+      <div className="relative z-10 mx-auto max-w-7xl 2xl:max-w-[90rem] px-16 sm:px-20 lg:px-24">
+        <div className="grid min-h-[560px] grid-cols-1 items-center gap-10 py-10 pb-20 sm:min-h-[620px] lg:min-h-[660px] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.9fr)] lg:gap-12 lg:py-14 lg:pb-16">
 
-              
+          {/* LEFT: Creator identity */}
+          <div className="order-1 flex flex-col justify-center">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-4xl font-black leading-[0.95] tracking-tight text-white drop-shadow-[0_6px_24px_rgba(60,20,40,0.55)] sm:text-5xl lg:text-6xl">
+                Hatim NAJI
+              </h1>
+              <span className="rounded-lg border border-[#FFBE0D]/40 bg-black/30 px-2.5 py-1 text-[11px] font-mono font-bold text-[#FFBE0D] backdrop-blur-sm">
+                @Snnsei
+              </span>
             </div>
 
-          </div>
-
-          {/* CENTER: Snnsei AI Cinematic Hero Artwork with Deep Backdrop Text */}
-          <div className="flex flex-col items-center justify-center lg:justify-end order-1 lg:order-2 relative">
-            {/* Luminous Colored Halo Backlight */}
-            <div className="absolute w-72 h-72 sm:w-80 sm:h-80 bg-gradient-to-tr from-[#FFBE0D]/30 via-orange-500/20 to-amber-400/10 rounded-full blur-[80px] pointer-events-none" />
-
-            <div
-              onClick={handleNextQuote}
-              className="relative group cursor-pointer flex flex-col items-center z-10 w-full"
-            >
-              {/* AI CINEMATIC SNNSEI HERO PORTRAIT */}
-              <img
-                src={chibiSensei}
-                alt="Snnsei (Hatim Naji) — GM7 competitive FPS streamer on Kick"
-                loading="eager"
-                decoding="async"
-                fetchPriority="high"
-                className="relative z-10 w-full max-w-[360px] sm:max-w-[440px] lg:max-w-[500px] h-auto object-cover max-h-[520px] sm:max-h-[600px] lg:max-h-[660px] [mask-image:linear-gradient(to_bottom,#000_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_70%,transparent_100%)] lg:[mask-image:none] lg:[-webkit-mask-image:none] transition-transform duration-500 group-hover:scale-104"
+            <div className="relative mt-4 max-w-md">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -inset-8 z-0 rounded-full bg-black/80 blur-[80px]"
               />
+              <p className="relative z-10 text-sm leading-relaxed text-white/90 drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)] sm:text-base">
+                Founder of GM7, known as{' '}
+                <span className="font-bold text-[#FFBE0D] drop-shadow-[0_0_12px_rgba(255,190,13,0.3)]">
+                  Snnsei
+                </span>
+                . Competitive FPS streaming, community lobbies, and tactical showdowns.
+              </p>
             </div>
-          </div>
 
+            
+          </div>
           {/* RIGHT: Authentic Kick Broadcast Card with Green Glow & Deep Shadows */}
-          <div className="flex flex-col justify-center order-3 relative z-10">
+          <div className="order-2 flex w-full justify-center lg:justify-end">
             <div
-              className={`rounded-2xl border p-5 sm:p-6 transition-all duration-300 relative overflow-hidden ${
+              data-hero-interactive
+              className={`w-full max-w-[340px] rounded-2xl border p-5 sm:p-6 transition-all duration-300 relative overflow-hidden ${
                 isDark
                   ? 'bg-neutral-900/80 border-[#53FC18]/35 shadow-[0_20px_60px_-15px_rgba(83,252,24,0.22)] hover:shadow-[0_25px_70px_-10px_rgba(83,252,24,0.32)] hover:border-[#53FC18]/60'
                   : 'bg-white border-green-400 shadow-xl shadow-green-500/10 hover:shadow-2xl hover:shadow-green-500/20'
@@ -368,11 +356,11 @@ export const Hero: React.FC<HeroProps> = ({ onToast }) => {
 
               {/* Primary Call to Action Button with Green Glow & Deep Shadow */}
               <a
-              href={KICK_CHANNEL_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-3.5 px-4 rounded-xl font-black text-xs uppercase tracking-wider bg-[#53FC18] hover:bg-[#46D814] text-black flex items-center justify-center gap-2 transition-all duration-200 shadow-[0_8px_30px_rgba(83,252,24,0.45)] hover:shadow-[0_12px_40px_rgba(83,252,24,0.65)] hover:scale-[1.02] active:scale-98"
-            >
+                href={KICK_CHANNEL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3.5 px-4 rounded-xl font-black text-xs uppercase tracking-wider bg-[#53FC18] hover:bg-[#46D814] text-black flex items-center justify-center gap-2 transition-all duration-200 shadow-[0_8px_30px_rgba(83,252,24,0.45)] hover:shadow-[0_12px_40px_rgba(83,252,24,0.65)] hover:scale-[1.02] active:scale-[0.98]"
+              >
                 <KickIcon className="w-4 h-4" />
                 <span>{kick?.isLive ? 'Watch Live on Kick' : 'Watch on Kick'}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -382,6 +370,41 @@ export const Hero: React.FC<HeroProps> = ({ onToast }) => {
 
         </div>
       </div>
+
+      {/* Slider arrows */}
+      <button
+        type="button"
+        onClick={prevSlide}
+        aria-label="Previous hero image"
+        className="absolute left-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/35 text-white/90 backdrop-blur-md transition hover:bg-black/55 hover:text-white active:scale-95 sm:left-6 sm:h-11 sm:w-11"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+      <button
+        type="button"
+        onClick={nextSlide}
+        aria-label="Next hero image"
+        className="absolute right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/35 text-white/90 backdrop-blur-md transition hover:bg-black/55 hover:text-white active:scale-95 sm:right-6 sm:h-11 sm:w-11"
+      >
+        <ChevronRight className="h-5 w-5" />
+      </button>
+
+      {/* Slider dots */}
+      <div className="absolute inset-x-0 bottom-5 z-20 flex items-center justify-center gap-2">
+        {heroSlides.map((item, i) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => goToSlide(i)}
+            aria-label={`Go to hero image ${i + 1}`}
+            aria-current={slide === i}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              slide === i ? 'w-8 bg-white' : 'w-3 bg-white/40 hover:bg-white/65'
+            }`}
+          />
+        ))}
+      </div>
+      
     </section>
   );
 };

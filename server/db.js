@@ -5,11 +5,7 @@ import { getTursoClient, initDatabase } from './turso.js';
 import { DATA_DIR } from './data-dir.js';
 
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
-
-// ---------------------------------------------------------------------------
 // Local JSON store fallback (used if TURSO_DATABASE_URL is not configured).
-// ---------------------------------------------------------------------------
-
 async function readUsers() {
   try {
     const raw = await fsp.readFile(USERS_FILE, 'utf8');
@@ -84,11 +80,7 @@ function rowToUser(row) {
     avatar: row.avatar ? String(row.avatar) : null,
   };
 }
-
-// ---------------------------------------------------------------------------
 // Exported user operations (Turso with fallback to JSON)
-// ---------------------------------------------------------------------------
-
 export async function getUserById(id) {
   const turso = await ensureTursoReady();
   if (turso) {

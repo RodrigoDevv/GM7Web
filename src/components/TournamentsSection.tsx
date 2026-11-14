@@ -24,11 +24,11 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
-import apexHeroImg from '../assets/images/ps5_apex_hero_1791730950598.jpg';
-import tacticalFpsImg from '../assets/images/ps5_tactical_fps_1791731000845.jpg';
-import heistCityImg from '../assets/images/ps5_city_heist_1791730967151.jpg';
-import soulsEldenImg from '../assets/images/ps5_souls_elden_1791730984139.jpg';
-import soccerEsportsImg from '../assets/images/ps5_esports_soccer_1791731018539.jpg';
+import apexHeroImg from '../assets/images/apex-hero.jpg';
+import tacticalFpsImg from '../assets/images/tactical-fps.jpg';
+import heistCityImg from '../assets/images/city-heist.jpg';
+import soulsEldenImg from '../assets/images/souls-elden.jpg';
+import soccerEsportsImg from '../assets/images/esports-soccer.jpg';
 import kickBgImg from '../assets/images/discord.jpg';
 import { KickIcon } from './BrandIcons';
 
@@ -435,9 +435,7 @@ export const TournamentsSection: React.FC<TournamentsSectionProps> = ({ onToast 
           </div>
         </div>
 
-        {/* ============================================================== */}
         {/* VIEW 1: BOUNTIES ACTIVE VIEW                                  */}
-        {/* ============================================================== */}
         {selectedFilter === 'Bounties' ? (
           <div className="space-y-6">
             <div className={`p-6 sm:p-8 rounded-3xl border transition-all ${
@@ -521,9 +519,7 @@ export const TournamentsSection: React.FC<TournamentsSectionProps> = ({ onToast 
             </div>
           </div>
         ) : (
-          /* ============================================================== */
           /* VIEW 2: MASTER FEATURED THEATER + VIRAL CLIPS GALLERY          */
-          /* ============================================================== */
           <div className="space-y-8">
             
             {/* FEATURED HERO PLAYER CARD (Designer Craft) */}
@@ -749,9 +745,7 @@ export const TournamentsSection: React.FC<TournamentsSectionProps> = ({ onToast 
           </div>
         )}
 
-        {/* ============================================================== */}
         {/* THEATER MODE FULLSCREEN MODAL                                  */}
-        {/* ============================================================== */}
         {modalClip && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in"

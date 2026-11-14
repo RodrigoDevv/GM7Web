@@ -4,6 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import type { Page } from '../types/navigation';
 import { DiscordIcon, KickIcon, InstagramIcon } from './BrandIcons';
+import logoImg from '../assets/images/logo.png';
 
 interface NavbarProps {
   currentPage?: Page;
@@ -94,7 +95,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'home', onNavigate
     },
     {
       name: 'Instagram',
-      href: 'https://instagram.com',
+      href: 'https://www.instagram.com/snnseii/',
       icon: InstagramIcon,
     },
     {
@@ -123,27 +124,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage = 'home', onNavigate
           aria-label="GM7 — l'Gamers Lmla7 home"
           className="group flex shrink-0 items-center gap-2 cursor-pointer select-none"
         >
-          <span className="flex flex-col justify-center leading-none">
-            <span className="flex items-center gap-0.5 leading-none">
-              <span
-                className={`font-display text-[22px] font-black leading-none tracking-tight transition-colors ${
-                  isDark ? 'text-white' : 'text-neutral-950'
-                }`}
-              >
-                GM
-              </span>
-              <span className="bg-gradient-to-br from-[#FFD966] via-[#FFBE0D] to-[#D99A00] bg-clip-text font-display text-[22px] font-black leading-none tracking-tight text-transparent transition-transform duration-300 ease-out group-hover:scale-110">
-                7
-              </span>
-            </span>
+          <span
+            className={`flex items-center justify-center rounded-xl transition-colors duration-300 ${
+              isDark ? 'bg-transparent' : 'bg-neutral-900 px-2 py-1.5 ring-1 ring-black/10'
+            }`}
+          >
             <span
-              className={`mt-1 hidden text-[8px] font-bold uppercase leading-none tracking-[0.28em] transition-colors sm:block ${
-                isDark
-                  ? 'text-neutral-500 group-hover:text-[#FFBE0D]'
-                  : 'text-neutral-400 group-hover:text-[#8C6500]'
-              }`}
+              className="relative block h-8 sm:h-9 overflow-hidden aspect-[234/107]"
+              aria-hidden="true"
             >
-              Gamers Lmla7
+              <img src={logoImg} alt="" width={300} height={115} className="absolute left-0 top-0 h-full w-auto max-w-none object-contain transition-transform duration-200 group-hover:scale-105"/>
             </span>
           </span>
         </a>

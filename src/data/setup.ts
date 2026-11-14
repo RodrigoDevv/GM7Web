@@ -23,13 +23,13 @@ import {
 } from 'lucide-react';
 
 import battlestationImg from '../assets/images/Setup.jpeg';
-import pcRigImg from '../assets/images/setup_pc_rig_1792242100666.jpg';
-import monitorImg from '../assets/images/setup_monitor_screen_1792242115384.jpg';
-import keyboardImg from '../assets/images/setup_keyboard_compact_1792241648774.jpg';
-import mouseImg from '../assets/images/setup_mouse_rgb_1792241618438.jpg';
-import controllerImg from '../assets/images/ps5_esports_soccer_1791731018539.jpg';
-import micImg from '../assets/images/setup_microphone_1792242128908.jpg';
-import mousepadImg from '../assets/images/setup_mousepad_mat_1792241699048.jpg';
+import pcRigImg from '../assets/images/setup-pc-rig.jpg';
+import monitorImg from '../assets/images/setup-monitor.jpg';
+import keyboardImg from '../assets/images/setup-keyboard.jpg';
+import mouseImg from '../assets/images/setup-mouse.jpg';
+import controllerImg from '../assets/images/esports-soccer.jpg';
+import micImg from '../assets/images/setup-microphone.jpg';
+import mousepadImg from '../assets/images/setup-mousepad.jpg';
 
 export interface SetupHotspot {
   x: number;

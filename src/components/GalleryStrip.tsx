@@ -2,18 +2,18 @@ import React from 'react';
 import { Camera } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
-import eventStageImg from '../assets/images/community_event_stage_1791557420746.jpg';
-import trophyImg from '../assets/images/sensei_tournament_trophy_1792363736711.jpg';
-import meetupImg from '../assets/images/sensei_community_meetup_1792363736995.jpg';
-import cinematicImg from '../assets/images/sensei_cinematic_hero_1792265647557.jpg';
-import portraitImg from '../assets/images/hero_protagonist_portrait_1792266030682.jpg';
-import keyboardImg from '../assets/images/setup_keyboard_full_1792241681896.jpg';
-import mouseImg from '../assets/images/setup_mouse_amber_1792241663282.jpg';
-import headsetImg from '../assets/images/setup_headset_white_1792241634540.jpg';
-import ambientImg from '../assets/images/showcase_project_ambient_1791557391148.jpg';
-import canvasImg from '../assets/images/showcase_project_ai_canvas_1791557402342.jpg';
-import ecoImg from '../assets/images/showcase_project_eco_hardware_1791557411923.jpg';
-import apexImg from '../assets/images/ps5_apex_hero_1791730950598.jpg';
+import eventStageImg from '../assets/images/community-stage.jpg';
+import trophyImg from '../assets/images/sensei-trophy.jpg';
+import meetupImg from '../assets/images/sensei-community.jpg';
+import cinematicImg from '../assets/images/sensei-hero.jpg';
+import portraitImg from '../assets/images/hero-portrait.jpg';
+import keyboardImg from '../assets/images/setup-keyboard-full.jpg';
+import mouseImg from '../assets/images/setup-mouse-amber.jpg';
+import headsetImg from '../assets/images/setup-headset-white.jpg';
+import ambientImg from '../assets/images/showcase-ambient.jpg';
+import canvasImg from '../assets/images/showcase-canvas.jpg';
+import ecoImg from '../assets/images/showcase-hardware.jpg';
+import apexImg from '../assets/images/apex-hero.jpg';
 
 const galleryItems = [
   { src: eventStageImg, label: 'Community Nights', meta: 'Live stage events' },

@@ -22,8 +22,8 @@ import { initSmoothScroll, smoothScrollTo, smoothScrollToTop } from './lib/smoot
 import type { Page } from './types/navigation';
 import { CheckCircle2, ArrowUp, ArrowRight } from 'lucide-react';
 
-import senseiPortraitImg from './assets/images/sensei_portrait_studio_1792363735846.jpg';
-import aboutTeaserBgImg from './assets/images/sensei_cinematic_hero_1792265647557.jpg';
+import senseiPortraitImg from './assets/images/sensei-portrait.jpg';
+import aboutTeaserBgImg from './assets/images/sensei-hero.jpg';
 
 const BASE_PATH = import.meta.env.BASE_URL.replace(/\/+$/, '');
 const ABOUT_PATH = `${BASE_PATH}/about`;
@@ -308,9 +308,6 @@ function AppContent() {
       {/* Main Content Router */}
       <main className="flex-1 flex flex-col">
         {currentPage === 'about' ? (
-          /* ============================================================== */
-          /* INDEPENDENT ABOUT PAGE                                         */
-          /* ============================================================== */
           <Reveal>
             <AboutPage
               onNavigateHome={(target) => navigateTo('home', target)}
@@ -318,9 +315,6 @@ function AppContent() {
             />
           </Reveal>
         ) : currentPage === 'socials' ? (
-          /* ============================================================== */
-          /* INDEPENDENT SOCIALS PAGE                                       */
-          /* ============================================================== */
           <Reveal>
             <SocialsPage
               onNavigateHome={(target) => navigateTo('home', target)}
@@ -328,9 +322,6 @@ function AppContent() {
             />
           </Reveal>
         ) : currentPage === 'tournaments' ? (
-          /* ============================================================== */
-          /* INDEPENDENT TOURNAMENTS PAGE                                   */
-          /* ============================================================== */
           <Reveal>
             <TournamentPage
               onNavigateHome={(target) => navigateTo('home', target)}
@@ -338,9 +329,6 @@ function AppContent() {
             />
           </Reveal>
         ) : currentPage === 'games' ? (
-          /* ============================================================== */
-          /* INDEPENDENT GAMES LIBRARY PAGE                                 */
-          /* ============================================================== */
           <Reveal>
             <GamesPage
               onNavigateHome={(target) => navigateTo('home', target)}
@@ -348,9 +336,6 @@ function AppContent() {
             />
           </Reveal>
         ) : currentPage === 'dashboard' ? (
-          /* ============================================================== */
-          /* ADMIN CONTENT DASHBOARD                                        */
-          /* ============================================================== */
           <DashboardPage
             onNavigateHome={(target) => navigateTo('home', target)}
             onToast={showToast}
@@ -358,13 +343,10 @@ function AppContent() {
         ) : currentPage === 'legal' ? (
           <LegalPage document={(window.location.pathname.split('/').filter(Boolean).at(-1) || 'privacy') as 'privacy' | 'terms' | 'dmca' | 'cookies'} />
         ) : (
-          /* ============================================================== */
-          /* HOME STREAM HUB EXPERIENCE                                     */
-          /* ============================================================== */
           <>
             {/* Hero Section */}
             <Reveal>
-              <Hero onToast={showToast} />
+              <Hero onToast={showToast} onSeeAllGames={() => navigateTo('games')} />
             </Reveal>
 
 

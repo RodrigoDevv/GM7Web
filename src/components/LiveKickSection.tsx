@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { OptionalThirdPartyFrame } from '../context/PrivacyConsentContext';
-import senseiImage from '../assets/images/Chibi Sensei in a Red Jacket.png';
+import senseiImage from '../assets/images/chibi-sensei.png';
 import { KickIcon } from './BrandIcons';
 
 interface LiveKickSectionProps {

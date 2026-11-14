@@ -146,10 +146,9 @@ export default defineConfig(({mode}) => {
         '/api': 'http://localhost:3001',
         '/auth': 'http://localhost:3001',
       },
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modify—file watching is disabled to prevent flickering during agent edits.
+      // Set DISABLE_HMR=true to turn off hot reload (useful on low-powered hosts).
       hmr: process.env.DISABLE_HMR !== 'true',
-      // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
+      // Skip file watching too when HMR is off.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
   };

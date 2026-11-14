@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
 import { deleteUserById, getUserById, listDiscordUsers, upsertDiscordUser, toPublicUser } from './db.js';
-import { getContent, saveGames, saveSetup, saveTournamentStats, saveTournaments, saveVideos } from './content.js';
+import { getContent, saveGames, saveHero, saveSetup, saveTournamentStats, saveTournaments, saveVideos } from './content.js';
 import { getAnalyticsSummary, recordPageView, recordVisit } from './analytics.js';
 import { initDatabase, isTursoConfigured } from './turso.js';
 
@@ -66,9 +66,7 @@ function sanitizeAuthReturnPath(value) {
 const ADMIN_LOGIN_WINDOW_MS = 15 * 60 * 1000; // 15-minute lockout window
 const ADMIN_LOGIN_MAX_FAILURES = 5; // Max 5 bad attempts before lockout
 const adminLoginAttempts = new Map(); // IP -> { count, lockedUntil, lastAttempt }
-
-// --- cookies ---------------------------------------------------------------
-
+// cookies
 function parseCookies(req) {
   const header = req.headers.cookie;
   const out = {};
@@ -90,9 +88,7 @@ function serializeCookie(name, value, { maxAge, httpOnly = false, secure = false
   if (secure) parts.push('Secure');
   return parts.join('; ');
 }
-
-// --- session (HMAC-signed cookie) ------------------------------------------
-
+// session (HMAC-signed cookie)
 function signSession(userId) {
   const payload = Buffer.from(
     JSON.stringify({ uid: userId, exp: Date.now() + SESSION_TTL_MS }),
@@ -120,9 +116,7 @@ function readSessionUserId(req) {
     return null;
   }
 }
-
-// --- admin session & security ---------------------------------------------
-
+// admin session & security
 function getClientIp(req) {
   const forwarded = req.headers['x-forwarded-for'];
   if (typeof forwarded === 'string' && forwarded.trim()) {
@@ -204,9 +198,7 @@ function requireAdmin(req, res, next) {
   if (isAdminRequest(req)) return next();
   res.status(401).json({ error: 'Admin login required' });
 }
-
-// --- helpers ---------------------------------------------------------------
-
+// helpers
 const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
 function requireDiscordConfig(res) {
@@ -214,9 +206,7 @@ function requireDiscordConfig(res) {
   res.redirect(`${APP_URL}/?auth=config`);
   return false;
 }
-
-// --- app -------------------------------------------------------------------
-
+// app
 const app = express();
 
 // JSON body parsing for the admin dashboard + content APIs.
@@ -311,9 +301,7 @@ app.get(
     res.redirect(destination.toString());
   }),
 );
-
-// --- Kick live status (cached proxy) ---------------------------------------
-
+// Kick live status (cached proxy)
 const KICK_CHANNEL_SLUG = process.env.KICK_CHANNEL_SLUG || 'snnsei';
 const KICK_CHANNEL_URL = `https://kick.com/api/v2/channels/${KICK_CHANNEL_SLUG}`;
 const KICK_CACHE_TTL_MS = 30_000;
@@ -1012,9 +1000,7 @@ app.get(
     res.send(buffer);
   }),
 );
-
-// --- admin auth ------------------------------------------------------------
-
+// admin auth
 app.get('/api/admin/session', (req, res) => {
   res.json({
     authenticated: isAdminRequest(req),
@@ -1088,9 +1074,7 @@ app.get('/api/admin/discord-users', requireAdmin, asyncHandler(async (_req, res)
   const users = await listDiscordUsers();
   res.json({ users: users.map(toPublicUser) });
 }));
-
-// --- editable site content -------------------------------------------------
-
+// editable site content
 // Public read. The browser falls back to bundled defaults when a section is null.
 app.get(
   '/api/content',
@@ -1112,6 +1096,16 @@ app.put(
     const games = readSectionBody(req, 'games');
     if (!games) return res.status(400).json({ error: 'games must be an array' });
     res.json({ games: await saveGames(games) });
+  }),
+);
+
+app.put(
+  '/api/content/hero',
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    const hero = readSectionBody(req, 'hero');
+    if (!hero) return res.status(400).json({ error: 'hero must be an array' });
+    res.json({ hero: await saveHero(hero) });
   }),
 );
 

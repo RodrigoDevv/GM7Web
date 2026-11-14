@@ -1,6 +1,0 @@
-{
-  "name": "Kinetic Community",
-  "description": "A modern, premium community platform for creators, developers, designers, and innovators to connect, share knowledge, and build together.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
